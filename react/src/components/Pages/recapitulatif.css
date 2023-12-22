@@ -1,0 +1,30 @@
+#container{
+    position:absolute;
+    left:30%;
+    top:20%;
+}
+
+#recap_tableau{
+    background-color: rgba(182, 195, 201, 1);
+    border-radius: 10px;
+    border:2px solid #000000;
+
+}
+
+#recap_graphe{
+    position:absolute;
+    left:115%;
+    top:8%;
+    background-color: rgba(182, 195, 201, 1);
+    border-radius: 10px;
+    border:2px solid #000000;
+    padding:40px;
+}
+#recap_camembert{
+    position:absolute;
+    left:55%;
+    top:102%;
+    background-color: rgba(182, 195, 201, 1);
+    border-radius: 10px;
+    border:2px solid #000000;
+}

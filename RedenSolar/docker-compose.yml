@@ -1,0 +1,173 @@
+version: '3.4'
+
+services:
+
+  db:
+    restart: always
+    image: postgres:14
+    container_name: redensolar-db
+    environment:
+      - TZ='Europe/Paris'
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      app_net2:
+        ipv4_address: 172.25.0.2
+
+
+  celery:
+      build:
+        context: .
+      command : celery -A RedenSolar worker -l INFO
+      volumes:
+          - .:/usr/src/app/
+      environment:
+          - DEBUG=1
+          - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
+          - CELERY_BROKER=redis://redis:6379/0
+          - CELERY_BACKEND=redis://redis:6379/0
+      depends_on:
+          - web
+          - redis
+          - db
+      networks:
+        app_net2 : 
+          ipv4_address : 172.25.0.5     
+
+  react:
+    build:
+      context: ./reden-solar_frontend/
+      dockerfile: Dockerfile.node
+    container_name: react-container
+    ports:
+      - "3000:3000"
+    volumes:
+    - .:/usr/src/app/
+    depends_on:
+      - web
+      - db
+    networks:
+      app_net2 : 
+        ipv4_address : 172.25.0.9
+        
+  beat:
+    restart: always
+    build:
+      context: .
+    command: celery --app RedenSolar beat -l INFO
+    volumes:
+      - .:/usr/app
+    depends_on:
+      - web
+      - redis
+    networks:
+      app_net2 : 
+        ipv4_address : 172.25.0.4    
+
+
+  web:
+    image: redensolar
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    command: >
+      bash -c "python manage.py makemigrations 
+      && python manage.py migrate 
+      && python manage.py import_model_calcul
+      && python manage.py import_defaut
+      && python manage.py import_ensoleillement
+      && python manage.py import_type_dispo
+      && python manage.py import_matrice_defaut
+      && python manage.py import_reenclenchement
+      && python manage.py import_sous_categorie_defaut
+      && python manage.py import_central
+      && python manage.py pushHeureFonctionnementAlbioma
+      && python manage.py PushOnduleurs
+      && python manage.py JoursOuvrees
+    #&& python manage.py runserver 0.0.0.0:8000"
+
+     
+      
+#&& python manage.py createsuperuser --noinput --username RedenSolar --email admin@example.com
+    
+    #bash -c "python manage.py makemigrations 
+    #&& python manage.py migrate 
+    #&& python manage.py createsuperuser --noinput --username RedenSolar --email admin@example.com
+
+    environment:
+      - DJANGO_SUPERUSER_PASSWORD=reden12345
+    volumes:
+      - .:/usr/src/app/
+      - .:/C:/Users/Florent/WebEnvironment/RedenSolar/app/Data
+    ports:
+      - "8050:8000"
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
+    networks:
+      app_net2 : 
+        ipv4_address : 172.25.0.3
+
+
+
+  pgadmin:  
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=g.giocosa@reden.solar
+      - PGADMIN_DEFAULT_PASSWORD=reden12345
+      - TZ='Europe/Paris'
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      app_net2 : 
+        ipv4_address : 172.25.0.7
+
+
+  redis:
+      image: 'redis:alpine'
+      environment:
+        - TZ='Europe/Paris'
+      networks:
+        app_net2 : 
+          ipv4_address : 172.25.0.6
+
+
+  flower:
+    container_name: flower
+    build:
+      context: .
+    command: celery -A RedenSolar flower --port=5555
+    ports:
+      - '5555:5555'
+    environment :
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - celery
+      - redis
+    networks:
+      app_net2 : 
+        ipv4_address : 172.25.0.8
+
+
+volumes:
+  postgres_data:
+
+
+
+networks:
+  app_net2:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.25.0.0/24"
+          gateway: 172.25.0.1

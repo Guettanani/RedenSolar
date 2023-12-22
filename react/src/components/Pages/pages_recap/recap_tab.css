@@ -1,0 +1,26 @@
+#container_tab_recap{
+    position:absolute;
+    top:12.4%;
+    left:24.5%;
+    width:80%;
+    height:94.5%;
+}
+
+#tabrecap{
+    border-collapse: collapse;
+    width:85%;
+    height:94.5%;
+    
+}
+
+#cellrecap{
+    border: 1px solid #000000;
+    padding:9.5px;
+    background-color: rgba(182, 195, 201, 1);
+}
+
+#cellrecap_2{
+    border: 1px solid #000000;
+    padding:9.5px;
+    background-color: rgba(106, 138, 155, 1);
+}

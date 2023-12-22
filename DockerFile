@@ -1,0 +1,46 @@
+#######################
+# DEVELOPMENT BUILDER #
+#######################
+
+FROM python:3.10.8-slim-bullseye as builder
+
+WORKDIR /usr/src/app
+
+# install psycopg2 deps and build deps
+#
+RUN apt-get update \
+    # for psycopg2 and others
+    && apt-get install -y gcc libpq-dev python3-dev
+
+RUN pip install --upgrade pip
+
+COPY ./requirements.txt /usr/src/app/
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+
+
+###############
+# DEVELOPMENT #
+###############
+
+FROM python:3.10.8-slim-bullseye
+
+WORKDIR /app
+
+# install dependencies required for runtime
+#   libpq5 is for postgres
+#   netcat is for nc used in entrypoint script to await startup of other containers
+#   procps is used from restarting workers in dev
+RUN apt-get update \
+    && apt-get install -y libpq5 netcat procps
+
+# copy built python wheels from builder
+# copy app code for DEV mode...
+COPY --from=builder /usr/src/app/wheels /wheels
+RUN pip install --upgrade pip && pip install --no-cache /wheels/*
+
+COPY . /app
+
+ENV PYTHONUNBUFFERED 1
+RUN chmod +x /app/entrypoint.sh
+# run entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]
