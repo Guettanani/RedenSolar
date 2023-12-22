@@ -37,7 +37,7 @@ def getDataCate(request):
         selected_nom = request.GET.get('selected_nom', None)
         date_debut=request.GET.get('date_debut', None)
         date_fin=request.GET.get('date_fin', None)
-        print("selected_nom: ",selected_nom)
+       
         filtered_data=[]
         if selected_nom != None:
             if date_debut!=None and date_fin!=None:
@@ -51,24 +51,16 @@ def getDataCate(request):
                     for obj in centralename
                 ]
 
-                
-
-                centrale_list = [item["idCentrale_id"] for item in data]
-                irradianceList=DonneesCentrale.objects.filter(idCentrale_id__in=centrale_list)
-                irr_dict={item_tri.idCentrale_id: item_tri.irradiance_en_watt_par_surface for item_tri in irradianceList}
-                #print('liste irr: ',irr_dict)
                 autres_donnees = Centrale.objects.filter(idCentrale__in=centrale_list)
                 centrale_dict = {item.idCentrale: item.nomCentrale for item in autres_donnees}
 
                 for item in data:
                     item["nom_centrale"] = centrale_dict.get(item["idCentrale_id"])
-                    #item["irradiance"] = irr_dict.get(item["irradiance_en_watt_par_surface"])
                 filtered_data = [
                     {
                         "idReferenceOnduleur": item["idReferenceOnduleur"],
                         "nomReference": item["nomReference"],
                         "nom_centrale": centrale_dict.get(item["idCentrale_id"]),
-                        #"irradiance": irr_dict.get(item["irradiance_en_watt_par_surface"])
                     }
                     for item in data
                     if centrale_dict.get(item["idCentrale_id"]) == selected_nom
@@ -96,11 +88,15 @@ def getDataCate(request):
                                 if date_debut_obj <= item['temps'] and item['temps'] <= date_fin_obj
                             ]
                         print('list_pui_temps: ', list_pui_tmps)
-
+                        for entry in list_pui_tmps:
+                            # Récupérer la valeur d'irradiance_en_watt_par_surface correspondante
+                            donnee_centrale = DonneesCentrale.objects.filter(temps=entry['temps']).first()
+                            if donnee_centrale:
+                                entry['irradiance_en_watt_par_surface'] = donnee_centrale.irradiance_en_watt_par_surface
                         item_bis["donnees_energie"] = list(list_pui_tmps)
         else:
             pass
-
+        print("filtered_data: ",filtered_data)  
         return JsonResponse(filtered_data, safe=False)
     
 @api_view(['GET'])
@@ -120,7 +116,7 @@ def data_tab(request):
         return JsonResponse(data, safe=False)
     else:
         return Response({'message': 'Méthode non autorisée.'}, status=405)
-    
+
 @api_view(['POST'])
 def ajout_article(request):
     
