@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = 'Import default data from CSV files.'
 
     def handle(self, *args, **kwargs):
-        dftableDonneesCentrale = pd.read_csv('RedenSolar/DataStorage/TABLE DONNEES CENTRALE/tableDonneesCentrale.csv')
+        dftableDonneesCentrale = pd.read_csv('DataStorage/TABLE DONNEES CENTRALE/tableDonneesCentrale.csv')
 
         # Create a list of DonneesCentrale model objects
         DonneesCentrale_objs = []

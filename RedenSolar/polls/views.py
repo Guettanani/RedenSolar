@@ -444,11 +444,11 @@ def calculAlbioma(data_albioma):
             if heureDefaut.constat in ["Découplage", "Curratif", "Défaut Riso Module"]:
                 H0 = (deltaperiodeConvert * PuissanceImpactee) / float(Centrale.objects.filter(idCentrale=heureDefaut.idCentrale_id).first().puissanceInstallee)
                 H0SansFranchiseHeure=(deltaPeriodeSansFranchiseHeure * PuissanceImpactee) / float(Centrale.objects.filter(idCentrale=heureDefaut.idCentrale_id).first().puissanceInstallee)
-            else :
-                H0=0
-
                 if H0 < 0 :
                     H0=0
+            else :
+                H0=0
+                H0SansFranchiseHeure=0
             sum_H0=sum_H0+H0
             sum_H0_Reden=sum_H0_Reden+H0SansFranchiseHeure
 

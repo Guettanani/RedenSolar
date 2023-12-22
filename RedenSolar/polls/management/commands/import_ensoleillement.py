@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         if EnsoleillementParMois.objects.count() <= 0:
-            df_ensoleillement = pd.read_csv("RedenSolar/DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_ensoleillementparmois.csv")
+            df_ensoleillement = pd.read_csv("DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_ensoleillementparmois.csv")
             ensoleillement_objs = [
                 EnsoleillementParMois(
                     mois=row["mois"],

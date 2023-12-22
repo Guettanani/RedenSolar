@@ -26,7 +26,7 @@ class Command(BaseCommand):
         # Votre code ici
        
         if Centrale.objects.count()<=0 : 
-            dfCentrale = pd.read_csv('RedenSolar/DataStorage/SAUVEGARDE TABLE PAR DEFAUT/Centrale.csv', sep=',')
+            dfCentrale = pd.read_csv('DataStorage/SAUVEGARDE TABLE PAR DEFAUT/Centrale.csv', sep=',')
 
             # Create a list of Centrale model objects
             Centrale_objs = []

@@ -8,6 +8,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         if TypeDispo.objects.count() <= 0:
-            df_type_dispo = pd.read_csv("RedenSolar/DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_typedispo.csv")
+            df_type_dispo = pd.read_csv("DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_typedispo.csv")
             type_dispo_objs = [TypeDispo(nom=row["nom"]) for _, row in df_type_dispo.iterrows()]
             TypeDispo.objects.bulk_create(type_dispo_objs)

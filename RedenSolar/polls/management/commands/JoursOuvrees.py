@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         #CREATE DATE AND JOURS OUVRES FOR import
         # Read the existing CSV file
-        df = pd.read_csv("RedenSolar/DataStorage/joursOuvrees.csv")
+        df = pd.read_csv("DataStorage/joursOuvrees.csv")
 
         # Get the last date in the existing data
         last_date = df['Date'].iloc[-1]
@@ -36,8 +36,8 @@ class Command(BaseCommand):
         result = pd.concat([df, newData], ignore_index=True)
 
         # Save the result to a new CSV file
-        result.to_csv('RedenSolar/DataStorage/joursOuvrees.csv', index=False)
-        df = pd.read_csv("RedenSolar/DataStorage/joursOuvrees.csv")
+        result.to_csv("DataStorage/joursOuvrees.csv", index=False)
+        df = pd.read_csv("DataStorage/joursOuvrees.csv")
         DonneesJoursOuvres_objs=[]
 
         for _, row in df.iterrows():

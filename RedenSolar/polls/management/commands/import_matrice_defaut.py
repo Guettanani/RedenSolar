@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         if MatriceDefaut.objects.count() <= 0:
-            df_matrice_defaut = pd.read_csv("RedenSolar/DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_matricedefaut.csv")
+            df_matrice_defaut = pd.read_csv("DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_matricedefaut.csv")
             matrice_defaut_objs = [
                 MatriceDefaut(
                     Imputation=row["Imputation"],

@@ -155,7 +155,7 @@ def formag():
             for _, row in df.iterrows():
                 # Get the dedicated installation name from the CSV row
                 if 'inverter' in df.columns:
-                    timestampTZ=pd.Timestamp(row['timestamp']).tz_localize('Europe/Paris') 
+                    timestampTZ=pd.Timestamp(row['timestamp'])
                     dedicated_Onduleur_name = row['inverter']
                     la_centrale= row['site']
                     
@@ -181,7 +181,6 @@ def formag():
                                     idCentrale=centrale
                                 )
                                 DonneesCentrale_objs.append(donneesCentrale)
-                                print('heure',timestampTZ, 'et ensoleillement ',row['solar_energy'])
                             else:
                                 continue
 
@@ -189,7 +188,6 @@ def formag():
                             previous_timestampTZ = timestampTZ                                              
 
                         else:
-                            print('===========================================================')
                             donneesEnergie2 = Energie(
                                 puissance=None,
                                 QAC=None,

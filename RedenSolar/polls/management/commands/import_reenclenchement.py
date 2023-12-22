@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         if ReenclenchementDecouplage.objects.count() <= 0:
-            df_reenclenchement = pd.read_csv("RedenSolar/DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_reenclenchementdecouplage.csv")
+            df_reenclenchement = pd.read_csv("DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_reenclenchementdecouplage.csv")
             reenclenchement_objs = [
                 ReenclenchementDecouplage(typeReenclenchement=row["typeReenclenchement"]) for _, row in df_reenclenchement.iterrows()
             ]

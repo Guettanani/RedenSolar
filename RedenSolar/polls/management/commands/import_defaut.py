@@ -8,6 +8,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         if Defaut.objects.count() <= 0:
-            df_defaut = pd.read_csv("RedenSolar/DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_defaut.csv")
+            df_defaut = pd.read_csv("DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_defaut.csv")
             defaut_objs = [Defaut(nom=row["nom"]) for _, row in df_defaut.iterrows()]
             Defaut.objects.bulk_create(defaut_objs)
