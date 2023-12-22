@@ -8,7 +8,7 @@ export default function Categories(){
     
   const [selectedRowIndex, setSelectedRowIndex] = useState();
   const [dataToMc, setDataToMc] = useState(null);
-  const[selectionCentrale,newSelectionCentrale] = useState(null);
+  const[selectionCentrale,newSelectionCentrale] = useState('Abattoirs de Langogne');
   const [data, setData] = useState([]);
   const[data_cate, setDataCate]=useState([])
   const [compteur, setCompteur] = useState(0);
@@ -20,6 +20,19 @@ export default function Categories(){
   const [periodSelectorPosition, setPeriodSelectorPosition] = useState({ top: 0, left: 0 });
   const initialSelectionCentrale = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
+  const [valeurDispo, setValeurDispo]= useState(null)
+
+  const cherhcer_dispo = async() =>{
+    const response = await axios.get("http://localhost:8050/getDispo/", {
+                params: {
+                    selected_nom: initialSelectionCentrale.current,
+                    date_debut: startDate,
+                    date_fin: endDate
+                }})
+    setValeurDispo(response)
+
+  }
+  console.log(valeurDispo)
 
   const check_show = () => {
     const allCells = document.querySelectorAll('#tab_cate .tab_h');
@@ -482,7 +495,7 @@ const formatDate = (dateString) => {
             <td id="tab_h" onClick={(e) => click_on_line(e, rowIndex)}>
               {formatDate(data[0].donnees_energie[rowIndex].temps)}
             </td>
-            <td id="tab_h"> {data[0].irradiance}</td>
+            <td id="tab_h"> {data[0].donnees_energie[rowIndex].irradiance_en_watt_par_surface}</td>
   
             {transposedData.map((row, cellIndex) => {
               const value = row && row[rowIndex] ? parseInt(row[rowIndex].puissance) : '';
@@ -523,7 +536,7 @@ const formatDate = (dateString) => {
       <select id='filtre_centrale' onChange={changement_centrale}>
         {data_cate.map((item) =>(<option id="selec_centrale">{item.nomCentrale}</option>))}
       </select>
-
+      <p id="para_dispo">Dispo Albioma: {valeurDispo}</p>
 
       <div id="compteur">
         <p>Seuil: {compteur} W</p>

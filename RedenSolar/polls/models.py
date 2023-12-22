@@ -41,16 +41,7 @@ class Disponibilite(models.Model):
     idDisponibilite=models.AutoField(primary_key=True)
     moisAnnee = models.DateTimeField()
     idTypeDispo = models.ForeignKey(TypeDispo, on_delete=models.CASCADE)
-    @property
-    def mois_annee(self):
-        return self.date_field.strftime('%Y-%m')
-
-    # Add other fields as needed for your application
-    # For example:
-    # other_field = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.mois_annee
+    
 
     Disponibilite=models.DecimalField(max_digits=15, decimal_places=2)
     idCentrale = models.ForeignKey(Centrale, on_delete=models.CASCADE)
