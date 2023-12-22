@@ -50,7 +50,7 @@ def getDataCate(request):
                     {"idReferenceOnduleur": obj.idReferenceOnduleur, "nomReference": obj.nomReference, "idCentrale_id": obj.idCentrale_id}
                     for obj in centralename
                 ]
-
+                centrale_list = [item["idCentrale_id"] for item in data]
                 autres_donnees = Centrale.objects.filter(idCentrale__in=centrale_list)
                 centrale_dict = {item.idCentrale: item.nomCentrale for item in autres_donnees}
 
