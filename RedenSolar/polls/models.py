@@ -48,10 +48,10 @@ class Disponibilite(models.Model):
 
 class ReferenceOnduleur(models.Model):
     idReferenceOnduleur=models.AutoField(primary_key=True)
-    numeroOnduleur=models.IntegerField()
-    nomReference=models.CharField(max_length=50)
-    puissanceNominale = models.DecimalField(max_digits=15, decimal_places=2)
-    idCentrale = models.ForeignKey(Centrale, on_delete=models.CASCADE)
+    numeroOnduleur=models.IntegerField(null=True)
+    nomReference=models.CharField(max_length=50,null=True)
+    puissanceNominale = models.DecimalField(max_digits=15, decimal_places=2,null=True)
+    idCentrale = models.ForeignKey(Centrale, on_delete=models.CASCADE,null=True)
     def __str__(self):
         return self.nomReference
     class Meta:

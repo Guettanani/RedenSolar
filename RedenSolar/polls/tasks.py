@@ -64,8 +64,8 @@ def formag():
 
     # Filtres de date
     
-    today = '2023-12-11'
-    début='2023-12-10'
+    today = '2023-11-11'
+    début='2023-11-10'
 
     hier = datetime.now() - timedelta(days=1)
 

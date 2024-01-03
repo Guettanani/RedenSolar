@@ -1,7 +1,12 @@
 import React from 'react';
 import './recap_tab.css';
 export default function TabRecap() {
+
+    
+
     return(
+        <div>
+
         <div id='container_tab_recap'>
             <table id='tabrecap'>
                 <thead >
@@ -29,13 +34,10 @@ export default function TabRecap() {
                     <tr><td id="cellrecap_2">Disponibilité Brute</td></tr>
                     <tr><td id="cellrecap_2">Disponibilité Reden</td></tr>
                     <tr><td id="cellrecap_2">Disponibilité Contractuelle</td></tr>
-                    <tr><td id="cellrecap_2">onduleur 1</td></tr>
-                    <tr><td id="cellrecap_2">onduleur 2</td></tr>
-                    <tr><td id="cellrecap_2">onduleur 3</td></tr>
-                    <tr><td id="cellrecap_2">onduleur 4</td></tr>
                     
                 </tbody>
             </table>
+        </div>
         </div>
     );
 }

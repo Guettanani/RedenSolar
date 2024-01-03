@@ -25,13 +25,13 @@ function App() {
       <Navbar show={showNav} />
       <div className="main">
         <Routes>
-          <Route path="/" element={<LoginSignup />} />
-          <Route path="/recap_tab" element={<TabRecap/>} />
-          <Route path="/ResetPassword" element={<ResetPassword />} />
-          <Route path="/Settings" element={<Settings />} />
-          <Route path="/recapitulatif" element={<Recap/>}/>
-          <Route path="/categories" element={<Categories/>}/>
-          <Route path="/main_courante" element={<MC/>}/>
+          <Route path="/" element={<LoginSignup />} onClick={() => setShowNav(!showNav)}/>
+          <Route path="/recap_tab" element={<TabRecap/>} onClick={() => setShowNav(!showNav)}/>
+          <Route path="/ResetPassword" element={<ResetPassword />} onClick={() => setShowNav(!showNav)}/>
+          <Route path="/Settings" element={<Settings />} onClick={() => setShowNav(!showNav)}/>
+          <Route path="/recapitulatif" element={<Recap/>} onClick={() => setShowNav(!showNav)}/>
+          <Route path="/categories" element={<Categories/>} onClick={() => setShowNav(!showNav)}/>
+          <Route path="/main_courante" element={<MC/>} onClick={() => setShowNav(!showNav)}/>
         </Routes>
       </div>
     </div> 
