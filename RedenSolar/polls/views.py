@@ -93,11 +93,46 @@ def getDataCate(request):
                             donnee_centrale = DonneesCentrale.objects.filter(temps=entry['temps']).first()
                             if donnee_centrale:
                                 entry['irradiance_en_watt_par_surface'] = donnee_centrale.irradiance_en_watt_par_surface
-                        item_bis["donnees_energie"] = list(list_pui_tmps)
+                    item_bis["donnees_energie"] = list(list_pui_tmps)
         else:
             pass
         print("filtered_data: ",filtered_data)  
         return JsonResponse(filtered_data, safe=False)
+@api_view(['GET'])   
+def affCalcAlbio(request):
+    if request.method == 'GET':
+        centrale_nom = request.GET.get('selected_nom')
+        date_debut = request.GET.get('date_debut')
+
+        try:
+            # Add a default time (midnight) to the date string before parsing
+            if date_debut is not None:
+                formatted_date = datetime.strptime(date_debut + ' 00:00:00', "%Y-%m-%d %H:%M:%S")
+                # Reste du code...
+
+                mois = formatted_date.month
+                annee = formatted_date.year
+
+                # Recherche de la centrale par nomCentrale
+                centrale_obj = Centrale.objects.get(nomCentrale=centrale_nom)
+                centrale_id = centrale_obj.idCentrale
+
+                # Recherche de la disponibilité en fonction de la centrale, du mois et de l'année
+                disponibilite_obj = Disponibilite.objects.get(idCentrale_id=centrale_id, moisAnnee__month=mois, moisAnnee__year=annee)
+                disponibilite_value = disponibilite_obj.Disponibilite
+
+                response_data = {"disponibilite": disponibilite_value}
+                print("response_data: ", response_data)
+                return JsonResponse(response_data)
+            else:
+                pass
+        except Centrale.DoesNotExist:
+            return JsonResponse({"error": f"Aucune centrale trouvée avec le nom '{centrale_nom}'."}, status=404)
+        except Disponibilite.DoesNotExist:
+            return JsonResponse({"error": "Aucune disponibilité trouvée pour la centrale, le mois et l'année spécifiés."}, status=404)
+
+        except ValueError:
+            return JsonResponse({"error": "Format de date invalide."}, status=400)
     
 @api_view(['GET'])
 def data_tab(request):
@@ -157,6 +192,7 @@ def ajout_article(request):
 
         article = MainCourante(constat=iddefaut, dateHeureConstat=formatted_date_str_debut, dateHeureActionCorrective=formatted_date_str_fin, idCentrale_id=centrale_value, actionCorrective=idcommentaires, materielImpacte=idequipementEndommage)
         article.save()
+        
         calculAlbioma(data_albioma)
         return JsonResponse({'message': 'Article ajouté avec succès.'})
         

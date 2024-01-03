@@ -5,62 +5,80 @@ import Calendar from './Calendar';
 
 
 export default function Categories(){
-    
+
+  const today = new Date();
+  const oneWeekAgo = new Date(today);
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);  
   const [selectedRowIndex, setSelectedRowIndex] = useState();
   const [dataToMc, setDataToMc] = useState(null);
   const[selectionCentrale,newSelectionCentrale] = useState('Abattoirs de Langogne');
   const [data, setData] = useState([]);
   const[data_cate, setDataCate]=useState([])
   const [compteur, setCompteur] = useState(0);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(oneWeekAgo.toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(today.toISOString().split('T')[0]);
   const [secondOverlayPosition, setSecondOverlayPosition] = useState({ top: 0, left: 0 });
   const [selectedPeriod, setSelectedPeriod] = useState("1 semaine");
   const [showCalendarOverlay, setShowCalendarOverlay] = useState(false);
   const [periodSelectorPosition, setPeriodSelectorPosition] = useState({ top: 0, left: 0 });
   const initialSelectionCentrale = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
-  const [valeurDispo, setValeurDispo]= useState(null)
+  const [valeurDispo, setValeurDispo]= useState(null);
 
-  const cherhcer_dispo = async() =>{
+const cherhcer_dispo = async () => {
+  try {
     const response = await axios.get("http://localhost:8050/getDispo/", {
-                params: {
-                    selected_nom: initialSelectionCentrale.current,
-                    date_debut: startDate,
-                    date_fin: endDate
-                }})
-    setValeurDispo(response)
-
+      params: {
+        selected_nom: initialSelectionCentrale.current,
+        date_debut: startDate,
+        date_fin: endDate
+      }
+    });
+    setValeurDispo(response.data.disponibilite);
+  } catch (error) {
+    console.error("Error fetching disponibilite:", error);
+    // Handle the error, you might want to set an error state or display an error message
   }
-  console.log(valeurDispo)
+};
 
-  const check_show = () => {
-    const allCells = document.querySelectorAll('#tab_cate .tab_h');
-    const zeroValueCells = document.querySelectorAll('#tab_cate .zero-value');
+  // const check_show = () => {
+  //   const allCells = document.querySelectorAll('#tab_cate .tab_h');
+  //   const zeroValueCells = document.querySelectorAll('#tab_cate .zero-value');
   
-    if (isChecked) {
-      // Afficher uniquement les cellules de la classe "zero-value"
-      allCells.forEach(cell => cell.classList.add('hidden-cell'));
-      zeroValueCells.forEach(cell => cell.classList.remove('hidden-cell'));
-      console.log("oui");
-    } else {
-      // Afficher toutes les cellules
-      allCells.forEach(cell => cell.classList.remove('hidden-cell'));
-      console.log("non");
-    }
-  };
+  //   if (isChecked) {
+  //     // Afficher uniquement les cellules de la classe "zero-value"
+  //     allCells.forEach(cell => cell.classList.add('hidden-cell'));
+  //     zeroValueCells.forEach(cell => cell.classList.remove('hidden-cell'));
+  //     console.log("oui");
+  //   } else {
+  //     // Afficher toutes les cellules
+  //     allCells.forEach(cell => cell.classList.remove('hidden-cell'));
+  //   }
+  // };
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
   };
-  useEffect(()=> {
-    check_show()
-  })
+  // useEffect(()=> {
+  //   check_show()
+  // })
   
-
+  useEffect(() => {
+    remplissage_selec();
+  }, []);
   useEffect(() => {
     initialSelectionCentrale.current = selectionCentrale;
   }, [selectionCentrale]);
+  useEffect(() => {
+    fetchdatacentrale();
+  }, [startDate, endDate]);
+  useEffect(()=> {
+    cherhcer_dispo()
+  })
+  useEffect(() => {
+    fetchdatacentrale();
+  }, [selectionCentrale]);
+  console.log(valeurDispo)
 
 
   const handleDateSelect = (date) => {
@@ -86,14 +104,12 @@ export default function Categories(){
     }
     
   };
-  useEffect(() => {
-    fetchdatacentrale();
-  }, [startDate, endDate]);
+  
 
   const handlePeriodChange = (e) => {
     const selectedValue = e.target.value;
     setSelectedPeriod(selectedValue);
-  
+    console.log(selectedPeriod)
     const periodSelector = document.getElementById("select-period");
     const position = periodSelector.getBoundingClientRect();
     setPeriodSelectorPosition({
@@ -105,6 +121,36 @@ export default function Categories(){
       setShowCalendarOverlay(true);
     } else {
       setShowCalendarOverlay(false);
+    }
+    if (selectedValue === "1 semaine") {
+      const today = new Date();
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      setStartDate(oneWeekAgo.toISOString().split('T')[0]);
+      
+      
+      setEndDate(today.toISOString().split('T')[0]);
+      
+    }
+    else if (selectedValue === "2 semaines") {
+      const today = new Date();
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 14);
+      setStartDate(oneWeekAgo.toISOString().split('T')[0]);
+      console.log("startDate: ",startDate)
+      
+      setEndDate(today.toISOString().split('T')[0]);
+      console.log("endDate: ",endDate)
+    }
+    else if (selectedValue === "1 mois") {
+      const today = new Date();
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 31);
+      setStartDate(oneWeekAgo.toISOString().split('T')[0]);
+      console.log("startDate: ",startDate)
+      
+      setEndDate(today.toISOString().split('T')[0]);
+      console.log("endDate: ",endDate)
     }
   };
 
@@ -137,9 +183,7 @@ try{
 }catch(error){ console.log(error)}
 
 }
-useEffect(() => {
-  remplissage_selec();
-}, []);
+
 
 const formatDate = (dateString) => {
   const options = {
@@ -196,9 +240,7 @@ const formatDate = (dateString) => {
   }
   console.log(data)
 
-  useEffect(() => {
-    fetchdatacentrale();
-  }, [selectionCentrale]);
+  
 
   const ouvrir_overlay_2 = (index) => {
     setSecondOverlayVisible(true);
@@ -462,6 +504,13 @@ const formatDate = (dateString) => {
   const close_calendar = () => {
     setShowCalendarOverlay(false)
     setSelectedPeriod("1 semaine");
+    const today = new Date();
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      setStartDate(oneWeekAgo.toISOString().split('T')[0]);
+      
+      
+      setEndDate(today.toISOString().split('T')[0]);
   }
   const generateTableBody = () => {
     if (!data || !data[0] || !data[0].donnees_energie) {
@@ -537,6 +586,7 @@ const formatDate = (dateString) => {
         {data_cate.map((item) =>(<option id="selec_centrale">{item.nomCentrale}</option>))}
       </select>
       <p id="para_dispo">Dispo Albioma: {valeurDispo}</p>
+
 
       <div id="compteur">
         <p>Seuil: {compteur} W</p>

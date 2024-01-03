@@ -41,8 +41,6 @@ class Disponibilite(models.Model):
     idDisponibilite=models.AutoField(primary_key=True)
     moisAnnee = models.DateTimeField()
     idTypeDispo = models.ForeignKey(TypeDispo, on_delete=models.CASCADE)
-    
-
     Disponibilite=models.DecimalField(max_digits=15, decimal_places=2)
     idCentrale = models.ForeignKey(Centrale, on_delete=models.CASCADE)
     class Meta:
