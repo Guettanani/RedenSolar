@@ -30,7 +30,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 "loris"
 CORS_ALLOWED_ORIGINS = [
-    "https://icamapp.reden.cloud",
+    "https://web.icamapp.reden.cloud",
 ]
 # Application definition
 
