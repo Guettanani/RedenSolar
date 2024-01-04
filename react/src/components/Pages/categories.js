@@ -1,7 +1,8 @@
-import { React, useState, useEffect,useRef} from 'react';
+import {React,useState,useEffect,useRef} from 'react';
 import './categories.css';
 import axios from 'axios';
 import Calendar from './Calendar';
+
 
 
 export default function Categories(){
@@ -66,15 +67,19 @@ const cherhcer_dispo = async () => {
   useEffect(() => {
     remplissage_selec();
   }, []);
+
+
   useEffect(() => {
     initialSelectionCentrale.current = selectionCentrale;
   }, [selectionCentrale]);
+
+
   useEffect(() => {
     fetchdatacentrale();
   }, [startDate, endDate]);
-  useEffect(()=> {
-    cherhcer_dispo()
-  })
+
+
+
   useEffect(() => {
     fetchdatacentrale();
   }, [selectionCentrale]);
@@ -585,9 +590,6 @@ const formatDate = (dateString) => {
       <select id='filtre_centrale' onChange={changement_centrale}>
         {data_cate.map((item) =>(<option id="selec_centrale">{item.nomCentrale}</option>))}
       </select>
-      <p id="para_dispo">Dispo Albioma: {valeurDispo}</p>
-
-
       <div id="compteur">
         <p>Seuil: {compteur} W</p>
         <div id="boutons_compteurs">

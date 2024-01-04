@@ -5,6 +5,28 @@
     width:100%;
     height:91%;
 }
+#div-buttons{
+    padding:0px;
+    margin:0px;
+    color:black;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+#cellrecap_3{
+    border: 1px solid #000000;
+    padding:9.5px;
+    color:black;    
+}
+#year-selector{
+    display: flex; 
+    margin:0px;
+    z-index:2000;
+    position:absolute;
+    top:3%;   
+    left:50%;
+    align-items: center;
+}
 #tabrecap{
     border-collapse: collapse;
     width:100%;

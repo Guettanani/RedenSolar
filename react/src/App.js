@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import Navbar from './components/Navbar'
 import './App.css';
-import {Routes, Route} from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 
 import logo from './components/Assets/REDEN_logo.png'
 // import {FaTable} from 'react-icons/fa'
@@ -18,20 +19,21 @@ import TabRecap from "./components/Pages/pages_recap/recap_tab";
 function App() {
   const [ showNav, setShowNav ] = useState(false)
   return (
+
     <div className="App">
-      <header> <IoReorderThreeOutline on onClick={() => setShowNav(!showNav)}/> <img src={logo} alt='Logo'
+      <header> <IoReorderThreeOutline onClick={() => setShowNav(!showNav)} /> <img src={logo} alt='Logo'
       className='logo' /></header>
       
       <Navbar show={showNav} />
       <div className="main">
         <Routes>
-          <Route path="/" element={<LoginSignup />} onClick={() => setShowNav(!showNav)}/>
-          <Route path="/recap_tab" element={<TabRecap/>} onClick={() => setShowNav(!showNav)}/>
-          <Route path="/ResetPassword" element={<ResetPassword />} onClick={() => setShowNav(!showNav)}/>
-          <Route path="/Settings" element={<Settings />} onClick={() => setShowNav(!showNav)}/>
-          <Route path="/recapitulatif" element={<Recap/>} onClick={() => setShowNav(!showNav)}/>
-          <Route path="/categories" element={<Categories/>} onClick={() => setShowNav(!showNav)}/>
-          <Route path="/main_courante" element={<MC/>} onClick={() => setShowNav(!showNav)}/>
+          <Route path="/" element={<LoginSignup />} onClick={() => setShowNav(false)}/>
+          <Route path="/recap_tab" element={<TabRecap/>} onClick={() => setShowNav(false)}/>
+          <Route path="/ResetPassword" element={<ResetPassword />} onClick={() => setShowNav(false)}/>
+          <Route path="/Settings" element={<Settings />} onClick={() => setShowNav(false)}/>
+          <Route path="/recapitulatif" element={<Recap/>} onClick={() => setShowNav(false)}/>
+          <Route path="/categories" element={<Categories/>} onClick={() => setShowNav(false)}/>
+          <Route path="/main_courante" element={<MC/>} onClick={() => setShowNav(false)}/>
         </Routes>
       </div>
     </div> 

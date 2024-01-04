@@ -19,6 +19,7 @@ from datetime import timedelta,datetime
 import math
 from django.utils import timezone
 import pendulum
+from django.core.exceptions import ObjectDoesNotExist
 
 
 @api_view(['GET'])
@@ -34,6 +35,8 @@ def getSelec(request):
 @api_view(['GET'])
 def getDataCate(request):
     if request.method == 'GET':
+        global selected_nom
+        global date_debut
         selected_nom = request.GET.get('selected_nom', None)
         date_debut=request.GET.get('date_debut', None)
         date_fin=request.GET.get('date_fin', None)
@@ -119,35 +122,63 @@ def data_tab(request):
 @api_view(['GET'])
 def affCalcAlbio(request):
     if request.method == 'GET':
-        centrale_nom = request.GET.get('selected_nom')
-        date_debut = request.GET.get('date_debut')
+        global selected_nom
+        global date_debut
+        annee = request.GET.get('annee', None)
+        centrale_nom = selected_nom
+        date_debut = date_debut
 
         try:
-            # Add a default time (midnight) to the date string before parsing
             if date_debut is not None:
-                formatted_date = datetime.strptime(date_debut + ' 00:00:00', "%Y-%m-%d %H:%M:%S")
-                # Reste du code...
-            
-                mois = formatted_date.month
-                annee = formatted_date.year
-
-                # Recherche de la centrale par nomCentrale
+                annee = int(annee)  # Convertir l'année en entier
+                
                 centrale_obj = Centrale.objects.get(nomCentrale=centrale_nom)
                 centrale_id = centrale_obj.idCentrale
 
-                # Recherche de la disponibilité en fonction de la centrale, du mois et de l'année
-                disponibilite_obj = Disponibilite.objects.get(idCentrale_id=centrale_id, moisAnnee__month=mois, moisAnnee__year=annee, idTypeDispo=3)
-                disponibilite_value = disponibilite_obj.Disponibilite
+                disponibilites = []
+                for mois in range(1, 13):
+                    try:
+                        disponibilites_albio_objs = Disponibilite.objects.filter(
+                            idCentrale_id=centrale_id,
+                            moisAnnee__month=mois,
+                            moisAnnee__year=annee,
+                            idTypeDispo__in=[3, 2, 1]
+                        )
 
-                response_data = {"disponibilite": disponibilite_value}
-                print("response_data: ", response_data)
+                        dispo_albio = dispo_reden = dispo_brute = None
+
+                        for disponibilite_albio_obj in disponibilites_albio_objs:
+                            print("disponibilite_albio_obj.idTypeDispo:", disponibilite_albio_obj.idTypeDispo)
+                            if str(disponibilite_albio_obj.idTypeDispo) == 'Contractuelle ALBIOMA': 
+                                dispo_albio = disponibilite_albio_obj.Disponibilite
+                            if str(disponibilite_albio_obj.idTypeDispo) == 'REDEN':
+                                dispo_reden = disponibilite_albio_obj.Disponibilite
+                                print("dispo_reden: ",dispo_reden)
+                            if str(disponibilite_albio_obj.idTypeDispo) == 'Brute':
+                                dispo_brute = disponibilite_albio_obj.Disponibilite
+
+                        disponibilites.append({
+                            "mois": mois,
+                            "disponibilite_brute": dispo_brute,
+                            "disponibilite_reden": dispo_reden,
+                            "disponibilite_albio": dispo_albio
+                        })
+
+                    except ObjectDoesNotExist:
+                        disponibilites.append({
+                            "mois": mois,
+                            "disponibilite_brute": None,
+                            "disponibilite_reden": None,
+                            "disponibilite_albio": None
+                        })
+
+                response_data = {"disponibilites": disponibilites}
+                print("response_data: ",response_data)
                 return JsonResponse(response_data)
             else:
                 pass
         except Centrale.DoesNotExist:
             return JsonResponse({"error": f"Aucune centrale trouvée avec le nom '{centrale_nom}'."}, status=404)
-        except Disponibilite.DoesNotExist:
-            return JsonResponse({"error": "Aucune disponibilité trouvée pour la centrale, le mois et l'année spécifiés."}, status=404)
         except ValueError:
             return JsonResponse({"error": "Format de date invalide."}, status=400)
 
@@ -197,7 +228,46 @@ def ajout_article(request):
         
     else:
         return JsonResponse({'message': 'Méthode non autorisée.'}, status=405)
+    
+@api_view(['DELETE'])
+def suppMC(request):
+    if request.method=='DELETE':
+        data_from_json = request.data
+        iddefaut=data_from_json['iddefaut']
+        idheuredebut=data_from_json['idheuredebut']
+        idheurefin=data_from_json['idheurefin']
+        idcentrale_nom=data_from_json['idcentrale']
+        idequipementEndommage=data_from_json['idequipementEndommage']
+        idcommentaires=data_from_json['idcommentaires']
+        print("idcentrale_nom:", idcentrale_nom)
+        try:
+            autres_donnees = Centrale.objects.filter(nomCentrale=idcentrale_nom)
+            print("autre_donnees:",autres_donnees)
+            centrale_dict = { item.nomCentrale: item.idCentrale for item in autres_donnees}
+            print("centrale_dict: ",centrale_dict)
+            article_a_supprimer = MainCourante.objects.get(constat=iddefaut,dateHeureConstat=idheuredebut,dateHeureActionCorrective=idheurefin,idCentrale_id=centrale_dict.get(idcentrale_nom),materielImpacte=idequipementEndommage,actionCorrective=idcommentaires)
 
+            article_a_supprimer.delete()
+
+            original_date_str_debut = idheuredebut
+
+
+            original_date_debut = datetime.strptime(original_date_str_debut, "%Y-%m-%dT%H:%M:%SZ")
+
+
+            # Formater la date sans changer le fuseau horaire
+            formatted_date_str_debut = original_date_debut.strftime("%Y-%m-%d %H:%M:%S")
+
+            formatted_date = datetime.strptime(formatted_date_str_debut, "%Y-%m-%d %H:%M:%S")
+            mois = formatted_date.month
+            annee = formatted_date.year
+            data_albioma={"centrale_id":idcentrale_nom, "mois":mois, "annee":annee}
+
+            calculAlbioma(data_albioma)
+
+            return Response({'message': 'Suppression réussie'})
+        except MainCourante.DoesNotExist:
+            return Response({'message': 'Élément non trouvé'}, status=404)
 
 #ajout des données de la table DonneesCentrale dans la BDD
 def Push(request):
