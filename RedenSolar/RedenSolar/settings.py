@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-e=y-5=d*@)wlu9y@+v$ue1*vkam5cp3)3zp%asr&9&8ytvva(-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*','localhost','icamapp.reden.cloud','web.icamapp.reden.cloud']
+ALLOWED_HOSTS = ['*','localhost','icamapp.reden.cloud','webicamapp.reden.cloud']
 CORS_ALLOWED_ORIGINS = [
     "https://icamapp.reden.cloud",
 ]
@@ -41,7 +41,7 @@ else:
     
 
 # Application definition
-CSRF_TRUSTED_ORIGINS = ['https://icamapp.reden.cloud','https://web.icamapp.reden.cloud']
+CSRF_TRUSTED_ORIGINS = ['https://icamapp.reden.cloud','https://webicamapp.reden.cloud']
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
@@ -161,7 +161,7 @@ CELERY_BEAT_SCHEDULE = {
     'scheduled_task': {
         'task': 'Envoi des données dynamiques d\'Energysoft dans la base de données',
 
-        'schedule': crontab(month_of_year='*',day_of_month='*',day_of_week='*',hour=23,minute=59),  
+        'schedule': crontab(month_of_year='*',day_of_month='*',day_of_week='*',hour=00,minute=1),  
 
     }, 
 }

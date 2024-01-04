@@ -6,7 +6,7 @@ export default function TstTab() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("https://web.icamapp.reden.cloud/data/");
+                const response = await axios.get("https://webicamapp.reden.cloud/data/");
                 const responseData = response.data;
                 setData(responseData);
                 console.log(responseData);

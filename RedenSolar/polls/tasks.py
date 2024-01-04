@@ -64,9 +64,9 @@ def formag():
 
     # Filtres de date
     
-    today = datetime.now()
+    today = datetime.now()- timedelta(days=1)
 
-    hier = datetime.now() - timedelta(days=1)
+    hier = datetime.now() - timedelta(days=2)
 
 
 
