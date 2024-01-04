@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import user_icon from '../Assets/person.png';
 import email_icon from '../Assets/email.png';
 import password_icon from '../Assets/password.png';
-import REDEN_logo from '../Assets/REDEN_logo.png';
+// import REDEN_logo from '../Assets/REDEN_logo.png';
 
 const LoginSignup = () => {
   const [action, setAction] = useState("Créer un compte utilisateur");

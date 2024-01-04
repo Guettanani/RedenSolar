@@ -1,7 +1,8 @@
-import { React, useState, useEffect,useRef} from 'react';
+import {React,useState,useEffect,useRef} from 'react';
 import './categories.css';
 import axios from 'axios';
 import Calendar from './Calendar';
+
 
 
 export default function Categories(){
@@ -25,21 +26,7 @@ export default function Categories(){
   const [isChecked, setIsChecked] = useState(false);
   const [valeurDispo, setValeurDispo]= useState(null);
 
-const cherhcer_dispo = async () => {
-  try {
-    const response = await axios.get("http://localhost:8050/getDispo/", {
-      params: {
-        selected_nom: initialSelectionCentrale.current,
-        date_debut: startDate,
-        date_fin: endDate
-      }
-    });
-    setValeurDispo(response.data.disponibilite);
-  } catch (error) {
-    console.error("Error fetching disponibilite:", error);
-    // Handle the error, you might want to set an error state or display an error message
-  }
-};
+
 
   // const check_show = () => {
   //   const allCells = document.querySelectorAll('#tab_cate .tab_h');
@@ -66,15 +53,19 @@ const cherhcer_dispo = async () => {
   useEffect(() => {
     remplissage_selec();
   }, []);
+
+
   useEffect(() => {
     initialSelectionCentrale.current = selectionCentrale;
   }, [selectionCentrale]);
+
+
   useEffect(() => {
     fetchdatacentrale();
   }, [startDate, endDate]);
-  useEffect(()=> {
-    cherhcer_dispo()
-  })
+
+
+
   useEffect(() => {
     fetchdatacentrale();
   }, [selectionCentrale]);
@@ -585,9 +576,6 @@ const formatDate = (dateString) => {
       <select id='filtre_centrale' onChange={changement_centrale}>
         {data_cate.map((item) =>(<option id="selec_centrale">{item.nomCentrale}</option>))}
       </select>
-      <p id="para_dispo">Dispo Albioma: {valeurDispo}</p>
-
-
       <div id="compteur">
         <p>Seuil: {compteur} W</p>
         <div id="boutons_compteurs">
