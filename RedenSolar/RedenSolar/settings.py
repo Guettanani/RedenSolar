@@ -161,7 +161,7 @@ CELERY_BEAT_SCHEDULE = {
     'scheduled_task': {
         'task': 'Envoi des données dynamiques d\'Energysoft dans la base de données',
 
-        'schedule': crontab(month_of_year='*',day_of_month='*',day_of_week='*',hour=16,minute=30),  
+        'schedule': crontab(month_of_year='*',day_of_month='*',day_of_week='*',hour=23,minute=59),  
 
     }, 
 }

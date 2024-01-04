@@ -64,8 +64,7 @@ def formag():
 
     # Filtres de date
     
-    today = '2023-11-11'
-    début='2023-11-10'
+    today = datetime.now()
 
     hier = datetime.now() - timedelta(days=1)
 
@@ -73,11 +72,11 @@ def formag():
 
     hier_propre = hier.strftime('%Y-%m-%d')
 
-    #today_propre = today.strftime('%Y-%m-%d')
+    today_propre = today.strftime('%Y-%m-%d')
 
 
-    start_date = début
-    end_date= today
+    start_date = hier_propre
+    end_date= today_propre
     # Filtres de type de mesure
     measure_filters = [
         "MeasureType eq 'operating_h_tot'",
