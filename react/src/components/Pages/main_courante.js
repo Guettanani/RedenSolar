@@ -4,17 +4,16 @@ import axios from 'axios';
 
 export default function TstTab() {
     const [data, setData] = useState([]);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get("https://webicamapp.reden.cloud/data/");
-                const responseData = response.data;
-                setData(responseData);
-                console.log(responseData);
-            } catch (error) {
-                console.error("Une erreur s'est produite : ", error);
-            }
-        };
+    const fetchData = async () => {
+        try {
+            const response = await axios.get("https://webicamapp.reden.cloud/data/");
+            const responseData = response.data;
+            setData(responseData);
+            console.log(responseData);
+        } catch (error) {
+            console.error("Une erreur s'est produite : ", error);
+        }
+    };
 
     useEffect(() => {
         fetchData();
@@ -29,7 +28,7 @@ export default function TstTab() {
         try {
             console.log("item: ",item)
             // Faites une requête DELETE à votre API avec toutes les données de la ligne
-            await axios.delete("http://localhost:8050/deleteMC/", { data: item });
+            await axios.delete("https://webicamapp.reden.cloud/deleteMC/", { data: item });
             // Rafraîchissez les données après la suppression
             fetchData()
 
