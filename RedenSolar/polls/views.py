@@ -161,7 +161,7 @@ def ajout_article(request):
         if calculCentrale== 'Albioma':
             calculAlbioma(data_centrale_dispo)
         elif calculCentrale=='EOS':
-            calculEOS(data_centrale_dispo)
+           calculEOS(data_centrale_dispo)
 
         return JsonResponse({'message': 'Article ajouté avec succès.'})
         
@@ -231,6 +231,8 @@ def calculAlbioma(data_centrale_dispo):
     sum_H0_Reden=0
     sum_H0_Brute=0
     DispoTot=1
+    DispoTotBrute=1
+    DispoTotReden=1
     UsablefinDef=timedelta()
     UsabledebutDef=timedelta()
     PuissanceImpactee=0
@@ -658,16 +660,15 @@ def calculEOS(data_centrale_dispo) :
         formatedDebDefHeureDefaut = (heureDefaut.dateHeureConstat+utc_offset).time()
         print("heure debut",formatedDebDefHeureDefaut," heure fin: ", formatedFinFefHeureDefaut, "heure à ajouter:",utc_offset)
         
-        donneesIrradiance.filter(temps__lt=heureDefaut.dateHeureActionCorrective,temps__gt=heureDefaut.dateHeureConstat)
-        print(f"HFranchise {HFranchise}")
+        donneesIrradiance.filter(temps__lt=formatedFinFefHeureDefaut,temps__gt=formatedDebDefHeureDefaut)
 
         defautMainCourante=Defaut.objects.get(nom=heureDefaut.constat)
         typedispo=TypeDispo.objects.get(nom='Contractuelle EOS')
         imputation=defaut.get(idDefaut_id=typedispo.idTypeDispo,idTypeDispo_id=defautMainCourante.idDefaut)
         
         #Calucl du temps d'arret en utilisant le nombre de ligne pour lequel l'irradiance est supérieur à 100W/m²
-        tempsArret=HeureAvecSeuilIrradiance.objects.filter(idDonneesCentrale__temps__lt=heureDefaut.dateHeureActionCorrective,idDonneesCentrale__temps__gt=heureDefaut.dateHeureConstat,conditionSeuil=True).count()
-        
+        tempsArret=HeureAvecSeuilIrradiance.objects.filter(idDonneesCentrale__temps__lt=heureDefaut.dateHeureActionCorrective,idDonneesCentrale__temps__gt=heureDefaut.dateHeureConstat)
+         
         #avoir la liste des jours écoulées si le défaut dure plusieurs jours
         UsabledebutDef = timedelta(hours=formatedFinFefHeureDefaut.hour, minutes=formatedFinFefHeureDefaut.minute, seconds=formatedFinFefHeureDefaut.second)
         UsablefinDef = timedelta(hours=formatedDebDefHeureDefaut.hour, minutes=formatedDebDefHeureDefaut.minute, seconds=formatedDebDefHeureDefaut.second)
