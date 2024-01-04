@@ -202,7 +202,7 @@ const formatDate = (dateString) => {
   
   const fetchdatacentrale = async () =>{
       try {
-        const response = await axios.get("https://web.icamapp.reden.cloud:8050/getCentrale/", {
+        const response = await axios.get("https://web.icamapp.reden.cloud/getCentrale/", {
                 params: {
                     selected_nom: initialSelectionCentrale.current,
                     date_debut: startDate,
