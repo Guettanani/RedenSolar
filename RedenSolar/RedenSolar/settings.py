@@ -27,13 +27,24 @@ SECRET_KEY = 'django-insecure-e=y-5=d*@)wlu9y@+v$ue1*vkam5cp3)3zp%asr&9&8ytvva(-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-"loris"
+ALLOWED_HOSTS = ['*','localhost','icamapp.reden.cloud','web.icamapp.reden.cloud']
 CORS_ALLOWED_ORIGINS = [
     "https://icamapp.reden.cloud",
 ]
-# Application definition
 
+# set ENABLE_SECURE_PROXY_SSL_HEADER=True in environment when SSL required
+ENABLE_SECURE_PROXY_SSL_HEADER = os.environ.get("ENABLE_SSL", False)
+if ENABLE_SECURE_PROXY_SSL_HEADER:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+else:
+    SECURE_PROXY_SSL_HEADER = None
+    
+
+# Application definition
+CSRF_TRUSTED_ORIGINS = ['https://icamapp.reden.cloud','https://web.icamapp.reden.cloud']
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 INSTALLED_APPS = [
     'corsheaders',    
     'django.contrib.admin',
