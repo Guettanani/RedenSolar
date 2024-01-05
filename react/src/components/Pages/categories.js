@@ -277,7 +277,7 @@ const formatDate = (dateString) => {
         const idequipementEndommage = uniqueColumns.join(', ');
 
         const dates = clickedRows.map(item => ({
-          date: item.dateColonne,
+          date: formatDate(item.dateColonne),
           heure: item.heureColonne,
         }));
         
@@ -286,6 +286,7 @@ const formatDate = (dateString) => {
           const dateB = new Date(`${b.date} ${b.heure}`);
           return dateA - dateB;
         });
+        
         
   
         const premierElement = dates[0];
