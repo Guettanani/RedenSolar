@@ -85,19 +85,19 @@ export default function TabRecap() {
                         <tr>
                             <td id="cellrecap_2">Disponibilité Brute</td>
                             {disponibiliteBrute.map((value, index) => (
-                                <td key={index} id="cellrecap_3">{value !== null ? value : 'N/A'}</td>
+                                <td key={index} id="cellrecap_3">{value !== null ? value : ''}</td>
                             ))}
                         </tr>
                         <tr>
                             <td id="cellrecap_2">Disponibilité Reden</td>
                             {disponibiliteReden.map((value, index) => (
-                                <td key={index} id="cellrecap_3">{value !== null ? value : 'N/A'}</td>
+                                <td key={index} id="cellrecap_3">{value !== null ? value : ''}</td>
                             ))}
                         </tr>
                         <tr>
                             <td id="cellrecap_2">Disponibilité Contractuelle</td>
                             {disponibiliteAlbio.map((value, index) => (
-                                <td key={index} id="cellrecap_3">{value !== null ? value : 'N/A'}</td>
+                                <td key={index} id="cellrecap_3">{value !== null ? value : ''}</td>
                             ))}
                         </tr>
                     </tbody>
