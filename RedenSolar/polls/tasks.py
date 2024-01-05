@@ -64,20 +64,21 @@ def formag():
 
     # Filtres de date
     
-    today = '2023-12-09'
-    début='2023-12-08'
+    #today = datetime.now()- timedelta(days=1)
 
-    hier = datetime.now() - timedelta(days=1)
+    #hier = datetime.now() - timedelta(days=2)
 
+    today="2024-01-01"
+    hier="2024-01-02"
 
-
-    hier_propre = hier.strftime('%Y-%m-%d')
+    #hier_propre = hier.strftime('%Y-%m-%d')
 
     #today_propre = today.strftime('%Y-%m-%d')
 
-
-    start_date = début
+    start_date = hier
     end_date= today
+    #start_date = hier_propre
+    #end_date= today_propre
     # Filtres de type de mesure
     measure_filters = [
         "MeasureType eq 'operating_h_tot'",
