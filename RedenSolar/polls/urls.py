@@ -9,4 +9,6 @@ urlpatterns = [
     path('data/', views.data_tab),
     path('getCentrale/', views.getDataCate),
     path('getSelec/', views.getSelec),
+    path('getDispo/',views.affCalcAlbio),
+    path('deleteMC/',views.suppMC),
 ]

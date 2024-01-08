@@ -73,32 +73,17 @@ const Settings = () => {
           <div className="underlineset3"></div>
 
           {/* Updated links with dynamically generated IP address */}
-          <div className="inputset">
-            <div className="textset3">Base de données :</div>
-            <a href={`http://${getIPAddress()}:5050/`} className="textset4" target="_blank">
-              {`http://${getIPAddress()}:5050/`}
-            </a>
-          </div>
-          <div className="underlineset3"></div>
 
           <div className="inputset">
             <div className="textset3">
               <p>Django admin (Ajout/Suppression onduleurs,centrales...):</p>
             </div>
-            <a href={`http://${getIPAddress()}:8050/admin`} className="textset4" target="_blank">
-              {`http://${getIPAddress()}:8050/admin`}
+            <a href={`https://webicamapp.reden.cloud/admin`} className="textset4" target="_blank">
+              {`https://webicamapp.reden.cloud/admin`}
             </a>
           </div>
           <div className="underlineset3"></div>
 
-          <div className="inputset">
-            <div className="textset3">
-              <p>Flower (Visualisation des tâches d'envois des données EnergySoft dans la base de données):</p>
-            </div>
-            <a href={`http://${getIPAddress()}:5555/`} className="textset4" target="_blank">
-              {`http://${getIPAddress()}:5555/`}
-            </a>
-          </div>
           <div className="underlineset3"></div>
         </div>
         <div className="save">Sauvegarder</div>

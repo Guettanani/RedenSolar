@@ -41,8 +41,6 @@ class Disponibilite(models.Model):
     idDisponibilite=models.AutoField(primary_key=True)
     moisAnnee = models.DateTimeField()
     idTypeDispo = models.ForeignKey(TypeDispo, on_delete=models.CASCADE)
-    
-
     Disponibilite=models.DecimalField(max_digits=15, decimal_places=2)
     idCentrale = models.ForeignKey(Centrale, on_delete=models.CASCADE)
     class Meta:
@@ -50,10 +48,10 @@ class Disponibilite(models.Model):
 
 class ReferenceOnduleur(models.Model):
     idReferenceOnduleur=models.AutoField(primary_key=True)
-    numeroOnduleur=models.IntegerField()
-    nomReference=models.CharField(max_length=50)
-    puissanceNominale = models.DecimalField(max_digits=15, decimal_places=2)
-    idCentrale = models.ForeignKey(Centrale, on_delete=models.CASCADE)
+    numeroOnduleur=models.IntegerField(null=True)
+    nomReference=models.CharField(max_length=50,null=True)
+    puissanceNominale = models.DecimalField(max_digits=15, decimal_places=2,null=True)
+    idCentrale = models.ForeignKey(Centrale, on_delete=models.CASCADE,null=True)
     def __str__(self):
         return self.nomReference
     class Meta:
@@ -73,12 +71,13 @@ class Onduleur(models.Model):
 class AssoOnduleur(models.Model):
     idReferenceOnduleur = models.ForeignKey(ReferenceOnduleur, on_delete=models.CASCADE)
     idOnduleur= models.ForeignKey(Onduleur, on_delete=models.CASCADE)
-    primary_key = ('idReferenceOnduleur', 'idOnduleur')
+    
     def __str__(self):
-        return self.idOnduleur
+        return f"{self.idOnduleur.serialOnduleur}-{self.idReferenceOnduleur.nomReference}"
+    
     class Meta:
         app_label = 'polls'
-
+        unique_together = ('idReferenceOnduleur', 'idOnduleur')
 '''class Intensite(models.Model):
     idIntensite = models.AutoField(primary_key=True)
     IAC_Out = models.DecimalField(max_digits=15, decimal_places=2,null=True)

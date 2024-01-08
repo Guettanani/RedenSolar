@@ -9,6 +9,7 @@
   z-index: 0;
 }
 
+
 #tab_mc {
   border-collapse: collapse;
   border: 1px solid #000000;
@@ -17,6 +18,7 @@
 
 #head_container {
   display: flex;
+  position: sticky;
 }
 
 #head_mc {

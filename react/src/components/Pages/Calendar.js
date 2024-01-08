@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// import './Calendar.css'; // Assurez-vous d'ajouter le fichier CSS pour la mise en forme
+// import './Calendar.css';
 
 const Calendar = ({ onSelectDate }) => {
   const [selectedDate, setSelectedDate] = useState(null);
