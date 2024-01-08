@@ -63,10 +63,6 @@ def formag():
     log = open('log/log.txt', 'a')
 
     # Filtres de date
-    
-    #today = datetime.now()- timedelta(days=1)
-
-    #hier = datetime.now() - timedelta(days=2)
 
     today="2024-01-01"
     hier="2024-01-02"
@@ -80,6 +76,7 @@ def formag():
     #start_date = hier_propre
     #end_date= today_propre
     # Filtres de type de mesure
+
     measure_filters = [
         "MeasureType eq 'operating_h_tot'",
         "MeasureType eq 'power'",

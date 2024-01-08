@@ -287,6 +287,7 @@ const formatDate = (dateString) => {
           return dateA - dateB;
         });
         
+        
   
         const premierElement = dates[0];
         const dernierElement = dates[dates.length - 1];
