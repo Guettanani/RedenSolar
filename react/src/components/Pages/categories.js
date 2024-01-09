@@ -12,7 +12,7 @@ export default function Categories(){
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);  
   const [selectedRowIndex, setSelectedRowIndex] = useState();
   const [dataToMc, setDataToMc] = useState(null);
-  const[selectionCentrale,newSelectionCentrale] = useState('Abattoirs de Langogne');
+  const [selectionCentrale, setSelectionCentrale] = useState(null);
   const [data, setData] = useState([]);
   const[data_cate, setDataCate]=useState([])
   const [compteur, setCompteur] = useState(0);
@@ -42,6 +42,7 @@ const cherhcer_dispo = async () => {
   }
 };
 
+
   // const check_show = () => {
   //   const allCells = document.querySelectorAll('#tab_cate .tab_h');
   //   const zeroValueCells = document.querySelectorAll('#tab_cate .zero-value');
@@ -68,21 +69,10 @@ const cherhcer_dispo = async () => {
     remplissage_selec();
   }, []);
 
-
-  useEffect(() => {
-    initialSelectionCentrale.current = selectionCentrale;
-  }, [selectionCentrale]);
-
-
   useEffect(() => {
     fetchdatacentrale();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, selectionCentrale]);
 
-
-
-  useEffect(() => {
-    fetchdatacentrale();
-  }, [selectionCentrale]);
   console.log(valeurDispo)
 
 
@@ -185,11 +175,11 @@ try{
 
   const responseData = response.data;
   setDataCate(responseData);
+  console.log("responseData: ",responseData.selected_nom)
+  setSelectionCentrale(responseData[responseData.length - 1].selected_nom)
 }catch(error){ console.log(error)}
-
 }
-
-
+console.log("data_cate: ",data_cate)
 const formatDate = (dateString) => {
   const options = {
     year: 'numeric',
@@ -238,12 +228,13 @@ const formatDate = (dateString) => {
 
       const responseData = response.data;
       setData(responseData);
-      newSelectionCentrale(newSelectionCentral);
+      setSelectionCentrale(newSelectionCentral);
     } catch (error) {
       console.error("Une erreur s'est produite : ", error);
     }
   }
   console.log(data)
+  console.log("selectionCentrale: ",selectionCentrale)
 
   
 
@@ -264,6 +255,10 @@ const formatDate = (dateString) => {
       effectuerRequetePost(selectedRowIndex);
     }
   };
+  const formatDate_2 = (date, heure) => {
+    // Ajoutez votre logique de formatage ici
+    return `${date} ${heure}`;
+  };
   const effectuerRequetePost = async (selectedRowIndex) => {
 
     try {
@@ -275,32 +270,36 @@ const formatDate = (dateString) => {
   
       if (texteDeLaColonneCorrespondante === 'Découplage' || texteDeLaColonneCorrespondante === 'Travaux ENEDIS') {
         const idequipementEndommage = uniqueColumns.join(', ');
-
+        
         const dates = clickedRows.map(item => ({
-          date: formatDate(item.dateColonne),
+          date: item.dateColonne,
           heure: item.heureColonne,
         }));
-        
+        console.log("clickedRows: ",clickedRows)
+        // console.log("item.heureColonne:",item.heureColonne)
+        console.log("dates1: ",dates)
         dates.sort((a, b) => {
           const dateA = new Date(`${a.date} ${a.heure}`);
           const dateB = new Date(`${b.date} ${b.heure}`);
           return dateA - dateB;
         });
         
-        
+     
   
         const premierElement = dates[0];
         const dernierElement = dates[dates.length - 1];
         const data = {
           iddefaut: texteDeLaColonneCorrespondante,
-          idheuredebut: premierElement.date,
-          idheurefin: dernierElement.date,
+          idheuredebut: formatDate_2(premierElement.date, premierElement.heure),
+          idheurefin: formatDate_2(dernierElement.date, dernierElement.heure),
           idcommentaires: commentaire,
           idequipementEndommage: idequipementEndommage,
           idcentrale: centrale,
         };
+
   
         const response = await axios.post('https://webicamapp.reden.cloud/ajouter_article/', data);
+
         if (response.status === 200) {
           console.log(`Article ajouté avec succès pour la colonne ${idequipementEndommage}.`);
         } else {
@@ -588,7 +587,7 @@ const formatDate = (dateString) => {
   
     return(
      <div>
-      <select id='filtre_centrale' onChange={changement_centrale}>
+      <select id='filtre_centrale' value={selectionCentrale}onChange={changement_centrale}>
         {data_cate.map((item) =>(<option id="selec_centrale">{item.nomCentrale}</option>))}
       </select>
       <div id="compteur">
