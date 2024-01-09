@@ -26,7 +26,21 @@ export default function Categories(){
   const [isChecked, setIsChecked] = useState(false);
   const [valeurDispo, setValeurDispo]= useState(null);
 
-
+const cherhcer_dispo = async () => {
+  try {
+    const response = await axios.get("https://webicamapp.reden.cloud/getDispo/", {
+      params: {
+        selected_nom: initialSelectionCentrale.current,
+        date_debut: startDate,
+        date_fin: endDate
+      }
+    });
+    setValeurDispo(response.data.disponibilite);
+  } catch (error) {
+    console.error("Error fetching disponibilite:", error);
+    // Handle the error, you might want to set an error state or display an error message
+  }
+};
 
 
   // const check_show = () => {
@@ -157,7 +171,7 @@ export default function Categories(){
 
 const remplissage_selec = async() => {
 try{
-  const response = await axios.get("http://localhost:8050/getSelec/")
+  const response = await axios.get("https://webicamapp.reden.cloud/getSelec/")
 
   const responseData = response.data;
   setDataCate(responseData);
@@ -183,7 +197,7 @@ const formatDate = (dateString) => {
   
   const fetchdatacentrale = async () =>{
       try {
-        const response = await axios.get("http://localhost:8050/getCentrale/", {
+        const response = await axios.get("https://webicamapp.reden.cloud/getCentrale/", {
                 params: {
                     selected_nom: initialSelectionCentrale.current,
                     date_debut: startDate,
@@ -204,7 +218,7 @@ const formatDate = (dateString) => {
     const newSelectionCentral = e.target.value;
 
     try {
-      const response = await axios.get("http://localhost:8050/getCentrale/", {
+      const response = await axios.get("https://webicamapp.reden.cloud/getCentrale/", {
         params: {
           selected_nom: newSelectionCentral,
           date_debut: startDate,
@@ -270,7 +284,8 @@ const formatDate = (dateString) => {
           return dateA - dateB;
         });
         
-        console.log("dates2: ",dates)
+     
+  
         const premierElement = dates[0];
         const dernierElement = dates[dates.length - 1];
         const data = {
@@ -281,8 +296,10 @@ const formatDate = (dateString) => {
           idequipementEndommage: idequipementEndommage,
           idcentrale: centrale,
         };
-        console.log("data: ",data)
-        const response = await axios.post('http://localhost:8050/ajouter_article/', data);
+
+  
+        const response = await axios.post('https://webicamapp.reden.cloud/ajouter_article/', data);
+
         if (response.status === 200) {
           console.log(`Article ajouté avec succès pour la colonne ${idequipementEndommage}.`);
         } else {
@@ -317,7 +334,7 @@ const formatDate = (dateString) => {
           };
   
 
-          const response = await axios.post('http://localhost:8050/ajouter_article/', data);
+          const response = await axios.post('https://webicamapp.reden.cloud/ajouter_article/', data);
   
           if (response.status === 200) {
             console.log(`Article ajouté avec succès pour la colonne ${columnName}.`);
