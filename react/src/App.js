@@ -17,12 +17,14 @@ import TabRecap from "./components/Pages/pages_recap/recap_tab";
 //import Categories from './components/components/Pages/Categories';
 
 function App() {
-  const [ showNav, setShowNav ] = useState(false)
-  return (
+  const [showNav, setShowNav] = useState(false);
 
+  return (
     <div className="App">
-      <header> <IoReorderThreeOutline onClick={() => setShowNav(!showNav)} /> <img src={logo} alt='Logo'
-      className='logo' /></header>
+      <header>
+        <IoReorderThreeOutline onClick={() => setShowNav(!showNav)} />
+        <img src={logo} alt='Logo' className='logo' />
+      </header>
       
       <Navbar show={showNav} />
       <div className="main">
