@@ -21,19 +21,8 @@ import calendar
 from django.db import transaction
 
 @shared_task(name='formatage', retry_backoff=True)
-#ajout des données de la table DonneesCentrale dans la BDD
 def Push(request):    
-#Quand il y rénitialisation de la BDD, enlever les '#' pour importer de nouveau les data
-    ##views.PushDonneesStatique()
-    ##views.PushCentrale()
-    ##views.pushHeureFonctionnementAlbioma()
-    #views.PushDonneesCentrale()
-    #views.PushOnduleurs()
-    ##views.JoursOuvrees()
     views.calculAlbioma()
-    #views.calculEneryo()
-    #views.formatage_des_fichiers()
-    #views.Print()
     return HttpResponse('Success')
 
 @shared_task(name='Envoi des données dynamiques d\'Energysoft dans la base de données', retry_backoff=True)
