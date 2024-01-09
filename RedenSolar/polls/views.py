@@ -21,23 +21,25 @@ from django.utils import timezone
 import pendulum
 from django.core.exceptions import ObjectDoesNotExist
 
-
-@api_view(['GET'])
-def getSelec(request):
-    if request.method == 'GET':
-        centrales=Centrale.objects.all()
-    data=[{"nomCentrale": obj.nomCentrale} for obj in centrales]
-    print(data)
-
-    return JsonResponse(data,safe=False)
-
-
+selected_nom = None
 @api_view(['GET'])
 def getDataCate(request):
     if request.method == 'GET':
         global selected_nom
         global date_debut
-        selected_nom = request.GET.get('selected_nom', None)
+        print("selected_nom: ",selected_nom)
+        
+        nom_test = request.GET.get('selected_nom', None)
+        print("nom_test: ",nom_test)
+        if nom_test==None:
+            try:
+                selected_nom=selected_nom
+            except(TypeError):
+                selected_nom='Abattoirs de Langogne'
+        elif selected_nom!='Abattoirs de Langogne' and selected_nom!=None and nom_test=='Abattoirs de Langogne':
+            selected_nom=nom_test
+        else:
+            selected_nom=nom_test
         date_debut=request.GET.get('date_debut', None)
         date_fin=request.GET.get('date_fin', None)
        
@@ -90,7 +92,6 @@ def getDataCate(request):
                                 for item in list(list_pui_tmps)
                                 if date_debut_obj <= item['temps'] and item['temps'] <= date_fin_obj
                             ]
-                        print('list_pui_temps: ', list_pui_tmps)
                         for entry in list_pui_tmps:
                             # Récupérer la valeur d'irradiance_en_watt_par_surface correspondante
                             donnee_centrale = DonneesCentrale.objects.filter(temps=entry['temps']).first()
@@ -98,10 +99,30 @@ def getDataCate(request):
                                 entry['irradiance_en_watt_par_surface'] = donnee_centrale.irradiance_en_watt_par_surface
                     item_bis["donnees_energie"] = list(list_pui_tmps)
         else:
-            pass
-        print("filtered_data: ",filtered_data)  
+            pass 
         return JsonResponse(filtered_data, safe=False)
-    
+
+@api_view(['GET'])
+def getSelec(request):
+    global selected_nom
+    if request.method == 'GET':
+        print("selected_nom4: ",selected_nom)
+        if selected_nom==None:
+            print("selected_nom3: ",selected_nom)
+            selected_nom = 'Abattoirs de Langogne'
+            centrales = Centrale.objects.all()
+            data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
+            data.append({"selected_nom": selected_nom})
+            print("dataSelec: ",data)
+        else:
+            print("selected_nom3: ",selected_nom)
+            centrales = Centrale.objects.all()
+            data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
+            data.append({"selected_nom": selected_nom})
+            #print("dataSelec: ",data)
+        return JsonResponse(data, safe=False)
+
+
 @api_view(['GET'])
 def data_tab(request):
     if request.method =='GET':
@@ -197,13 +218,17 @@ def ajout_article(request):
 
         original_date_str_debut = idheuredebut
         original_date_str_fin = idheurefin
+        print("idheuredebut: ",idheuredebut)
+        print("original_date_str_debut :",original_date_str_debut)
+        
 
         original_date_debut = datetime.strptime(original_date_str_debut, "%d/%m/%Y %H:%M")
         original_date_fin = datetime.strptime(original_date_str_fin, "%d/%m/%Y %H:%M")
+        print("original_date_debut :",original_date_debut)
 
-        # Formater la date sans changer le fuseau horaire
         formatted_date_str_debut = original_date_debut.strftime("%Y-%m-%d %H:%M:%S")
         formatted_date_str_fin = original_date_fin.strftime("%Y-%m-%d %H:%M:%S")
+        print("formatted_date_str_debut :",formatted_date_str_debut)
 
         print("idcentrale: ",idcentraleSelec)
         donnees = Centrale.objects.filter(nomCentrale=idcentraleSelec)
