@@ -71,9 +71,8 @@ class Onduleur(models.Model):
 class AssoOnduleur(models.Model):
     idReferenceOnduleur = models.ForeignKey(ReferenceOnduleur, on_delete=models.CASCADE)
     idOnduleur= models.ForeignKey(Onduleur, on_delete=models.CASCADE)
-    
     def __str__(self):
-        return f"{self.idOnduleur.serialOnduleur}-{self.idReferenceOnduleur.nomReference}"
+        return f"{self.idReferenceOnduleur.idCentrale.nomCentrale} - {self.idOnduleur.serialOnduleur}-{self.idReferenceOnduleur.nomReference}"
     
     class Meta:
         app_label = 'polls'
