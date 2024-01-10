@@ -197,7 +197,7 @@ const formatDate = (dateString) => {
   
 const fetchdatacentrale = async () => {
   try {
-    const response = await axios.get("http://localhost:8050/getCentrale/", {
+    const response = await axios.get("https://webicamapp.reden.cloud/getCentrale/", {
       params: {
         selected_nom: initialSelectionCentrale.current,
         date_debut: startDate,
@@ -237,7 +237,7 @@ const changement_centrale = async (e) => {
   const newSelectionCentral = e.target.value;
 
   try {
-    const response = await axios.get("http://localhost:8050/getCentrale/", {
+    const response = await axios.get("https://webicamapp.reden.cloud/getCentrale/", {
       params: {
         selected_nom: newSelectionCentral,
         date_debut: startDate,
