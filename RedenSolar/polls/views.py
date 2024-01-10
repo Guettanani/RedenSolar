@@ -85,19 +85,30 @@ def getDataCate(request):
                         list_pui_tmps = Energie.objects.filter(idOnduleur_id=onduleur_associe_id).values('temps', 'puissance')
 
                         list_pui_tmps = [
-                                {
-                                    'temps': item['temps'].replace(tzinfo=pytz.UTC),
-                                    'puissance': item['puissance']
-                                }
-                                for item in list(list_pui_tmps)
-                                if date_debut_obj <= item['temps'] and item['temps'] <= date_fin_obj
-                            ]
+                            {
+                                'temps': item['temps'].replace(tzinfo=pytz.UTC),
+                                'puissance': item['puissance']
+                            }
+                            for item in list(list_pui_tmps)
+                            if date_debut_obj <= item['temps'] and item['temps'] <= date_fin_obj
+                        ]
+
+                        # Extract timestamps from the list_pui_tmps for the bulk query
+                        timestamps = [entry['temps'] for entry in list_pui_tmps]
+
+                        # Fetch all DonneesCentrale data in a single query
+                        donnees_centrale = DonneesCentrale.objects.filter(temps__in=timestamps)
+
+                        # Create a dictionary for quick lookup
+                        donnees_centrale_dict = {entry.temps: entry for entry in donnees_centrale}
+
+                        # Update list_pui_tmps with irradiance data
                         for entry in list_pui_tmps:
-                            # Récupérer la valeur d'irradiance_en_watt_par_surface correspondante
-                            donnee_centrale = DonneesCentrale.objects.filter(temps=entry['temps']).first()
+                            donnee_centrale = donnees_centrale_dict.get(entry['temps'])
                             if donnee_centrale:
                                 entry['irradiance_en_watt_par_surface'] = donnee_centrale.irradiance_en_watt_par_surface
-                    item_bis["donnees_energie"] = list(list_pui_tmps)
+
+                        item_bis["donnees_energie"] = list_pui_tmps
         else:
             pass 
         return JsonResponse(filtered_data, safe=False)
