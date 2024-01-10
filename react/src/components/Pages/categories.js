@@ -195,44 +195,84 @@ const formatDate = (dateString) => {
   return formattedDate;
 };
   
-  const fetchdatacentrale = async () =>{
-      try {
-        const response = await axios.get("https://webicamapp.reden.cloud/getCentrale/", {
-                params: {
-                    selected_nom: initialSelectionCentrale.current,
-                    date_debut: startDate,
-                    date_fin: endDate
-                }
-            });
-          // console.log(selectionCentrale)
-        const responseData = response.data;
-        setData(responseData);
-        // console.log(responseData);
-    } catch (error) {
-        console.error("Une erreur s'est produite : ", error);
-    }
+const fetchdatacentrale = async () => {
+  try {
+    const response = await axios.get("http://localhost:8050/getCentrale/", {
+      params: {
+        selected_nom: initialSelectionCentrale.current,
+        date_debut: startDate,
+        date_fin: endDate
+      }
+    });
 
+    const responseData = response.data;
+
+    responseData.forEach((item) => {
+      if (item.donnees_energie && item.donnees_energie.length > 0) {
+        item.donnees_energie.sort((a, b) => {
+          const dateA = new Date(a.temps);
+          const dateB = new Date(b.temps);
+
+          // Compare les dates de manière décroissante
+          const dateComparison = dateB.toLocaleString().localeCompare(dateA.toLocaleString());
+          if (dateComparison !== 0) {
+            return dateComparison;
+          }
+
+          // Si les dates sont les mêmes, trier par heure croissante
+          return dateA.getHours() - dateB.getHours();
+        });
+      } else {
+        console.error(`donnees_energie is undefined or empty for item with idReferenceOnduleur: ${item.idReferenceOnduleur}`);
+      }
+    });
+
+    setData(responseData);
+    setSelectionCentrale(initialSelectionCentrale.current);
+  } catch (error) {
+    console.error("Une erreur s'est produite : ", error);
   }
+};
+const changement_centrale = async (e) => {
+  const newSelectionCentral = e.target.value;
 
-  const changement_centrale = async (e) => {
-    const newSelectionCentral = e.target.value;
+  try {
+    const response = await axios.get("http://localhost:8050/getCentrale/", {
+      params: {
+        selected_nom: newSelectionCentral,
+        date_debut: startDate,
+        date_fin: endDate
+      }
+    });
 
-    try {
-      const response = await axios.get("https://webicamapp.reden.cloud/getCentrale/", {
-        params: {
-          selected_nom: newSelectionCentral,
-          date_debut: startDate,
-          date_fin: endDate
-        }
-      });
+    const responseData = response.data;
 
-      const responseData = response.data;
-      setData(responseData);
-      setSelectionCentrale(newSelectionCentral);
-    } catch (error) {
-      console.error("Une erreur s'est produite : ", error);
-    }
+    responseData.forEach((item) => {
+      if (item.donnees_energie && item.donnees_energie.length > 0) {
+        item.donnees_energie.sort((a, b) => {
+          const tempsA = new Date(a.temps);
+          const tempsB = new Date(b.temps);
+
+          // Sort dates in descending order
+          const dateSort = tempsB.getTime() - tempsA.getTime();
+          if (dateSort !== 0) {
+            return dateSort;
+          }
+          // If dates are the same, sort hours in ascending order
+          return tempsA.getHours()-tempsB.getHours();
+        });
+      } else {
+        console.error(`donnees_energie is undefined or empty for item with idReferenceOnduleur: ${item.idReferenceOnduleur}`);
+      }
+    });
+
+    setData(responseData);
+    setSelectionCentrale(newSelectionCentral);
+  } catch (error) {
+    console.error("Une erreur s'est produite : ", error);
   }
+};
+
   console.log(data)
   console.log("selectionCentrale: ",selectionCentrale)
 
