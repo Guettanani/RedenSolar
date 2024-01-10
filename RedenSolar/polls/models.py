@@ -53,7 +53,7 @@ class ReferenceOnduleur(models.Model):
     puissanceNominale = models.DecimalField(max_digits=15, decimal_places=2,null=True)
     idCentrale = models.ForeignKey(Centrale, on_delete=models.CASCADE,null=True)
     def __str__(self):
-        return self.nomReference
+        return f"{self.nomReferencef}-{self.idCentrale.nomCentrale}-{self.idCentrale.project_code}"
     class Meta:
         app_label = 'polls'
 
