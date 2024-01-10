@@ -19,22 +19,27 @@ from datetime import timedelta,datetime
 import math
 from django.utils import timezone
 import pendulum
+from django.core.exceptions import ObjectDoesNotExist
 
-
-@api_view(['GET'])
-def getSelec(request):
-    if request.method == 'GET':
-        centrales=Centrale.objects.all()
-    data=[{"nomCentrale": obj.nomCentrale} for obj in centrales]
-    print(data)
-
-    return JsonResponse(data,safe=False)
-
-
+selected_nom = None
 @api_view(['GET'])
 def getDataCate(request):
     if request.method == 'GET':
-        selected_nom = request.GET.get('selected_nom', None)
+        global selected_nom
+        global date_debut
+        print("selected_nom: ",selected_nom)
+        
+        nom_test = request.GET.get('selected_nom', None)
+        print("nom_test: ",nom_test)
+        if nom_test==None:
+            try:
+                selected_nom=selected_nom
+            except(TypeError):
+                selected_nom='Abattoirs de Langogne'
+        elif selected_nom!='Abattoirs de Langogne' and selected_nom!=None and nom_test=='Abattoirs de Langogne':
+            selected_nom=nom_test
+        else:
+            selected_nom=nom_test
         date_debut=request.GET.get('date_debut', None)
         date_fin=request.GET.get('date_fin', None)
        
@@ -80,31 +85,60 @@ def getDataCate(request):
                         list_pui_tmps = Energie.objects.filter(idOnduleur_id=onduleur_associe_id).values('temps', 'puissance')
 
                         list_pui_tmps = [
-                                {
-                                    'temps': item['temps'].replace(tzinfo=pytz.UTC),
-                                    'puissance': item['puissance']
-                                }
-                                for item in list(list_pui_tmps)
-                                if date_debut_obj <= item['temps'] and item['temps'] <= date_fin_obj
-                            ]
-                        print('list_pui_temps: ', list_pui_tmps)
+                            {
+                                'temps': item['temps'].replace(tzinfo=pytz.UTC),
+                                'puissance': item['puissance']
+                            }
+                            for item in list(list_pui_tmps)
+                            if date_debut_obj <= item['temps'] and item['temps'] <= date_fin_obj
+                        ]
+
+                        # Extract timestamps from the list_pui_tmps for the bulk query
+                        timestamps = [entry['temps'] for entry in list_pui_tmps]
+
+                        # Fetch all DonneesCentrale data in a single query
+                        donnees_centrale = DonneesCentrale.objects.filter(temps__in=timestamps)
+
+                        # Create a dictionary for quick lookup
+                        donnees_centrale_dict = {entry.temps: entry for entry in donnees_centrale}
+
+                        # Update list_pui_tmps with irradiance data
                         for entry in list_pui_tmps:
-                            # Récupérer la valeur d'irradiance_en_watt_par_surface correspondante
-                            donnee_centrale = DonneesCentrale.objects.filter(temps=entry['temps']).first()
+                            donnee_centrale = donnees_centrale_dict.get(entry['temps'])
                             if donnee_centrale:
                                 entry['irradiance_en_watt_par_surface'] = donnee_centrale.irradiance_en_watt_par_surface
-                        item_bis["donnees_energie"] = list(list_pui_tmps)
+
+                        item_bis["donnees_energie"] = list_pui_tmps
         else:
-            pass
-        print("filtered_data: ",filtered_data)  
+            pass 
         return JsonResponse(filtered_data, safe=False)
-    
+
+@api_view(['GET'])
+def getSelec(request):
+    global selected_nom
+    if request.method == 'GET':
+        print("selected_nom4: ",selected_nom)
+        if selected_nom==None:
+            print("selected_nom3: ",selected_nom)
+            selected_nom = 'Abattoirs de Langogne'
+            centrales = Centrale.objects.all()
+            data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
+            data.append({"selected_nom": selected_nom})
+            print("dataSelec: ",data)
+        else:
+            print("selected_nom3: ",selected_nom)
+            centrales = Centrale.objects.all()
+            data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
+            data.append({"selected_nom": selected_nom})
+            #print("dataSelec: ",data)
+        return JsonResponse(data, safe=False)
+
+
 @api_view(['GET'])
 def data_tab(request):
     if request.method =='GET':
         test_objects = MainCourante.objects.all()
 
-        timezone_origine = timezone('Europe/Paris')       
         centrale_list = [item.idCentrale_id for item in test_objects]
         autres_donnees = Centrale.objects.filter(idCentrale__in=centrale_list)
         centrale_dict = {item.idCentrale: item.nomCentrale for item in autres_donnees}
@@ -116,6 +150,69 @@ def data_tab(request):
         return JsonResponse(data, safe=False)
     else:
         return Response({'message': 'Méthode non autorisée.'}, status=405)
+    
+@api_view(['GET'])
+def affCalcAlbio(request):
+    if request.method == 'GET':
+        global selected_nom
+        global date_debut
+        annee = request.GET.get('annee', None)
+        centrale_nom = selected_nom
+        date_debut = date_debut
+
+        try:
+            if date_debut is not None:
+                annee = int(annee)  # Convertir l'année en entier
+                
+                centrale_obj = Centrale.objects.get(nomCentrale=centrale_nom)
+                centrale_id = centrale_obj.idCentrale
+
+                disponibilites = []
+                for mois in range(1, 13):
+                    try:
+                        disponibilites_albio_objs = Disponibilite.objects.filter(
+                            idCentrale_id=centrale_id,
+                            moisAnnee__month=mois,
+                            moisAnnee__year=annee,
+                            idTypeDispo__in=[3, 2, 1]
+                        )
+
+                        dispo_albio = dispo_reden = dispo_brute = None
+
+                        for disponibilite_albio_obj in disponibilites_albio_objs:
+                            print("disponibilite_albio_obj.idTypeDispo:", disponibilite_albio_obj.idTypeDispo)
+                            if str(disponibilite_albio_obj.idTypeDispo) == 'Contractuelle ALBIOMA': 
+                                dispo_albio = disponibilite_albio_obj.Disponibilite
+                            if str(disponibilite_albio_obj.idTypeDispo) == 'REDEN':
+                                dispo_reden = disponibilite_albio_obj.Disponibilite
+                                print("dispo_reden: ",dispo_reden)
+                            if str(disponibilite_albio_obj.idTypeDispo) == 'Brute':
+                                dispo_brute = disponibilite_albio_obj.Disponibilite
+
+                        disponibilites.append({
+                            "mois": mois,
+                            "disponibilite_brute": dispo_brute,
+                            "disponibilite_reden": dispo_reden,
+                            "disponibilite_albio": dispo_albio
+                        })
+
+                    except ObjectDoesNotExist:
+                        disponibilites.append({
+                            "mois": mois,
+                            "disponibilite_brute": None,
+                            "disponibilite_reden": None,
+                            "disponibilite_albio": None
+                        })
+
+                response_data = {"disponibilites": disponibilites}
+                print("response_data: ",response_data)
+                return JsonResponse(response_data)
+            else:
+                pass
+        except Centrale.DoesNotExist:
+            return JsonResponse({"error": f"Aucune centrale trouvée avec le nom '{centrale_nom}'."}, status=404)
+        except ValueError:
+            return JsonResponse({"error": "Format de date invalide."}, status=400)
 
 @api_view(['POST'])
 def ajout_article(request):
@@ -132,13 +229,17 @@ def ajout_article(request):
 
         original_date_str_debut = idheuredebut
         original_date_str_fin = idheurefin
+        print("idheuredebut: ",idheuredebut)
+        print("original_date_str_debut :",original_date_str_debut)
+        
 
         original_date_debut = datetime.strptime(original_date_str_debut, "%d/%m/%Y %H:%M")
         original_date_fin = datetime.strptime(original_date_str_fin, "%d/%m/%Y %H:%M")
+        print("original_date_debut :",original_date_debut)
 
-        # Formater la date sans changer le fuseau horaire
         formatted_date_str_debut = original_date_debut.strftime("%Y-%m-%d %H:%M:%S")
         formatted_date_str_fin = original_date_fin.strftime("%Y-%m-%d %H:%M:%S")
+        print("formatted_date_str_debut :",formatted_date_str_debut)
 
         print("idcentrale: ",idcentraleSelec)
         donnees = Centrale.objects.filter(nomCentrale=idcentraleSelec)
@@ -152,22 +253,57 @@ def ajout_article(request):
         formatted_date = datetime.strptime(formatted_date_str_debut, "%Y-%m-%d %H:%M:%S")
         print(" formatted_date: ", formatted_date)
         mois = formatted_date.month
+        annee = formatted_date.year
 
-        data_centrale_dispo={"centrale_id":idcentraleSelec, "mois":mois}
+        data_albioma={"centrale_id":idcentraleSelec, "mois":mois, "annee":annee}
 
         article = MainCourante(constat=iddefaut, dateHeureConstat=formatted_date_str_debut, dateHeureActionCorrective=formatted_date_str_fin, idCentrale_id=centrale_value, actionCorrective=idcommentaires, materielImpacte=idequipementEndommage)
         article.save()
-        calculCentrale=ModelCalcul.objects.filter(idModelCalcul=donnees.idModelCalcul_id).first().nom
-        if calculCentrale== 'Albioma':
-            calculAlbioma(data_centrale_dispo)
-        elif calculCentrale=='EOS':
-           calculEOS(data_centrale_dispo)
-
+        calculAlbioma(data_albioma)
         return JsonResponse({'message': 'Article ajouté avec succès.'})
         
     else:
         return JsonResponse({'message': 'Méthode non autorisée.'}, status=405)
+    
+@api_view(['DELETE'])
+def suppMC(request):
+    if request.method=='DELETE':
+        data_from_json = request.data
+        iddefaut=data_from_json['iddefaut']
+        idheuredebut=data_from_json['idheuredebut']
+        idheurefin=data_from_json['idheurefin']
+        idcentrale_nom=data_from_json['idcentrale']
+        idequipementEndommage=data_from_json['idequipementEndommage']
+        idcommentaires=data_from_json['idcommentaires']
+        print("idcentrale_nom:", idcentrale_nom)
+        try:
+            autres_donnees = Centrale.objects.filter(nomCentrale=idcentrale_nom)
+            print("autre_donnees:",autres_donnees)
+            centrale_dict = { item.nomCentrale: item.idCentrale for item in autres_donnees}
+            print("centrale_dict: ",centrale_dict)
+            article_a_supprimer = MainCourante.objects.get(constat=iddefaut,dateHeureConstat=idheuredebut,dateHeureActionCorrective=idheurefin,idCentrale_id=centrale_dict.get(idcentrale_nom),materielImpacte=idequipementEndommage,actionCorrective=idcommentaires)
 
+            article_a_supprimer.delete()
+
+            original_date_str_debut = idheuredebut
+
+
+            original_date_debut = datetime.strptime(original_date_str_debut, "%Y-%m-%dT%H:%M:%SZ")
+
+
+            # Formater la date sans changer le fuseau horaire
+            formatted_date_str_debut = original_date_debut.strftime("%Y-%m-%d %H:%M:%S")
+
+            formatted_date = datetime.strptime(formatted_date_str_debut, "%Y-%m-%d %H:%M:%S")
+            mois = formatted_date.month
+            annee = formatted_date.year
+            data_albioma={"centrale_id":idcentrale_nom, "mois":mois, "annee":annee}
+
+            calculAlbioma(data_albioma)
+
+            return Response({'message': 'Suppression réussie'})
+        except MainCourante.DoesNotExist:
+            return Response({'message': 'Élément non trouvé'}, status=404)
 
 #ajout des données de la table DonneesCentrale dans la BDD
 def Push(request):
@@ -218,7 +354,7 @@ def PushDonneesCentrale ():
 #########################################################################################################################################
 #                                                   ALGORITHME CALCUL DE DISPO                                                          #
 #########################################################################################################################################
-def calculAlbioma(data_centrale_dispo):
+def calculAlbioma(data_albioma):
 
     # Recupération des tables nécessaires aux calculs
     ensoleillement = EnsoleillementParMois.objects.all()
@@ -231,8 +367,8 @@ def calculAlbioma(data_centrale_dispo):
     sum_H0_Reden=0
     sum_H0_Brute=0
     DispoTot=1
-    DispoTotBrute=1
     DispoTotReden=1
+    DispoTotBrute=1
     UsablefinDef=timedelta()
     UsabledebutDef=timedelta()
     PuissanceImpactee=0
@@ -260,7 +396,8 @@ def calculAlbioma(data_centrale_dispo):
         12: 'decembre',
     }
 
-    mois=month_names.get(data_centrale_dispo['mois'])
+    mois=month_names.get(data_albioma['mois'])
+    annee=data_albioma['annee']
 
     # Annotate the French month name based on the month number
     heureDefaut = heureDefaut.annotate(
@@ -276,256 +413,256 @@ def calculAlbioma(data_centrale_dispo):
     if selection == "mois":
         month_number = next((month for month, name in month_names.items() if name == mois), None)
         #sélection de la période à analyser (début à fin de mois)
-        year = datetime.now().year
+        year = annee
         debut = datetime(year, month_number,1, 0, 0, 0)
         last_day = calendar.monthrange(year, month_number)[1]
         fin = datetime(year, month_number, last_day, 23, 59, 59)
         print("fin: ",fin)
     
     #selection de la centrale pour laquelle le calcul est lancé
-    centrale=data_centrale_dispo['centrale_id']
+    centrale=data_albioma['centrale_id']
     centraleId=0
     centraleId=Centrale.objects.filter(nomCentrale=centrale).first()
     print(centraleId.nomCentrale,"|",centraleId.idCentrale)
     print("nom_calcul: ",centraleId.idModelCalcul_id)
-    
-    #filtre pour n'avoir que les défauts apparus sur le mois sélectionné
-    heureDefaut=heureDefaut.filter(dateHeureActionCorrective__lt=fin,dateHeureConstat__gt=debut,idCentrale_id=centraleId)
-    print("heuredefaut: ",heureDefaut)
-    #lancement de l'algorithme pour chaque main courante dans le mois
-    for heureDefaut in heureDefaut:
-        
-        moisEnCours = ensoleillement.get(mois=heureDefaut.french_month_name) #Récupération de la valeur moyenne d'ensoleillement sur le mois
-        
-        naive_time = heureDefaut.dateHeureConstat 
-        
-        #Les 4 prochaines lignes sont utiles pour corriger le décalage induit par le fuseau horaire de la france variant d'été à hiver + synchronisation avec valeur dans la base de données
-        timezone_paris = pytz.timezone("Europe/Paris") # Set the time zone
-        naive_datetime = datetime.combine(naive_time.date(), naive_time.time()) # Create a datetime object with the given time and set the time zone
-        dt = timezone_paris.localize(naive_datetime, is_dst=None)
-        utc_offset = dt.utcoffset() # Get the UTC offset as a timedelta
-        print(utc_offset)
+    if ModelCalcul.objects.filter(idModelCalcul=centraleId.idModelCalcul_id).first().nom=="Albioma":
+        #filtre pour n'avoir que les défauts apparus sur le mois sélectionné
+        heureDefaut=heureDefaut.filter(dateHeureActionCorrective__lt=fin,dateHeureConstat__gt=debut,idCentrale_id=centraleId)
+        print("heuredefaut: ",heureDefaut)
+        #lancement de l'algorithme pour chaque main courante dans le mois
+        for heureDefaut in heureDefaut:
+            
+            moisEnCours = ensoleillement.get(mois=heureDefaut.french_month_name) #Récupération de la valeur moyenne d'ensoleillement sur le mois
+            
+            naive_time = heureDefaut.dateHeureConstat 
+            
+            #Les 4 prochaines lignes sont utiles pour corriger le décalage induit par le fuseau horaire de la france variant d'été à hiver + synchronisation avec valeur dans la base de données
+            timezone_paris = pytz.timezone("Europe/Paris") # Set the time zone
+            naive_datetime = datetime.combine(naive_time.date(), naive_time.time()) # Create a datetime object with the given time and set the time zone
+            dt = timezone_paris.localize(naive_datetime, is_dst=None)
+            utc_offset = dt.utcoffset() # Get the UTC offset as a timedelta
+            print(utc_offset)
 
-        #heure début et fin de défaut formatés avec le changement de fuseau horaire
-        formatedFinFefHeureDefaut = (heureDefaut.dateHeureActionCorrective+utc_offset).time()
-        formatedDebDefHeureDefaut = (heureDefaut.dateHeureConstat+utc_offset).time()
+            #heure début et fin de défaut formatés avec le changement de fuseau horaire
+            formatedFinFefHeureDefaut = (heureDefaut.dateHeureActionCorrective+utc_offset).time()
+            formatedDebDefHeureDefaut = (heureDefaut.dateHeureConstat+utc_offset).time()
 
-        #Récuperation de la valeur de durée de fonctionnement prévue pour la centrale
-        H=HeureFonctionnementAlbioma.objects.filter(idCentrale=heureDefaut.idCentrale_id,mois=heureDefaut.french_month_name).first()
+            #Récuperation de la valeur de durée de fonctionnement prévue pour la centrale
+            H=HeureFonctionnementAlbioma.objects.filter(idCentrale=heureDefaut.idCentrale_id,mois=heureDefaut.french_month_name).first()
 
-        print("heure debut",formatedDebDefHeureDefaut," heure fin: ", formatedFinFefHeureDefaut, "heure à ajouter:",utc_offset)
+            print("heure debut",formatedDebDefHeureDefaut," heure fin: ", formatedFinFefHeureDefaut, "heure à ajouter:",utc_offset)
 
-        #vérification des conditions pour la prise en compte du début et de fin d'arrêt
-        debutDef = None
-        finDef = None
-        
-        if formatedDebDefHeureDefaut < moisEnCours.MoyenneLeverSoleil:
-            debutDef = moisEnCours.MoyenneLeverSoleil
+            #vérification des conditions pour la prise en compte du début et de fin d'arrêt
+            debutDef = None
+            finDef = None
+            
+            if formatedDebDefHeureDefaut < moisEnCours.MoyenneLeverSoleil:
+                debutDef = moisEnCours.MoyenneLeverSoleil
 
-        elif formatedDebDefHeureDefaut > moisEnCours.MoyenneCoucherSoleil:
-            finDef = moisEnCours.MoyenneCoucherSoleil
+            elif formatedDebDefHeureDefaut > moisEnCours.MoyenneCoucherSoleil:
+                finDef = moisEnCours.MoyenneCoucherSoleil
 
-        if formatedFinFefHeureDefaut > moisEnCours.MoyenneCoucherSoleil:
-            finDef = moisEnCours.MoyenneCoucherSoleil
+            if formatedFinFefHeureDefaut > moisEnCours.MoyenneCoucherSoleil:
+                finDef = moisEnCours.MoyenneCoucherSoleil
 
-        elif formatedFinFefHeureDefaut < moisEnCours.MoyenneLeverSoleil:
-            debutDef = moisEnCours.MoyenneLeverSoleil
+            elif formatedFinFefHeureDefaut < moisEnCours.MoyenneLeverSoleil:
+                debutDef = moisEnCours.MoyenneLeverSoleil
 
-        # Handle the case where none of the conditions are met
-        if debutDef is None:
-            debutDef = formatedDebDefHeureDefaut
-        if finDef is None:
-            finDef = formatedFinFefHeureDefaut  
-        
-        #Convertion pour calculer un delta T
-        UsabledebutDef = timedelta(days=heureDefaut.dateHeureConstat.date().day,hours=debutDef.hour, minutes=debutDef.minute, seconds=debutDef.second)
-        UsablefinDef = timedelta(days=heureDefaut.dateHeureActionCorrective.date().day,hours=finDef.hour, minutes=finDef.minute, seconds=finDef.second)
-        
-        print("deltaT: ",UsablefinDef-UsabledebutDef)
-        print(UsabledebutDef," ",UsablefinDef)
+            # Handle the case where none of the conditions are met
+            if debutDef is None:
+                debutDef = formatedDebDefHeureDefaut
+            if finDef is None:
+                finDef = formatedFinFefHeureDefaut  
+            
+            #Convertion pour calculer un delta T
+            UsabledebutDef = timedelta(days=heureDefaut.dateHeureConstat.date().day,hours=debutDef.hour, minutes=debutDef.minute, seconds=debutDef.second)
+            UsablefinDef = timedelta(days=heureDefaut.dateHeureActionCorrective.date().day,hours=finDef.hour, minutes=finDef.minute, seconds=finDef.second)
+            
+            print("deltaT: ",UsablefinDef-UsabledebutDef)
+            print(UsabledebutDef," ",UsablefinDef)
 
-        try:
+            try:
+                defautMainCourante=Defaut.objects.get(nom=heureDefaut.constat)
+            except Defaut.DoesNotExist:
+                print('error')
+                break   
             defautMainCourante=Defaut.objects.get(nom=heureDefaut.constat)
-        except Defaut.DoesNotExist:
-            print('error')
-            break   
-        defautMainCourante=Defaut.objects.get(nom=heureDefaut.constat)
-        print("defautMainCourante: ",defautMainCourante)
-        
-        #Relier le défaut selectionné à la matric défaut et savoir si ce dernier est imputable/non imputable/franchise d'heure
-        typedispo=TypeDispo.objects.get(nom='Contractuelle ALBIOMA')
-        imputation=defaut.get(idDefaut_id=defautMainCourante.idDefaut,idTypeDispo_id=typedispo.idTypeDispo)
-        print("imputation", imputation.Imputation)
-        
-        #Calcul des franchises heures pour une durée inférieure à 24h (condition OU car il faut que les deux bornes soient prises en compte)
-        heureFranchise=0
-        if imputation.Imputation=="Imputable avec franchise d'heure":
-            print("debut def:",formatedDebDefHeureDefaut)
-            if ((formatedDebDefHeureDefaut < moisEnCours.MoyenneLeverSoleil or
-                    formatedFinFefHeureDefaut < moisEnCours.MoyenneLeverSoleil) and
-                    (formatedDebDefHeureDefaut > moisEnCours.MoyenneCoucherSoleil or
-                    formatedFinFefHeureDefaut > moisEnCours.MoyenneCoucherSoleil)
-                ):
-                heureFranchise = 2
-            elif (formatedDebDefHeureDefaut > moisEnCours.MoyenneCoucherSoleil) or (formatedFinFefHeureDefaut> moisEnCours.MoyenneCoucherSoleil):
-                heureFranchise=1
-            elif (formatedDebDefHeureDefaut < moisEnCours.MoyenneLeverSoleil) or (formatedFinFefHeureDefaut< moisEnCours.MoyenneLeverSoleil) :
-                heureFranchise=1
-
-
-        #calul final temps arret 
-        deltaperiode=UsablefinDef-UsabledebutDef
-        deltaperiodedelta=deltaperiode-timedelta(hours=moisEnCours.dureeNuit.hour,minutes=moisEnCours.dureeNuit.minute,seconds=moisEnCours.dureeNuit.second)*deltaperiode.days
-        deltaperiodeConvert=deltaperiodedelta.total_seconds()/3600 #convert in decimal hours
-        print("nouvelle valeur deltaperiode :",deltaperiodeConvert, "h franchise <24h :",heureFranchise)
-        print("decimal hour:",deltaperiode)
-        deltaPeriodeSansFranchiseHeure=deltaperiodeConvert
-        deltaperiodeConvert=deltaperiodeConvert-heureFranchise #Soustraire les franchises d'heures au résultat
-        
-        #Calcul des franchises d'heures et du temps d'arrêt pour un temps d'arrêt > 24h
-        if deltaperiode > timedelta(days=0,hours=24):
+            print("defautMainCourante: ",defautMainCourante)
+            
+            #Relier le défaut selectionné à la matric défaut et savoir si ce dernier est imputable/non imputable/franchise d'heure
+            typedispo=TypeDispo.objects.get(nom='Contractuelle ALBIOMA')
+            imputation=defaut.get(idDefaut_id=defautMainCourante.idDefaut,idTypeDispo_id=typedispo.idTypeDispo)
+            print("imputation", imputation.Imputation)
+            
+            #Calcul des franchises heures pour une durée inférieure à 24h (condition OU car il faut que les deux bornes soient prises en compte)
+            heureFranchise=0
             if imputation.Imputation=="Imputable avec franchise d'heure":
                 print("debut def:",formatedDebDefHeureDefaut)
-                #Calcul des franchises d'heures 
-                heureFranchise=0
-                if (
-                    (formatedDebDefHeureDefaut > moisEnCours.MoyenneLeverSoleil or
-                    formatedFinFefHeureDefaut <moisEnCours.MoyenneLeverSoleil) and
-                    (formatedDebDefHeureDefaut > moisEnCours.MoyenneCoucherSoleil or
-                    formatedFinFefHeureDefaut < moisEnCours.MoyenneCoucherSoleil)
-                ):
+                if ((formatedDebDefHeureDefaut < moisEnCours.MoyenneLeverSoleil or
+                        formatedFinFefHeureDefaut < moisEnCours.MoyenneLeverSoleil) and
+                        (formatedDebDefHeureDefaut > moisEnCours.MoyenneCoucherSoleil or
+                        formatedFinFefHeureDefaut > moisEnCours.MoyenneCoucherSoleil)
+                    ):
                     heureFranchise = 2
-                elif (formatedDebDefHeureDefaut > moisEnCours.MoyenneCoucherSoleil) or (formatedFinFefHeureDefaut < moisEnCours.MoyenneCoucherSoleil):
+                elif (formatedDebDefHeureDefaut > moisEnCours.MoyenneCoucherSoleil) or (formatedFinFefHeureDefaut> moisEnCours.MoyenneCoucherSoleil):
                     heureFranchise=1
-                elif (formatedDebDefHeureDefaut > moisEnCours.MoyenneLeverSoleil) or (formatedFinFefHeureDefaut < moisEnCours.MoyenneLeverSoleil) :
+                elif (formatedDebDefHeureDefaut < moisEnCours.MoyenneLeverSoleil) or (formatedFinFefHeureDefaut< moisEnCours.MoyenneLeverSoleil) :
                     heureFranchise=1
-            
-            #Calul final temps arret 
-            #Soustraction de la duréee de la nuit
+
+
+            #calul final temps arret 
+            deltaperiode=UsablefinDef-UsabledebutDef
             deltaperiodedelta=deltaperiode-timedelta(hours=moisEnCours.dureeNuit.hour,minutes=moisEnCours.dureeNuit.minute,seconds=moisEnCours.dureeNuit.second)*deltaperiode.days
-            print("delta-dureenuit",deltaperiode)
-            #Conversion en heure décimale
-            deltaperiodeConvert=deltaperiodedelta.total_seconds()/3600
+            deltaperiodeConvert=deltaperiodedelta.total_seconds()/3600 #convert in decimal hours
+            print("nouvelle valeur deltaperiode :",deltaperiodeConvert, "h franchise <24h :",heureFranchise)
             print("decimal hour:",deltaperiode)
-            #Prise en compte des heures de franchise dans le temps d'arrêt
             deltaPeriodeSansFranchiseHeure=deltaperiodeConvert
-            deltaperiodeConvert=deltaperiodeConvert-((deltaperiode.days+1)*2-heureFranchise)
-            print("heure franchise inverse : ",heureFranchise, "heure franchise total ",(deltaperiode.days+1)*2-heureFranchise)
-            print("nouvelle valeur deltaperiode :",deltaperiodeConvert)
-        
+            deltaperiodeConvert=deltaperiodeConvert-heureFranchise #Soustraire les franchises d'heures au résultat
+            
+            #Calcul des franchises d'heures et du temps d'arrêt pour un temps d'arrêt > 24h
+            if deltaperiode > timedelta(days=0,hours=24):
+                if imputation.Imputation=="Imputable avec franchise d'heure":
+                    print("debut def:",formatedDebDefHeureDefaut)
+                    #Calcul des franchises d'heures 
+                    heureFranchise=0
+                    if (
+                        (formatedDebDefHeureDefaut > moisEnCours.MoyenneLeverSoleil or
+                        formatedFinFefHeureDefaut <moisEnCours.MoyenneLeverSoleil) and
+                        (formatedDebDefHeureDefaut > moisEnCours.MoyenneCoucherSoleil or
+                        formatedFinFefHeureDefaut < moisEnCours.MoyenneCoucherSoleil)
+                    ):
+                        heureFranchise = 2
+                    elif (formatedDebDefHeureDefaut > moisEnCours.MoyenneCoucherSoleil) or (formatedFinFefHeureDefaut < moisEnCours.MoyenneCoucherSoleil):
+                        heureFranchise=1
+                    elif (formatedDebDefHeureDefaut > moisEnCours.MoyenneLeverSoleil) or (formatedFinFefHeureDefaut < moisEnCours.MoyenneLeverSoleil) :
+                        heureFranchise=1
+                
+                #Calul final temps arret 
+                #Soustraction de la duréee de la nuit
+                deltaperiodedelta=deltaperiode-timedelta(hours=moisEnCours.dureeNuit.hour,minutes=moisEnCours.dureeNuit.minute,seconds=moisEnCours.dureeNuit.second)*deltaperiode.days
+                print("delta-dureenuit",deltaperiode)
+                #Conversion en heure décimale
+                deltaperiodeConvert=deltaperiodedelta.total_seconds()/3600
+                print("decimal hour:",deltaperiode)
+                #Prise en compte des heures de franchise dans le temps d'arrêt
+                deltaPeriodeSansFranchiseHeure=deltaperiodeConvert
+                deltaperiodeConvert=deltaperiodeConvert-((deltaperiode.days+1)*2-heureFranchise)
+                print("heure franchise inverse : ",heureFranchise, "heure franchise total ",(deltaperiode.days+1)*2-heureFranchise)
+                print("nouvelle valeur deltaperiode :",deltaperiodeConvert)
+            
 
-        #Prendre les données du dernier onduleur installé sur l'emplacement en défaut
-        latest_dates= AssoOnduleur.objects.values('idReferenceOnduleur').annotate(latest_date=Max('idOnduleur__dateCreationOnduleur'))
-        # Joignez cette information pour obtenir les onduleurs associés aux références avec les dates de création maximales
-        latest_onduleurs = AssoOnduleur.objects.filter(idOnduleur__dateCreationOnduleur__in=Subquery(latest_dates.values('latest_date')))
-        puissanceParOnduleur = {}
-        
-        # Create a datetime object for the first day of the month
-        time_obj = datetime.combine(datetime.today(), moisEnCours.MoyenneLeverSoleil)
-        new_time_up = time_obj
-        # Convert new_time back to time
-        new_time_up_as_time = new_time_up.time()
-        print(new_time_up_as_time)
-        time_obj2=datetime.combine(datetime.today(), moisEnCours.MoyenneCoucherSoleil)
-        new_time_down = time_obj2 
-        #- timedelta(hours=1)
-        new_time_down_as_time=new_time_down.time()
-        print(new_time_down_as_time)
+            #Prendre les données du dernier onduleur installé sur l'emplacement en défaut
+            latest_dates= AssoOnduleur.objects.values('idReferenceOnduleur').annotate(latest_date=Max('idOnduleur__dateCreationOnduleur'))
+            # Joignez cette information pour obtenir les onduleurs associés aux références avec les dates de création maximales
+            latest_onduleurs = AssoOnduleur.objects.filter(idOnduleur__dateCreationOnduleur__in=Subquery(latest_dates.values('latest_date')))
+            puissanceParOnduleur = {}
+            
+            # Create a datetime object for the first day of the month
+            time_obj = datetime.combine(datetime.today(), moisEnCours.MoyenneLeverSoleil)
+            new_time_up = time_obj
+            # Convert new_time back to time
+            new_time_up_as_time = new_time_up.time()
+            print(new_time_up_as_time)
+            time_obj2=datetime.combine(datetime.today(), moisEnCours.MoyenneCoucherSoleil)
+            new_time_down = time_obj2 
+            #- timedelta(hours=1)
+            new_time_down_as_time=new_time_down.time()
+            print(new_time_down_as_time)
 
-        #Recuperer les valeurs de puissance nominal dans la main courante
-        MaterielImpacte = heureDefaut.materielImpacte
-        OnduleurImpacte = MaterielImpacte.split(', ') # Split the expression using the comma as a delimiter
-        PuissanceImpactee=0 
-        #Avoir la valeur de la puissance nominale pour chaque référence onduleur
-        for Onduleur in OnduleurImpacte:
-            print(Onduleur)
-            PuissanceNominale=ReferenceOnduleur.objects.filter(nomReference=Onduleur,idCentrale_id=heureDefaut.idCentrale_id).first().puissanceNominale
-            print("Puissance onduleur : ",PuissanceNominale)
-            PuissanceImpactee=PuissanceImpactee+float(PuissanceNominale)
-            print("PuissanceImpactee: ",PuissanceImpactee)
-        # Calcul de la dispo avec H et H0
-        if heureDefaut.constat in ["Découplage", "Curratif", "Défaut Riso Module"]:
-            H0 = (deltaperiodeConvert * PuissanceImpactee) / float(Centrale.objects.filter(idCentrale=heureDefaut.idCentrale_id).first().puissanceInstallee)
-            H0SansFranchiseHeure=(deltaPeriodeSansFranchiseHeure * PuissanceImpactee) / float(Centrale.objects.filter(idCentrale=heureDefaut.idCentrale_id).first().puissanceInstallee)
-            if H0 < 0 :
+            #Recuperer les valeurs de puissance nominal dans la main courante
+            MaterielImpacte = heureDefaut.materielImpacte
+            OnduleurImpacte = MaterielImpacte.split(', ') # Split the expression using the comma as a delimiter
+            PuissanceImpactee=0 
+            #Avoir la valeur de la puissance nominale pour chaque référence onduleur
+            for Onduleur in OnduleurImpacte:
+                print(Onduleur)
+                PuissanceNominale=ReferenceOnduleur.objects.filter(nomReference=Onduleur,idCentrale_id=heureDefaut.idCentrale_id).first().puissanceNominale
+                print("Puissance onduleur : ",PuissanceNominale)
+                PuissanceImpactee=PuissanceImpactee+float(PuissanceNominale)
+                print("PuissanceImpactee: ",PuissanceImpactee)
+            # Calcul de la dispo avec H et H0
+            if heureDefaut.constat in ["Découplage", "Curratif", "Défaut Riso Module"]:
+                H0 = (deltaperiodeConvert * PuissanceImpactee) / float(Centrale.objects.filter(idCentrale=heureDefaut.idCentrale_id).first().puissanceInstallee)
+                H0SansFranchiseHeure=(deltaPeriodeSansFranchiseHeure * PuissanceImpactee) / float(Centrale.objects.filter(idCentrale=heureDefaut.idCentrale_id).first().puissanceInstallee)
+                if H0 < 0 :
+                    H0=0
+            else :
                 H0=0
-        else :
-            H0=0
-            H0SansFranchiseHeure=0
-        sum_H0=sum_H0+H0
-        sum_H0_Reden=sum_H0_Reden+H0SansFranchiseHeure
+                H0SansFranchiseHeure=0
+            sum_H0=sum_H0+H0
+            sum_H0_Reden=sum_H0_Reden+H0SansFranchiseHeure
 
-        #Calcul dispo brute avec H et H0
-        if heureDefaut.constat != "Communication" :
-            H0SansFranchiseHeure=(deltaPeriodeSansFranchiseHeure * PuissanceImpactee) / float(Centrale.objects.filter(idCentrale=heureDefaut.idCentrale_id).first().puissanceInstallee)
-        else :
-            H0SansFranchiseHeure=0
+            #Calcul dispo brute avec H et H0
+            if heureDefaut.constat != "Communication" :
+                H0SansFranchiseHeure=(deltaPeriodeSansFranchiseHeure * PuissanceImpactee) / float(Centrale.objects.filter(idCentrale=heureDefaut.idCentrale_id).first().puissanceInstallee)
+            else :
+                H0SansFranchiseHeure=0
 
-        sum_H0_Brute=sum_H0_Brute+H0SansFranchiseHeure
+            sum_H0_Brute=sum_H0_Brute+H0SansFranchiseHeure
 
-        print("H0: ",H0)
-        H = HeureFonctionnementAlbioma.objects.filter(idCentrale=heureDefaut.idCentrale_id, mois=moisEnCours.mois).first().heureFonctionnement
-        #Calcul dispo Totale
-        DispoTot = (1 - float(sum_H0)/float(H))*100
-        DispoTotReden=(1 - float(sum_H0_Reden)/float(H))*100
-        DispoTotBrute=(1 - float(sum_H0_Brute)/float(H))*100
+            print("H0: ",H0)
+            H = HeureFonctionnementAlbioma.objects.filter(idCentrale=heureDefaut.idCentrale_id, mois=moisEnCours.mois).first().heureFonctionnement
+            #Calcul dispo Totale
+            DispoTot = (1 - float(sum_H0)/float(H))*100
+            DispoTotReden=(1 - float(sum_H0_Reden)/float(H))*100
+            DispoTotBrute=(1 - float(sum_H0_Brute)/float(H))*100
 
-    print("Dispo albioma :",DispoTot,"Dispo Reden : ",DispoTotReden,"Dispo brute : " ,DispoTotBrute)
-    # Try to get an existing Disponibilite instance with the same moisAnnee and idCentrale et dispo albioma
-    typedispo=TypeDispo.objects.get(nom='Contractuelle ALBIOMA')
-    existing_dispo_instance_Albioma = Disponibilite.objects.filter(moisAnnee=debut,idCentrale=centraleId,idTypeDispo=typedispo).first()
-    # Check if an existing instance was found
-    if existing_dispo_instance_Albioma:
-        # Update the existing instance with the new DispoTot value
-        existing_dispo_instance_Albioma.Disponibilite = DispoTot
-        existing_dispo_instance_Albioma.save()
-    else:
-        # Create a new Disponibilite instance if none exists
-        new_dispo_instance = Disponibilite(
-            moisAnnee=debut,
-            Disponibilite=DispoTot,
-            idCentrale=centraleId,
-            idTypeDispo=typedispo
-        )
-        new_dispo_instance.save()
-    
-    #REDEN ! Try to get an existing Disponibilite instance with the same moisAnnee and idCentrale et dispo REDEN
-    typedispo=TypeDispo.objects.get(nom="REDEN")
-    existing_dispo_instance_Reden = Disponibilite.objects.filter(moisAnnee=debut,idCentrale=centraleId,idTypeDispo=typedispo).first()
-    # Check if an existing instance was found
-    if existing_dispo_instance_Reden:
-        # Update the existing instance with the new DispoTot value
-        existing_dispo_instance_Reden.Disponibilite = DispoTotReden
-        existing_dispo_instance_Reden.save()
-    else:
-        # Create a new Disponibilite instance if none exists
-        new_dispo_instance = Disponibilite(
-            moisAnnee=debut,
-            Disponibilite=DispoTotReden,
-            idCentrale=centraleId,
-            idTypeDispo=typedispo
-        )
-        new_dispo_instance.save()
-    
+        print("Dispo albioma :",DispoTot,"Dispo Reden : ",DispoTotReden,"Dispo brute : " ,DispoTotBrute)
+        # Try to get an existing Disponibilite instance with the same moisAnnee and idCentrale et dispo albioma
+        typedispo=TypeDispo.objects.get(nom='Contractuelle ALBIOMA')
+        existing_dispo_instance_Albioma = Disponibilite.objects.filter(moisAnnee=debut,idCentrale=centraleId,idTypeDispo=typedispo).first()
+        # Check if an existing instance was found
+        if existing_dispo_instance_Albioma:
+            # Update the existing instance with the new DispoTot value
+            existing_dispo_instance_Albioma.Disponibilite = DispoTot
+            existing_dispo_instance_Albioma.save()
+        else:
+            # Create a new Disponibilite instance if none exists
+            new_dispo_instance = Disponibilite(
+                moisAnnee=debut,
+                Disponibilite=DispoTot,
+                idCentrale=centraleId,
+                idTypeDispo=typedispo
+            )
+            new_dispo_instance.save()
+        
+        #REDEN ! Try to get an existing Disponibilite instance with the same moisAnnee and idCentrale et dispo REDEN
+        typedispo=TypeDispo.objects.get(nom="REDEN")
+        existing_dispo_instance_Reden = Disponibilite.objects.filter(moisAnnee=debut,idCentrale=centraleId,idTypeDispo=typedispo).first()
+        # Check if an existing instance was found
+        if existing_dispo_instance_Reden:
+            # Update the existing instance with the new DispoTot value
+            existing_dispo_instance_Reden.Disponibilite = DispoTotReden
+            existing_dispo_instance_Reden.save()
+        else:
+            # Create a new Disponibilite instance if none exists
+            new_dispo_instance = Disponibilite(
+                moisAnnee=debut,
+                Disponibilite=DispoTotReden,
+                idCentrale=centraleId,
+                idTypeDispo=typedispo
+            )
+            new_dispo_instance.save()
+        
 
-    #BRUTE ! Try to get an existing Disponibilite instance with the same moisAnnee and idCentrale et dispo REDEN
-    typedispo=TypeDispo.objects.get(nom="Brute")
-    existing_dispo_instance_Brute = Disponibilite.objects.filter(moisAnnee=debut,idCentrale=centraleId,idTypeDispo=typedispo).first()
-    # Check if an existing instance was found
-    if existing_dispo_instance_Brute:
-        # Update the existing instance with the new DispoTot value
-        existing_dispo_instance_Brute.Disponibilite = DispoTotBrute
-        existing_dispo_instance_Brute.save()
-    else:
-        # Create a new Disponibilite instance if none exists
-        new_dispo_instance = Disponibilite(
-            moisAnnee=debut,
-            Disponibilite=DispoTotBrute,
-            idCentrale=centraleId,
-            idTypeDispo=typedispo
-        )
-        new_dispo_instance.save()
-    #FIN DE L'ALGORITHME
+        #BRUTE ! Try to get an existing Disponibilite instance with the same moisAnnee and idCentrale et dispo REDEN
+        typedispo=TypeDispo.objects.get(nom="Brute")
+        existing_dispo_instance_Brute = Disponibilite.objects.filter(moisAnnee=debut,idCentrale=centraleId,idTypeDispo=typedispo).first()
+        # Check if an existing instance was found
+        if existing_dispo_instance_Brute:
+            # Update the existing instance with the new DispoTot value
+            existing_dispo_instance_Brute.Disponibilite = DispoTotBrute
+            existing_dispo_instance_Brute.save()
+        else:
+            # Create a new Disponibilite instance if none exists
+            new_dispo_instance = Disponibilite(
+                moisAnnee=debut,
+                Disponibilite=DispoTotBrute,
+                idCentrale=centraleId,
+                idTypeDispo=typedispo
+            )
+            new_dispo_instance.save()
+        #FIN DE L'ALGORITHME
 ####################################################################################################################################################################################################################
 def calculEneryo():
     heureDefaut=MainCourante.objects.all()
@@ -557,7 +694,7 @@ def calculEneryo():
 
 
 #################################################################################################################################
-def calculEOS(data_centrale_dispo) :
+def calculEOS() :
 
 # Recupérations des tables nécessaires aux calculs
     heureDefaut = MainCourante.objects.all()
@@ -569,7 +706,7 @@ def calculEOS(data_centrale_dispo) :
     sum_H0=0
     #calcul temps arret
     heureDefaut=heureDefaut.annotate(tempsArret=F('dateHeureActionCorrective')-F('dateHeureConstat'))
-    temps=None
+    
     #correlation entre field mois et numero mois
     # Define a dictionary to map month numbers to names
     month_names = {
@@ -587,8 +724,6 @@ def calculEOS(data_centrale_dispo) :
         12: 'decembre',
     }
 
-    mois=month_names.get(data_centrale_dispo['mois'])
-
     # Annotate the French month name based on the month number
     heureDefaut = heureDefaut.annotate(
         french_month_name=Case(
@@ -599,32 +734,13 @@ def calculEOS(data_centrale_dispo) :
     )
 
 
-   
-
-        #############Condition pour calcul dispo##############
-    selection="mois"
-    #input("Periode pour calcul de Dispo : ")
-    if selection == "mois":
-        month_number = next((month for month, name in month_names.items() if name == mois), None)
-        year = datetime.now().year
-        debut = datetime(year, month_number, 1, 0, 0, 0)
-        last_day = calendar.monthrange(year, month_number)[1]
-        fin = datetime(year, month_number, last_day, 23, 59, 59)
-        print("fin: ",fin)
-
-        #selection de la centrale pour laquelle le calcul est lancé
-    centrale=data_centrale_dispo['centrale_id']
-    centraleId=0
-    centraleId=Centrale.objects.filter(nomCentrale=centrale).first()
-    print(centraleId.nomCentrale,"|",centraleId.idCentrale)
-    print("nom_calcul: ",centraleId.idModelCalcul_id)
-    
     donneesIrradiance = donneesIrradiance.filter(idDonneesCentrale__gt=HeureAvecSeuilIrradiance.objects.last().idDonneesCentrale_id)
+
 
     #Verifie si l'irradiance est supérieure à 100 W/m² et ajoute le résultat dans une liste
     for irradiance in donneesIrradiance:
         if float(irradiance.irradiance) <= 100:
-            donnees_centrale = DonneesCentrale.objects.get(idDonneesCentrale=irradiance.idDonneesCentrale,idCentrale=Centrale.objects.filter(nom=centrale).first().idCentrale_id)
+            donnees_centrale = DonneesCentrale.objects.get(idDonneesCentrale=irradiance.idDonneesCentrale)
             irradianceCondition = HeureAvecSeuilIrradiance(
                 conditionSeuil=False,
                 idDonneesCentrale=donnees_centrale,
@@ -640,27 +756,24 @@ def calculEOS(data_centrale_dispo) :
 
     #Ajoute les données à la table seuil
     HeureAvecSeuilIrradiance.objects.bulk_create(irradianceSeuil)
+
+        #############Condition pour calcul dispo##############
+    selection="mois"
+    #input("Periode pour calcul de Dispo : ")
+    if selection == "mois":
+        month_number = next((month for month, name in month_names.items() if name == 'aout'), None)
+        year = datetime.now().year
+        debut = datetime(year, month_number, 1, 0, 0, 0)
+        last_day = calendar.monthrange(year, month_number)[1]
+        fin = datetime(year, month_number, last_day, 23, 59, 59)
+    
     heureDefaut=heureDefaut.filter(dateHeureActionCorrective__lt=fin,dateHeureConstat__gt=debut)
-    print("heuredefaut: ",heureDefaut)
     for heureDefaut in heureDefaut:
         HFranchise=0
-        
-        naive_time = heureDefaut.dateHeureConstat
-        
-        #Les 4 prochaines lignes sont utiles pour corriger le décalage induit par le fuseau horaire de la france variant d'été à hiver + synchronisation avec valeur dans la base de données
-        timezone_paris = pytz.timezone("Europe/Paris") # Set the time zone
-        naive_datetime = datetime.combine(naive_time.date(), naive_time.time()) # Create a datetime object with the given time and set the time zone
-        dt = timezone_paris.localize(naive_datetime, is_dst=None)
-        utc_offset = dt.utcoffset() # Get the UTC offset as a timedelta
-        print(utc_offset)
-
-        #heure début et fin de défaut formatés avec le changement de fuseau horaire
-        #fin debuggggg a reprendre ici >------------------------------------------------<
-        formatedFinFefHeureDefaut = (heureDefaut.dateHeureActionCorrective+utc_offset).time()
-        formatedDebDefHeureDefaut = (heureDefaut.dateHeureConstat+utc_offset).time()
-        print("heure debut",formatedDebDefHeureDefaut," heure fin: ", formatedFinFefHeureDefaut, "heure à ajouter:",utc_offset)
-        
-        donneesIrradiance.filter(temps__lt=formatedFinFefHeureDefaut,temps__gt=formatedDebDefHeureDefaut)
+        formatedFinFefHeureDefaut = heureDefaut.dateHeureActionCorrective.time()
+        formatedDebDefHeureDefaut = heureDefaut.dateHeureConstat.time()
+        donneesIrradiance.filter(temps__lt=heureDefaut.dateHeureActionCorrective,temps__gt=heureDefaut.dateHeureConstat)
+        print(f"HFranchise {HFranchise}")
 
         defautMainCourante=Defaut.objects.get(nom=heureDefaut.constat)
         typedispo=TypeDispo.objects.get(nom='Contractuelle EOS')

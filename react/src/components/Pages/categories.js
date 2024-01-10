@@ -1,66 +1,79 @@
-import { React, useState, useEffect,useRef} from 'react';
+import {React,useState,useEffect,useRef} from 'react';
 import './categories.css';
 import axios from 'axios';
 import Calendar from './Calendar';
 
 
+
 export default function Categories(){
-    
+
+  const today = new Date();
+  const oneWeekAgo = new Date(today);
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);  
   const [selectedRowIndex, setSelectedRowIndex] = useState();
   const [dataToMc, setDataToMc] = useState(null);
-  const[selectionCentrale,newSelectionCentrale] = useState('Abattoirs de Langogne');
+  const [selectionCentrale, setSelectionCentrale] = useState(null);
   const [data, setData] = useState([]);
   const[data_cate, setDataCate]=useState([])
   const [compteur, setCompteur] = useState(0);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(oneWeekAgo.toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(today.toISOString().split('T')[0]);
   const [secondOverlayPosition, setSecondOverlayPosition] = useState({ top: 0, left: 0 });
   const [selectedPeriod, setSelectedPeriod] = useState("1 semaine");
   const [showCalendarOverlay, setShowCalendarOverlay] = useState(false);
   const [periodSelectorPosition, setPeriodSelectorPosition] = useState({ top: 0, left: 0 });
   const initialSelectionCentrale = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
-  const [valeurDispo, setValeurDispo]= useState(null)
+  const [valeurDispo, setValeurDispo]= useState(null);
 
-  const cherhcer_dispo = async() =>{
-    const response = await axios.get("http://localhost:8050/getDispo/", {
-                params: {
-                    selected_nom: initialSelectionCentrale.current,
-                    date_debut: startDate,
-                    date_fin: endDate
-                }})
-    setValeurDispo(response)
-
+const cherhcer_dispo = async () => {
+  try {
+    const response = await axios.get("https://webicamapp.reden.cloud/getDispo/", {
+      params: {
+        selected_nom: initialSelectionCentrale.current,
+        date_debut: startDate,
+        date_fin: endDate
+      }
+    });
+    setValeurDispo(response.data.disponibilite);
+  } catch (error) {
+    console.error("Error fetching disponibilite:", error);
+    // Handle the error, you might want to set an error state or display an error message
   }
-  console.log(valeurDispo)
+};
 
-  const check_show = () => {
-    const allCells = document.querySelectorAll('#tab_cate .tab_h');
-    const zeroValueCells = document.querySelectorAll('#tab_cate .zero-value');
+
+  // const check_show = () => {
+  //   const allCells = document.querySelectorAll('#tab_cate .tab_h');
+  //   const zeroValueCells = document.querySelectorAll('#tab_cate .zero-value');
   
-    if (isChecked) {
-      // Afficher uniquement les cellules de la classe "zero-value"
-      allCells.forEach(cell => cell.classList.add('hidden-cell'));
-      zeroValueCells.forEach(cell => cell.classList.remove('hidden-cell'));
-      console.log("oui");
-    } else {
-      // Afficher toutes les cellules
-      allCells.forEach(cell => cell.classList.remove('hidden-cell'));
-      console.log("non");
-    }
-  };
+  //   if (isChecked) {
+  //     // Afficher uniquement les cellules de la classe "zero-value"
+  //     allCells.forEach(cell => cell.classList.add('hidden-cell'));
+  //     zeroValueCells.forEach(cell => cell.classList.remove('hidden-cell'));
+  //     console.log("oui");
+  //   } else {
+  //     // Afficher toutes les cellules
+  //     allCells.forEach(cell => cell.classList.remove('hidden-cell'));
+  //   }
+  // };
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
   };
-  useEffect(()=> {
-    check_show()
-  })
+  // useEffect(()=> {
+  //   check_show()
+  // })
   
+  useEffect(() => {
+    remplissage_selec();
+  }, []);
 
   useEffect(() => {
-    initialSelectionCentrale.current = selectionCentrale;
-  }, [selectionCentrale]);
+    fetchdatacentrale();
+  }, [startDate, endDate, selectionCentrale]);
+
+  console.log(valeurDispo)
 
 
   const handleDateSelect = (date) => {
@@ -86,14 +99,12 @@ export default function Categories(){
     }
     
   };
-  useEffect(() => {
-    fetchdatacentrale();
-  }, [startDate, endDate]);
+  
 
   const handlePeriodChange = (e) => {
     const selectedValue = e.target.value;
     setSelectedPeriod(selectedValue);
-  
+    console.log(selectedPeriod)
     const periodSelector = document.getElementById("select-period");
     const position = periodSelector.getBoundingClientRect();
     setPeriodSelectorPosition({
@@ -105,6 +116,36 @@ export default function Categories(){
       setShowCalendarOverlay(true);
     } else {
       setShowCalendarOverlay(false);
+    }
+    if (selectedValue === "1 semaine") {
+      const today = new Date();
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      setStartDate(oneWeekAgo.toISOString().split('T')[0]);
+      
+      
+      setEndDate(today.toISOString().split('T')[0]);
+      
+    }
+    else if (selectedValue === "2 semaines") {
+      const today = new Date();
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 14);
+      setStartDate(oneWeekAgo.toISOString().split('T')[0]);
+      console.log("startDate: ",startDate)
+      
+      setEndDate(today.toISOString().split('T')[0]);
+      console.log("endDate: ",endDate)
+    }
+    else if (selectedValue === "1 mois") {
+      const today = new Date();
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 31);
+      setStartDate(oneWeekAgo.toISOString().split('T')[0]);
+      console.log("startDate: ",startDate)
+      
+      setEndDate(today.toISOString().split('T')[0]);
+      console.log("endDate: ",endDate)
     }
   };
 
@@ -130,17 +171,15 @@ export default function Categories(){
 
 const remplissage_selec = async() => {
 try{
-  const response = await axios.get("http://localhost:8050/getSelec/")
+  const response = await axios.get("https://webicamapp.reden.cloud/getSelec/")
 
   const responseData = response.data;
   setDataCate(responseData);
+  console.log("responseData: ",responseData.selected_nom)
+  setSelectionCentrale(responseData[responseData.length - 1].selected_nom)
 }catch(error){ console.log(error)}
-
 }
-useEffect(() => {
-  remplissage_selec();
-}, []);
-
+console.log("data_cate: ",data_cate)
 const formatDate = (dateString) => {
   const options = {
     year: 'numeric',
@@ -156,49 +195,88 @@ const formatDate = (dateString) => {
   return formattedDate;
 };
   
-  const fetchdatacentrale = async () =>{
-      try {
-        const response = await axios.get("http://localhost:8050/getCentrale/", {
-                params: {
-                    selected_nom: initialSelectionCentrale.current,
-                    date_debut: startDate,
-                    date_fin: endDate
-                }
-            });
-          // console.log(selectionCentrale)
-        const responseData = response.data;
-        setData(responseData);
-        // console.log(responseData);
-    } catch (error) {
-        console.error("Une erreur s'est produite : ", error);
-    }
+const fetchdatacentrale = async () => {
+  try {
+    const response = await axios.get("https://webicamapp.reden.cloud/getCentrale/", {
+      params: {
+        selected_nom: initialSelectionCentrale.current,
+        date_debut: startDate,
+        date_fin: endDate
+      }
+    });
 
+    const responseData = response.data;
+
+    responseData.forEach((item) => {
+      if (item.donnees_energie && item.donnees_energie.length > 0) {
+        item.donnees_energie.sort((a, b) => {
+          const dateA = new Date(a.temps);
+          const dateB = new Date(b.temps);
+
+          // Compare les dates de manière décroissante
+          const dateComparison = dateB.toLocaleString().localeCompare(dateA.toLocaleString());
+          if (dateComparison !== 0) {
+            return dateComparison;
+          }
+
+          // Si les dates sont les mêmes, trier par heure croissante
+          return dateA.getHours() - dateB.getHours();
+        });
+      } else {
+        console.error(`donnees_energie is undefined or empty for item with idReferenceOnduleur: ${item.idReferenceOnduleur}`);
+      }
+    });
+
+    setData(responseData);
+    setSelectionCentrale(initialSelectionCentrale.current);
+  } catch (error) {
+    console.error("Une erreur s'est produite : ", error);
   }
+};
+const changement_centrale = async (e) => {
+  const newSelectionCentral = e.target.value;
 
-  const changement_centrale = async (e) => {
-    const newSelectionCentral = e.target.value;
+  try {
+    const response = await axios.get("https://webicamapp.reden.cloud/getCentrale/", {
+      params: {
+        selected_nom: newSelectionCentral,
+        date_debut: startDate,
+        date_fin: endDate
+      }
+    });
 
-    try {
-      const response = await axios.get("http://localhost:8050/getCentrale/", {
-        params: {
-          selected_nom: newSelectionCentral,
-          date_debut: startDate,
-          date_fin: endDate
-        }
-      });
+    const responseData = response.data;
 
-      const responseData = response.data;
-      setData(responseData);
-      newSelectionCentrale(newSelectionCentral);
-    } catch (error) {
-      console.error("Une erreur s'est produite : ", error);
-    }
+    responseData.forEach((item) => {
+      if (item.donnees_energie && item.donnees_energie.length > 0) {
+        item.donnees_energie.sort((a, b) => {
+          const tempsA = new Date(a.temps);
+          const tempsB = new Date(b.temps);
+
+          // Sort dates in descending order
+          const dateSort = tempsB.getTime() - tempsA.getTime();
+          if (dateSort !== 0) {
+            return dateSort;
+          }
+          // If dates are the same, sort hours in ascending order
+          return tempsA.getHours()-tempsB.getHours();
+        });
+      } else {
+        console.error(`donnees_energie is undefined or empty for item with idReferenceOnduleur: ${item.idReferenceOnduleur}`);
+      }
+    });
+
+    setData(responseData);
+    setSelectionCentrale(newSelectionCentral);
+  } catch (error) {
+    console.error("Une erreur s'est produite : ", error);
   }
+};
+
   console.log(data)
+  console.log("selectionCentrale: ",selectionCentrale)
 
-  useEffect(() => {
-    fetchdatacentrale();
-  }, [selectionCentrale]);
+  
 
   const ouvrir_overlay_2 = (index) => {
     setSecondOverlayVisible(true);
@@ -217,6 +295,10 @@ const formatDate = (dateString) => {
       effectuerRequetePost(selectedRowIndex);
     }
   };
+  const formatDate_2 = (date, heure) => {
+    // Ajoutez votre logique de formatage ici
+    return `${date} ${heure}`;
+  };
   const effectuerRequetePost = async (selectedRowIndex) => {
 
     try {
@@ -228,31 +310,36 @@ const formatDate = (dateString) => {
   
       if (texteDeLaColonneCorrespondante === 'Découplage' || texteDeLaColonneCorrespondante === 'Travaux ENEDIS') {
         const idequipementEndommage = uniqueColumns.join(', ');
-
+        
         const dates = clickedRows.map(item => ({
-          date: formatDate(item.dateColonne),
+          date: item.dateColonne,
           heure: item.heureColonne,
         }));
-        
+        console.log("clickedRows: ",clickedRows)
+        // console.log("item.heureColonne:",item.heureColonne)
+        console.log("dates1: ",dates)
         dates.sort((a, b) => {
           const dateA = new Date(`${a.date} ${a.heure}`);
           const dateB = new Date(`${b.date} ${b.heure}`);
           return dateA - dateB;
         });
         
+     
   
         const premierElement = dates[0];
         const dernierElement = dates[dates.length - 1];
         const data = {
           iddefaut: texteDeLaColonneCorrespondante,
-          idheuredebut: premierElement.date,
-          idheurefin: dernierElement.date,
+          idheuredebut: formatDate_2(premierElement.date, premierElement.heure),
+          idheurefin: formatDate_2(dernierElement.date, dernierElement.heure),
           idcommentaires: commentaire,
           idequipementEndommage: idequipementEndommage,
           idcentrale: centrale,
         };
+
   
-        const response = await axios.post('http://localhost:8050/ajouter_article/', data);
+        const response = await axios.post('https://webicamapp.reden.cloud/ajouter_article/', data);
+
         if (response.status === 200) {
           console.log(`Article ajouté avec succès pour la colonne ${idequipementEndommage}.`);
         } else {
@@ -287,7 +374,7 @@ const formatDate = (dateString) => {
           };
   
 
-          const response = await axios.post('http://localhost:8050/ajouter_article/', data);
+          const response = await axios.post('https://webicamapp.reden.cloud/ajouter_article/', data);
   
           if (response.status === 200) {
             console.log(`Article ajouté avec succès pour la colonne ${columnName}.`);
@@ -462,6 +549,13 @@ const formatDate = (dateString) => {
   const close_calendar = () => {
     setShowCalendarOverlay(false)
     setSelectedPeriod("1 semaine");
+    const today = new Date();
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      setStartDate(oneWeekAgo.toISOString().split('T')[0]);
+      
+      
+      setEndDate(today.toISOString().split('T')[0]);
   }
   const generateTableBody = () => {
     if (!data || !data[0] || !data[0].donnees_energie) {
@@ -533,11 +627,9 @@ const formatDate = (dateString) => {
   
     return(
      <div>
-      <select id='filtre_centrale' onChange={changement_centrale}>
+      <select id='filtre_centrale' value={selectionCentrale}onChange={changement_centrale}>
         {data_cate.map((item) =>(<option id="selec_centrale">{item.nomCentrale}</option>))}
       </select>
-      <p id="para_dispo">Dispo Albioma: {valeurDispo}</p>
-
       <div id="compteur">
         <p>Seuil: {compteur} W</p>
         <div id="boutons_compteurs">

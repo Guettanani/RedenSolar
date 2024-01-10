@@ -36,10 +36,10 @@ def Push(request):
     #views.Print()
     return HttpResponse('Success')
 
-
 @shared_task(name='Envoi des données dynamiques d\'Energysoft dans la base de données', retry_backoff=True)
 @transaction.atomic
 def formag():
+    #Clé d'accès au serveur EnergySoft
     authorization_S4e = "Basic Zy5ib3VzcXVpZXJAcmVkZW4uc29sYXI6UmVkZW40NzMxMCQ="
 
     headers_s4e = requests.structures.CaseInsensitiveDict()
@@ -63,22 +63,20 @@ def formag():
     log = open('log/log.txt', 'a')
 
     # Filtres de date
-    
-    today = '2023-12-09'
-    début='2023-12-08'
 
-    hier = datetime.now() - timedelta(days=1)
+    today="2024-01-01"
+    hier="2024-01-02"
 
-
-
-    hier_propre = hier.strftime('%Y-%m-%d')
+    #hier_propre = hier.strftime('%Y-%m-%d')
 
     #today_propre = today.strftime('%Y-%m-%d')
 
-
-    start_date = début
+    start_date = hier
     end_date= today
+    #start_date = hier_propre
+    #end_date= today_propre
     # Filtres de type de mesure
+
     measure_filters = [
         "MeasureType eq 'operating_h_tot'",
         "MeasureType eq 'power'",
@@ -92,8 +90,9 @@ def formag():
     # Combiner les filtres de mesure
     combined_measure_filter = " or ".join(measure_filters)
 
-    #boucle pour requête l'API GET pour chaque référence des sites du fichier csv
+    #boucle pour requête l'API GET pour chaque référence des sites
 
+    #Pour chaque centrale
 
     for project in sites:
 
@@ -104,8 +103,9 @@ def formag():
         # Envoi de la requête GET
         response_API = requests.get(base_url, headers=headers_s4e)
         req = response_API.json()
-        #timer de 2s, l'API accepte 30 requêt par minute
+
         #condition du statut de la requête GET et mise en log si il y a une erreur
+
         if response_API.status_code != 200:
             log.write(str(req))  
         else:        
@@ -133,27 +133,35 @@ def formag():
             else:
                 no_data = {'timestamp': start_date, 'data': 0}
                 df_pivoted = pd.DataFrame([no_data])
-        #tous les fichiers de centrales ne possèdent pas toutes les colonnes demandées
+        #tous les fichiers de centrales ne possèdent pas toutes les colonnes nécessaires
             for colonne in ['operating_h_tot','power','apparent_power','power_in','nominal_power','solar_energy']:
                 if colonne not in df_pivoted.columns:
                     df_pivoted[colonne] = 0
                 df_pivoted[colonne]=df_pivoted[colonne].fillna(0)
 
+            # Mettre la date au propre
             df_pivoted['timestamp']=df_pivoted['timestamp'].str.replace('T',' ')
             df_pivoted['timestamp']=df_pivoted['timestamp'].str.replace('Z','')
+
+            # Ajout de la colonne qui référence la centrale au sein du df
             df_pivoted['site']=site   
+
+            #Passage de l'irradiance en W/m carré
             df_pivoted['solar_energy'] = df_pivoted['solar_energy']*1000
             
+            #Mise au format horaire adapté de la colonne Date/Temps (UTC=>Europe/Paris)
             previous_timestampTZ = None 
             df_pivoted['timestamp']=pd.to_datetime(df_pivoted['timestamp'])
             df_pivoted['timestamp'] = df_pivoted['timestamp'].dt.tz_localize('Europe/Paris')
 
+            #Heures minimales et maximales de considération dans les calculs de disponibilités
             df = df_pivoted[(df_pivoted['timestamp'].dt.hour >= 6) & (df_pivoted['timestamp'].dt.hour <= 22) & 
             (df_pivoted['timestamp'].dt.time >= pd.to_datetime('06:11:00').time()) & 
             (df_pivoted['timestamp'].dt.time <= pd.to_datetime('21:39:00').time())]
 
+            #Envoi des données dans la bdd
             for _, row in df.iterrows():
-                # Get the dedicated installation name from the CSV row
+                #Première condition : la colonne onduleur est elle présente dans le df ? Obligatoire pour afficher de la donnée
                 if 'inverter' in df.columns:
                     timestampTZ=pd.Timestamp(row['timestamp'])
                     dedicated_Onduleur_name = row['inverter']
@@ -162,8 +170,8 @@ def formag():
                     try :
                         onduleur = Onduleur.objects.filter(serialOnduleur=dedicated_Onduleur_name).first()
                         centrale = Centrale.objects.get(project_code=la_centrale)
-                        #TemperatureObjects
 
+                        #2ème condition : Certains dataframes contiennent une colonne 'onduleur' mais pas d'onduleur sur une, plusieurs ou toutes les lignes
                         if onduleur is not None:
                             donneesEnergie=Energie(
                                 puissance = row['power'],
@@ -174,6 +182,7 @@ def formag():
                             )
                             DonneesEnergie_objs.append(donneesEnergie)
 
+                        #Afin d'éviter le surremplissage de la bdd pour l'irradiance, on ne garde qu'une valeur d'irradiance par timestamp
                             if timestampTZ != previous_timestampTZ:
                                 donneesCentrale = DonneesCentrale(
                                     irradiance_en_watt_par_surface=row['solar_energy'],
@@ -187,6 +196,8 @@ def formag():
                         # Update the previous_timestampTZ for the next iteration
                             previous_timestampTZ = timestampTZ                                              
 
+                        # Pour éviter le décalage entre les timestamps entre les onduleurs,
+                        # on garde les lignes de données où l'onduleur manque (la colonne onduleur est bien présente)
                         else:
                             donneesEnergie2 = Energie(
                                 puissance=None,
@@ -198,15 +209,18 @@ def formag():
                             DonneesEnergie_objs.append(donneesEnergie2)
                             print('Colonne \'onduleur\' présente mais certaines lignes ne comportent pas d\'onduleur. Centrale :', centrale)   
                     except (Onduleur.DoesNotExist,Centrale.DoesNotExist):
-                        # Handle the case where a Centrale with the given name does not exist
-                        print(f"Onduleur with name '{dedicated_Onduleur_name}' does not exist.")        
+                        # Handle the case where a Centrale or Onduleur with the given name does not exist
+                        print(f"Onduleur with name '{dedicated_Onduleur_name}' does not exist or Centrale with name '{la_centrale}' does not exist.")        
                 else:
                     print('Pas de colonne \'onduleur\' dans le fichier d\'extraction de données centrales')
 
+        # Le sleeper très important, l'API ne peut recevoir que 30 requêtes par minutes, 
+        # de plus il est impossible de charger plus de 2 journées à la fois et il est impossible de charger des données sur 2 machines simultanément
+        # Sinon erreur 'Too many requests'
+        # Le chargement d'une journée prend une vingtaine de minutes et il faut attendre environ 5 à 7 minutes avant de relancer un chargement de données
         time.sleep(2)
-        # Inside the loop, before starting a new iteration, clear the lists
 
-
+    #Envoi des données dans la bdd
     Energie.objects.bulk_create(DonneesEnergie_objs)   
     DonneesCentrale.objects.bulk_create(DonneesCentrale_objs) 
 
@@ -215,16 +229,4 @@ def formag():
 
 
 
-from django.core.management import call_command
-import sys
-
-
-@shared_task(name='backup')
-def bkup():
-    sys.stdout = open('db.json', 'w')
-    call_command('dumpdata', 'polls')
-
-@shared_task(name='push_des_données')
-def push_données():
-    chain(formag.s(),bkup.s())
     
