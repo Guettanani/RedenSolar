@@ -6,17 +6,57 @@ export default function TabRecap() {
     const today = new Date();
     const [selectedYear, setSelectedYear] = useState(today.getFullYear());
     const [contractualAvailability, setContractualAvailability] = useState([]);
+    const [selectionCentrale, setSelectionCentrale] = useState([])
+    const [data_cate, setData]=useState([])
+
+    useEffect(() => {
+        remplissage_selec();
+      }, []);
+    
+
+    const remplissage_selec = async() => {
+        try{
+          const response = await axios.get("http://localhost:8050/getSelec/")
+        
+          const responseData = response.data;
+          setData(responseData)
+          console.log("responseData: ",responseData.selected_nom)
+          setSelectionCentrale(responseData[responseData.length - 1].selected_nom)
+        }catch(error){ console.log(error)}
+        }
+        console.log("data_cate: ",data_cate)
 
 
     const selectYear = (direction) => {
         const newYear = direction === 'next' ? selectedYear + 1 : selectedYear - 1;
         setSelectedYear(newYear);
     }
+    const changement_centrale = async (e) => {
+        const newSelectionCentral = e.target.value;
+      
+        try {
+          const response = await axios.get("http://localhost:8050/getCentrale_2/", {
+            params: {
+              selected_nom: newSelectionCentral,
+            }
+          });
+      
+          const responseData = response.data;
+          console.log(responseData)
+          setSelectionCentrale(newSelectionCentral);
+          chercherDispo()
+        } catch (error) {
+          console.error("Une erreur s'est produite : ", error);
+        }
+      };
+      
+        console.log("selectionCentrale: ",selectionCentrale)
 
     const chercherDispo = async () => {
         try {
             const response = await axios.get("https://webicamapp.reden.cloud/getDispo/", {
                 params: {
+                    selection_centrale:selectionCentrale,
                     annee: selectedYear
                 }
             });
@@ -48,6 +88,9 @@ export default function TabRecap() {
 
     return (
         <div>
+            <select id='filtre_centrale' value={selectionCentrale}onChange={changement_centrale}>
+                {data_cate.map((item) =>(<option id="selec_centrale">{item.nomCentrale}</option>))}
+            </select>
             <div id="year-selector">
                 <h3>Année</h3>
                 <div id="div-buttons">

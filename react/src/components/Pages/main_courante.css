@@ -19,6 +19,7 @@
 #head_container {
   display: flex;
   position: sticky;
+  background-color:#B4C6E7;
 }
 
 #head_mc {

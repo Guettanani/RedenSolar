@@ -11,4 +11,5 @@ urlpatterns = [
     path('getSelec/', views.getSelec),
     path('getDispo/',views.affCalcAlbio),
     path('deleteMC/',views.suppMC),
+    path('getCentrale_2/',views.chgmt_centrale),
 ]

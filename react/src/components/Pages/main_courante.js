@@ -4,11 +4,41 @@ import axios from 'axios';
 
 export default function TstTab() {
     const [data, setData] = useState([]);
+    const [selectionCentrale, setSelectionCentrale] = useState()
+    const [data_cate, setDataCate]=useState([])
+
+    useEffect(() => {
+        remplissage_selec();
+      }, []);
+    
+
+    const remplissage_selec = async() => {
+        try{
+          const response = await axios.get("https://webicamapp.reden.cloud/getSelec/")
+        
+          const responseData = response.data;
+          setDataCate(responseData)
+          console.log("responseData: ",responseData.selected_nom)
+          setSelectionCentrale(responseData[responseData.length - 1].selected_nom)
+        }catch(error){ console.log(error)}
+        }
+        console.log("data_cate: ",data_cate)
+
     const fetchData = async () => {
         try {
+
             const response = await axios.get("https://webicamapp.reden.cloud/data/");
+
             const responseData = response.data;
-            setData(responseData);
+            console.log('responseData: ',responseData)
+            console.log('selectionCentrale: ',selectionCentrale)
+            if (selectionCentrale!=='Toutes')
+                {const filteredData = responseData.filter(item => item.idcentrale === selectionCentrale);
+                console.log('filteredData: ',filteredData)
+                setData(filteredData);}
+            else{
+                setData(responseData)
+            }
             console.log(responseData);
         } catch (error) {
             console.error("Une erreur s'est produite : ", error);
@@ -17,7 +47,7 @@ export default function TstTab() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [selectionCentrale]);
 
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZone: 'UTC' };
@@ -36,8 +66,33 @@ export default function TstTab() {
             console.error("Erreur lors de la suppression : ", error);
         }
     };
+    const changement_centrale = async (e) => {
+        const newSelectionCentral = e.target.value;
+      
+        try {
+            console.log("Nouvelle centrale sélectionnée : ", newSelectionCentral);
+
+          const response = await axios.get("http://localhost:8050/getCentrale_2/", {
+            params: {
+              selected_nom: newSelectionCentral,
+            }
+          });
+      
+          const responseData = response.data;
+          console.log(responseData)
+          setSelectionCentrale(newSelectionCentral);
+          fetchData(selectionCentrale);
+        } catch (error) {
+          console.error("Une erreur s'est produite : ", error);
+        }
+      };
 
     return (
+        <div>            
+            <select id='filtre_centrale' value={selectionCentrale} onChange={changement_centrale}>
+                <option>Toutes</option>
+                {data_cate.map((item) =>(<option id="selec_centrale">{item.nomCentrale}</option>))}
+            </select>
         <div id="tab_container_mc">
             <table id="tab_mc">
                 <thead id="head_container">
@@ -67,6 +122,7 @@ export default function TstTab() {
                     })}
                 </tbody>
             </table>
+        </div>
         </div>
     );
 }
