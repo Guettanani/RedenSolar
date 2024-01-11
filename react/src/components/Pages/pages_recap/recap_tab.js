@@ -16,7 +16,7 @@ export default function TabRecap() {
 
     const remplissage_selec = async() => {
         try{
-          const response = await axios.get("http://localhost:8050/getSelec/")
+          const response = await axios.get("https://webicamapp.reden.cloud/getSelec/")
         
           const responseData = response.data;
           setData(responseData)
@@ -35,7 +35,7 @@ export default function TabRecap() {
         const newSelectionCentral = e.target.value;
       
         try {
-          const response = await axios.get("http://localhost:8050/getCentrale_2/", {
+          const response = await axios.get("https://webicamapp.reden.cloud/getCentrale_2/", {
             params: {
               selected_nom: newSelectionCentral,
             }
