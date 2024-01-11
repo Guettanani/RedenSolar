@@ -72,7 +72,7 @@ export default function TstTab() {
         try {
             console.log("Nouvelle centrale sélectionnée : ", newSelectionCentral);
 
-          const response = await axios.get("http://localhost:8050/getCentrale_2/", {
+          const response = await axios.get("https://webicamapp.reden.cloud/getCentrale_2/", {
             params: {
               selected_nom: newSelectionCentral,
             }
