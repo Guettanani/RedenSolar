@@ -173,7 +173,6 @@ const formatDate = (dateString) => {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-    timeZone: 'UTC',
   };
 
   const date = new Date(dateString);
@@ -196,25 +195,24 @@ const fetchdatacentrale = async () => {
     responseData.forEach((item) => {
       if (item.donnees_energie && item.donnees_energie.length > 0) {
         item.donnees_energie.sort((a, b) => {
-          const dateA = new Date(a.temps);
-          const dateB = new Date(b.temps);
+          const tempsA = new Date(a.temps);
+          const tempsB = new Date(b.temps);
 
-          // Compare les dates de manière décroissante
-          const dateComparison = dateB.toLocaleString().localeCompare(dateA.toLocaleString());
-          if (dateComparison !== 0) {
-            return dateComparison;
+          // Sort dates in descending order
+          const dateSort =  tempsA.getTime()-tempsB.getTime();
+          if (dateSort !== 0) {
+            return dateSort;
           }
 
-          // Si les dates sont les mêmes, trier par heure croissante
-          return dateA.getHours() - dateB.getHours();
         });
       } else {
         console.error(`donnees_energie is undefined or empty for item with idReferenceOnduleur: ${item.idReferenceOnduleur}`);
       }
     });
 
-    setData(responseData);
-    setSelectionCentrale(initialSelectionCentrale.current);
+    // Corrected this line to use setData with the actual data
+    setData(responseData); // Assuming responseData is the correct data you want to set
+
   } catch (error) {
     console.error("Une erreur s'est produite : ", error);
   }
@@ -240,12 +238,11 @@ const changement_centrale = async (e) => {
           const tempsB = new Date(b.temps);
 
           // Sort dates in descending order
-          const dateSort = tempsB.getTime() - tempsA.getTime();
+          const dateSort = tempsA.getTime()-tempsB.getTime();
           if (dateSort !== 0) {
             return dateSort;
           }
-          // If dates are the same, sort hours in ascending order
-          return tempsA.getHours()-tempsB.getHours();
+
         });
       } else {
         console.error(`donnees_energie is undefined or empty for item with idReferenceOnduleur: ${item.idReferenceOnduleur}`);
@@ -551,19 +548,21 @@ const changement_centrale = async (e) => {
         temps: formatDate(data.temps),
       }))
     );
-  
+
     const countValues = {}; 
     const updateCount = (value, columnIndex) => {
       if (!countValues[columnIndex]) {
-        countValues[columnIndex] = {};
-      }
-  
-      if (!countValues[columnIndex][value]) {
-        countValues[columnIndex][value] = 1;
+        countValues[columnIndex] = { count: 1, lastValue: value };
       } else {
-        countValues[columnIndex][value] += 1;
+        const { count, lastValue } = countValues[columnIndex];
+        if (value === lastValue) {
+          countValues[columnIndex] = { count: count + 1, lastValue: value };
+        } else {
+          countValues[columnIndex] = { count: 1, lastValue: value };
+        }
       }
     };
+
   
     return (
       <tbody id="tableau">
@@ -577,11 +576,11 @@ const changement_centrale = async (e) => {
             {transposedData.map((row, cellIndex) => {
               const value = row && row[rowIndex] ? parseInt(row[rowIndex].puissance) : '';
   
-              updateCount(value, cellIndex);
+              updateCount(value, cellIndex, row);
               const isBelowCounter = value <= compteur;
   
-              const isRed = countValues[cellIndex] && countValues[cellIndex][value] >= 3;
-  
+              const isRed = countValues[cellIndex] && countValues[cellIndex].count >= 3;
+
               return (
                 <td
                   key={cellIndex + 3}
@@ -595,7 +594,7 @@ const changement_centrale = async (e) => {
                     )
                       ? 'clicked-row'
                       : ''
-                  } ${isRed ? 'zero-value' : ''}`}
+                  } ${isRed? 'valeurs-consecutives' : ''}`}
                   onContextMenu={(e) => handleContextMenu(e, rowIndex, cellIndex)}
                 >
                   {value}
@@ -610,7 +609,7 @@ const changement_centrale = async (e) => {
   
     return(
      <div>
-      <select id='filtre_centrale' value={selectionCentrale}onChange={changement_centrale}>
+      <select id='filtre_centrale' value={selectionCentrale} onChange={changement_centrale}>
         {data_cate.map((item) =>(<option id="selec_centrale">{item.nomCentrale}</option>))}
       </select>
       <div id="compteur">
@@ -630,12 +629,6 @@ const changement_centrale = async (e) => {
           <option value="autre">Autre</option>
         </select>
       </div>
-
-      <div><input
-      id="checkbox_show"
-          type="checkbox"
-          checked={isChecked}
-          onChange={handleCheckboxChange}/></div>
 
     <div id="tab_container">
       

@@ -23,6 +23,17 @@ from django.core.exceptions import ObjectDoesNotExist
 
 selected_nom = None
 @api_view(['GET'])
+def chgmt_centrale(request):
+    if request.method=='GET':
+        global selected_nom
+        nom_test = request.GET.get('selected_nom', None)
+        selected_nom=nom_test
+        data = [
+            {"selected_nom": selected_nom}
+        ]
+    return JsonResponse(data, safe=False)
+
+@api_view(['GET'])
 def getDataCate(request):
     if request.method == 'GET':
         global selected_nom

@@ -36,7 +36,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width:6%;
+    width:10%;
 }
 #para_dispo{
     position:absolute;
@@ -80,7 +80,7 @@ align-items: center;
     border: 1px solid #000000;
     border-radius:5px;
     height:6%;
-    padding:5px;
+    margin-left:10px;
 }
 #boutons_compteurs{
     display: flex;
@@ -117,6 +117,9 @@ align-items: center;
     color:black;
     border: 1px solid #000000;
     background-color:#B4C6E7;
+}
+#valeurs-consecutives{
+    background-color:red;
 }
 #tab_cate thead {
     position: sticky;
