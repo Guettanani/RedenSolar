@@ -157,10 +157,10 @@ CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", 'redis://redis:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", 'redis://redis:6379/0')
 CELERY_TIMEZONE = 'Europe/Paris'
 
+# Fonction d'envoi des données dans la bdd executée tous les jours à minuit
 CELERY_BEAT_SCHEDULE = {
     'scheduled_task': {
         'task': 'Envoi des données dynamiques d\'Energysoft dans la base de données',
-
         'schedule': crontab(month_of_year='*',day_of_month='*',day_of_week='*',hour=00,minute=1),  
 
     }, 
