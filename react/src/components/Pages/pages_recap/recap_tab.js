@@ -54,7 +54,7 @@ export default function TabRecap() {
 
     const chercherDispo = async () => {
         try {
-            const response = await axios.get("http://localhost:8050/getDispo/", {
+            const response = await axios.get("https://webicamapp.reden.cloud/getDispo/", {
                 params: {
                     selection_centrale:selectionCentrale,
                     annee: selectedYear

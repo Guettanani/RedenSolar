@@ -791,8 +791,8 @@ def calculEOS() :
         imputation=defaut.get(idDefaut_id=typedispo.idTypeDispo,idTypeDispo_id=defautMainCourante.idDefaut)
         
         #Calucl du temps d'arret en utilisant le nombre de ligne pour lequel l'irradiance est supérieur à 100W/m²
-        tempsArret=HeureAvecSeuilIrradiance.objects.filter(idDonneesCentrale__temps__lt=heureDefaut.dateHeureActionCorrective,idDonneesCentrale__temps__gt=heureDefaut.dateHeureConstat,conditionSeuil=True).count()
-        
+        tempsArret=HeureAvecSeuilIrradiance.objects.filter(idDonneesCentrale__temps__lt=heureDefaut.dateHeureActionCorrective,idDonneesCentrale__temps__gt=heureDefaut.dateHeureConstat)
+         
         #avoir la liste des jours écoulées si le défaut dure plusieurs jours
         UsabledebutDef = timedelta(hours=formatedFinFefHeureDefaut.hour, minutes=formatedFinFefHeureDefaut.minute, seconds=formatedFinFefHeureDefaut.second)
         UsablefinDef = timedelta(hours=formatedDebDefHeureDefaut.hour, minutes=formatedDebDefHeureDefaut.minute, seconds=formatedDebDefHeureDefaut.second)

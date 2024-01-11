@@ -14,7 +14,7 @@ export default function TstTab() {
 
     const remplissage_selec = async() => {
         try{
-          const response = await axios.get("http://localhost:8050/getSelec/")
+          const response = await axios.get("https://webicamapp.reden.cloud/getSelec/")
         
           const responseData = response.data;
           setDataCate(responseData)
@@ -26,9 +26,9 @@ export default function TstTab() {
 
     const fetchData = async () => {
         try {
-            console.log("Valeur actuelle de selectionCentrale dans fetchData : ", selectionCentrale);
 
-            const response = await axios.get("http://localhost:8050/data/");
+            const response = await axios.get("https://webicamapp.reden.cloud/data/");
+
             const responseData = response.data;
             console.log('responseData: ',responseData)
             console.log('selectionCentrale: ',selectionCentrale)
@@ -58,7 +58,7 @@ export default function TstTab() {
         try {
             console.log("item: ",item)
             // Faites une requête DELETE à votre API avec toutes les données de la ligne
-            await axios.delete("http://localhost:8050/deleteMC/", { data: item });
+            await axios.delete("https://webicamapp.reden.cloud/deleteMC/", { data: item });
             // Rafraîchissez les données après la suppression
             fetchData()
 

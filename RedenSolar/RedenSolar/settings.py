@@ -27,13 +27,24 @@ SECRET_KEY = 'django-insecure-e=y-5=d*@)wlu9y@+v$ue1*vkam5cp3)3zp%asr&9&8ytvva(-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-"loris"
+ALLOWED_HOSTS = ['*','localhost','icamapp.reden.cloud','webicamapp.reden.cloud']
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost",
+    "https://icamapp.reden.cloud",
 ]
-# Application definition
 
+# set ENABLE_SECURE_PROXY_SSL_HEADER=True in environment when SSL required
+ENABLE_SECURE_PROXY_SSL_HEADER = os.environ.get("ENABLE_SSL", False)
+if ENABLE_SECURE_PROXY_SSL_HEADER:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+else:
+    SECURE_PROXY_SSL_HEADER = None
+    
+
+# Application definition
+CSRF_TRUSTED_ORIGINS = ['https://icamapp.reden.cloud','https://webicamapp.reden.cloud']
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 INSTALLED_APPS = [
     'corsheaders',    
     'django.contrib.admin',
@@ -146,11 +157,11 @@ CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", 'redis://redis:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", 'redis://redis:6379/0')
 CELERY_TIMEZONE = 'Europe/Paris'
 
+# Fonction d'envoi des données dans la bdd executée tous les jours à minuit
 CELERY_BEAT_SCHEDULE = {
     'scheduled_task': {
         'task': 'Envoi des données dynamiques d\'Energysoft dans la base de données',
-
-        'schedule': crontab(month_of_year='*',day_of_month='*',day_of_week='*',hour=16,minute=30),  
+        'schedule': crontab(month_of_year='*',day_of_month='*',day_of_week='*',hour=00,minute=1),  
 
     }, 
 }

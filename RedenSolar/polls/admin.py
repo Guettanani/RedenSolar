@@ -18,18 +18,29 @@ admin.site.register(JoursOuvres)
 admin.site.register(HeureAvecSeuilIrradiance)
 admin.site.register(ReenclenchementDecouplage)
 admin.site.register(PerformanceRatio)
-admin.site.register(Centrale)
 admin.site.register(MainCourante)
 admin.site.register(DonneesCentrale)
 admin.site.register(DonneesCalculAlbioma)
 admin.site.register(DonneesCalculEOS)
 admin.site.register(DonneesCalculReden)
 admin.site.register(DonneesCalculEneryo)
-admin.site.register(Onduleur)
 admin.site.register(MatriceDefaut)
 admin.site.register(AssoCentraleTypeDispo)
 admin.site.register(SousCategorieDefaut)
 admin.site.register(Disponibilite)
-admin.site.register(ReferenceOnduleur)
-admin.site.register(AssoOnduleur)
 
+
+@admin.register(Onduleur)
+class OnduleurAdmin(admin.ModelAdmin):
+    search_fields = ['serialOnduleur']  # Ajoutez ici les champs que vous voulez rechercher pour le modèle Onduleur
+
+@admin.register(AssoOnduleur)
+class AssoOnduleurAdmin(admin.ModelAdmin):
+    search_fields = ['idReferenceOnduleur__nomReference', 'idOnduleur__serialOnduleur']  # Ajoutez ici les champs que vous voulez rechercher pour le modèle AssoOnduleur
+
+@admin.register(Centrale)
+class CentraleAdmin(admin.ModelAdmin):
+    search_fields = ['nomCentrale', 'project_code']  # Ajoutez ici les champs que vous voulez rechercher pour le modèle Centrale
+
+class ReferenceOnduleurAdmin(admin.ModelAdmin):
+    search_fields = ['nomReference', 'idCentrale__nomCentrale', 'idCentrale__project_code']  # Ajoutez ici les champs que vous voulez rechercher pour le modèle ReferenceOnduleur
