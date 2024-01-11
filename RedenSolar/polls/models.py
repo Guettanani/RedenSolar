@@ -53,7 +53,7 @@ class ReferenceOnduleur(models.Model):
     puissanceNominale = models.DecimalField(max_digits=15, decimal_places=2,null=True)
     idCentrale = models.ForeignKey(Centrale, on_delete=models.CASCADE,null=True)
     def __str__(self):
-        return self.nomReference
+        return f"{self.idCentrale.nomCentrale} - {self.nomReference} - {self.idCentrale.project_code}"
     class Meta:
         app_label = 'polls'
 
@@ -71,9 +71,8 @@ class Onduleur(models.Model):
 class AssoOnduleur(models.Model):
     idReferenceOnduleur = models.ForeignKey(ReferenceOnduleur, on_delete=models.CASCADE)
     idOnduleur= models.ForeignKey(Onduleur, on_delete=models.CASCADE)
-    
     def __str__(self):
-        return f"{self.idOnduleur.serialOnduleur}-{self.idReferenceOnduleur.nomReference}"
+        return f"{self.idReferenceOnduleur.idCentrale.nomCentrale} - {self.idOnduleur.serialOnduleur}-{self.idReferenceOnduleur.nomReference}"
     
     class Meta:
         app_label = 'polls'

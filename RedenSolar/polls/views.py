@@ -85,19 +85,30 @@ def getDataCate(request):
                         list_pui_tmps = Energie.objects.filter(idOnduleur_id=onduleur_associe_id).values('temps', 'puissance')
 
                         list_pui_tmps = [
-                                {
-                                    'temps': item['temps'].replace(tzinfo=pytz.UTC),
-                                    'puissance': item['puissance']
-                                }
-                                for item in list(list_pui_tmps)
-                                if date_debut_obj <= item['temps'] and item['temps'] <= date_fin_obj
-                            ]
+                            {
+                                'temps': item['temps'].replace(tzinfo=pytz.UTC),
+                                'puissance': item['puissance']
+                            }
+                            for item in list(list_pui_tmps)
+                            if date_debut_obj <= item['temps'] and item['temps'] <= date_fin_obj
+                        ]
+
+                        # Extract timestamps from the list_pui_tmps for the bulk query
+                        timestamps = [entry['temps'] for entry in list_pui_tmps]
+
+                        # Fetch all DonneesCentrale data in a single query
+                        donnees_centrale = DonneesCentrale.objects.filter(temps__in=timestamps)
+
+                        # Create a dictionary for quick lookup
+                        donnees_centrale_dict = {entry.temps: entry for entry in donnees_centrale}
+
+                        # Update list_pui_tmps with irradiance data
                         for entry in list_pui_tmps:
-                            # Récupérer la valeur d'irradiance_en_watt_par_surface correspondante
-                            donnee_centrale = DonneesCentrale.objects.filter(temps=entry['temps']).first()
+                            donnee_centrale = donnees_centrale_dict.get(entry['temps'])
                             if donnee_centrale:
                                 entry['irradiance_en_watt_par_surface'] = donnee_centrale.irradiance_en_watt_par_surface
-                    item_bis["donnees_energie"] = list(list_pui_tmps)
+
+                        item_bis["donnees_energie"] = list_pui_tmps
         else:
             pass 
         return JsonResponse(filtered_data, safe=False)
@@ -769,8 +780,8 @@ def calculEOS() :
         imputation=defaut.get(idDefaut_id=typedispo.idTypeDispo,idTypeDispo_id=defautMainCourante.idDefaut)
         
         #Calucl du temps d'arret en utilisant le nombre de ligne pour lequel l'irradiance est supérieur à 100W/m²
-        tempsArret=HeureAvecSeuilIrradiance.objects.filter(idDonneesCentrale__temps__lt=heureDefaut.dateHeureActionCorrective,idDonneesCentrale__temps__gt=heureDefaut.dateHeureConstat,conditionSeuil=True).count()
-        
+        tempsArret=HeureAvecSeuilIrradiance.objects.filter(idDonneesCentrale__temps__lt=heureDefaut.dateHeureActionCorrective,idDonneesCentrale__temps__gt=heureDefaut.dateHeureConstat)
+         
         #avoir la liste des jours écoulées si le défaut dure plusieurs jours
         UsabledebutDef = timedelta(hours=formatedFinFefHeureDefaut.hour, minutes=formatedFinFefHeureDefaut.minute, seconds=formatedFinFefHeureDefaut.second)
         UsablefinDef = timedelta(hours=formatedDebDefHeureDefaut.hour, minutes=formatedDebDefHeureDefaut.minute, seconds=formatedDebDefHeureDefaut.second)
