@@ -1,1 +1,0 @@
-# docker_django_01
