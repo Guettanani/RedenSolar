@@ -4,7 +4,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const FiltreCentrale = ({ setSelectionCentrale, AllowAll }) => {
     const [CentraleList, setCentraleList] = useState([]);
-    const [SelectCentrale, setSelectCentrale] = useState(AllowAll ? 'Toute' : 'Albioma');
+    const [SelectCentrale, setSelectCentrale] = useState(AllowAll ? 'Toute' : 'Abattoirs de Langogne');
+    const urlAPI = "https://icamapp.reden.cloud:8050/";
+
 
     useEffect(() => {
         remplissage_selec();
@@ -15,7 +17,7 @@ const FiltreCentrale = ({ setSelectionCentrale, AllowAll }) => {
 
     const remplissage_selec = async () => {
         try {
-            const response = await axios.get("http://localhost:8050/getSelec/", {
+            const response = await axios.get(urlAPI + "/getSelec/", {
                 timeout: 5000 // Timeout en millisecondes (par exemple, 5 secondes)
             });
             const responseData = response.data;

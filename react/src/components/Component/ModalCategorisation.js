@@ -3,9 +3,11 @@ import axios from 'axios'; // Importer axios si ce n'est pas déjà fait
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const CategorisationModal = ({ setShowModal, showModal, ClickedData, setClickedData,Centrale }) => {
+const CategorisationModal = ({ setShowModal, showModal, ClickedData, setClickedData, Centrale }) => {
     const [categorieSelectionnee, setCategorieSelectionnee] = useState('');
     const [Description, setDescription] = useState('');
+    const urlAPI = "https://icamapp.reden.cloud:8050/";
+
 
     const handleCloseModal = () => {
         setShowModal(false);
@@ -59,7 +61,7 @@ const CategorisationModal = ({ setShowModal, showModal, ClickedData, setClickedD
             console.log(data);
 
             // Send data to the server using Axios
-            const response = await axios.post('http://localhost:8050/ajouter_article/', data);
+            const response = await axios.post(urlAPI + 'ajouter_article/', data);
 
             if (response.status === 200) {
                 console.log(`Article ajouté avec succès pour les equipements ${ListEquipement}.`);
