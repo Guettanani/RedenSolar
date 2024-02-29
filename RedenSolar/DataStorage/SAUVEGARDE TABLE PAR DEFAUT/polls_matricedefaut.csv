@@ -1,0 +1,55 @@
+"id","Imputation","idDefaut_id","idTypeDispo_id"
+"1","Imputable",1,1
+"2","Imputable",2,1
+"3","Imputable",3,1
+"4","Imputable",4,1
+"5","Imputable",5,1
+"6","Imputable",6,1
+"7","Non Imputable",7,1
+"8","Imputable",8,1
+"9","Imputable",9,1
+"10","Non Imputable",1,2
+"11","Imputable",2,2
+"12","Imputable",3,2
+"13","Imputable",4,2
+"14","Non Imputable",5,2
+"15","Non Imputable",6,2
+"16","Non Imputable",7,2
+"17","Non Imputable",8,2
+"18","Non Imputable",9,2
+"19","Non Imputable",1,3
+"20","Imputable avec franchise d'heure",2,3
+"21","Imputable avec franchise d'heure",3,3
+"22","Imputable avec franchise d'heure",4,3
+"23","Non Imputable",5,3
+"24","Non Imputable",6,3
+"25","Non Imputable",7,3
+"26","Non Imputable",8,3
+"27","Non Imputable",9,3
+"28","Non Imputable",1,4
+"29","Imputable avec franchise d'heure",2,4
+"30","Imputable avec franchise d'heure",3,4
+"31","Imputable avec franchise d'heure",4,4
+"32","Imputable avec franchise d'heure",5,4
+"33","Non Imputable",6,4
+"34","Non Imputable",7,4
+"35","Non Imputable",8,4
+"36","Non Imputable",9,4
+"37","Non Imputable",1,5
+"38","Imputable",2,5
+"40","Imputable",3,5
+"42","Non Imputable",4,5
+"43","Non Imputable",5,5
+"44","Non Imputable",6,5
+"45","Non Imputable",7,5
+"46","Non Imputable",8,5
+"47","Non Imputable",9,5
+"48","Non Imputable",1,6
+"49","Imputable avec franchise d'heure",2,6
+"50","Imputable",3,6
+"51","Non Imputable",4,6
+"53","Non Imputable",5,6
+"54","Non Imputable",6,6
+"55","Non Imputable",7,6
+"56","Non Imputable",8,6
+"57","Non Imputable",9,6
