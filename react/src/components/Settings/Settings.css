@@ -1,0 +1,139 @@
+.headerset1{
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    
+    margin-top: 24px;
+    margin-left: 305px;
+}
+
+.textset1{
+    color: #345B6D;
+    font-size: 40px;
+    font-weight: 700;
+}
+
+.underlineset1{
+    width: 170px;
+    height: 6px;
+    background: #345B6D;
+    border-radius: 9px;
+}
+
+.containerset{
+    display: flex;
+    flex-direction: column;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-right: 0px;
+    padding-bottom: 0px;
+    width: 750px;
+    border-radius: 9px;
+}
+
+.headerset2{
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 20px;
+    margin-left: 30px;
+}
+
+.textset2{
+    color: #6A8A9B;
+    font-size: 34px;
+    font-weight: 700;
+}
+
+.textset3{
+    color: #737373;
+    margin: 0px 30px 0px 15px;
+    font-size: 22px;
+}
+
+.textset4{
+    color: #003bb9;
+    margin: 0px 30px 0px 15px;
+    font-size: 22px;
+    text-decoration: underline;
+}
+
+.underlineset2{
+    width: 91px;
+    height: 4.5px;
+    background: #6A8A9B;
+    border-radius: 9px;
+}
+
+.underlineset3{
+    width: 1050px;
+    height: 2px;
+    background: #737373;
+    border-radius: 9px;
+
+}
+
+.inputsset{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.inputset{
+    display: flex;
+    align-items: center;
+    margin: auto;
+    width: 700px;
+    height: 80px;
+    background: #ffffff;
+    border-radius: 6px;
+}
+
+.inputset img{
+    margin: 0px 0px;
+}
+
+.input input{
+    height: 50px;
+    width: 400px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #87A5B5;
+    font-size: 19px;
+}
+
+.inputset button{
+    margin-left: 45px;
+}
+
+.inputset select{
+    margin-left: 45px;
+}
+
+.submit-container{
+    display: flex;
+    gap: 30px;
+    margin: 30px auto;
+}
+
+.submit{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 220px;
+    height: 59px;
+    color: #ffffff;
+    background: #345B6D;
+    border-radius: 50px;
+    font-size: 19px;
+    font-weight: 700;
+    cursor: pointer;
+
+}
+
+.gray{
+    background: #ffffff;
+    color: #345B6D;
+}
