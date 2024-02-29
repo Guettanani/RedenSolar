@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const FiltreCentrale = ({ setSelectionCentrale, AllowAll }) => {
     const [CentraleList, setCentraleList] = useState([]);
     const [SelectCentrale, setSelectCentrale] = useState(AllowAll ? 'Toute' : 'Abattoirs de Langogne');
-    const urlAPI = "https://icamapp.reden.cloud:8050/";
+    const urlAPI = "https://icamapp.reden.cloud/";
 
 
     useEffect(() => {

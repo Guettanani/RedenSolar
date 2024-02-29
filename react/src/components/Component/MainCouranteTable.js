@@ -10,7 +10,7 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
     const [data, setData] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    const urlAPI = "https://icamapp.reden.cloud:8050/";
+    const urlAPI = "https://icamapp.reden.cloud/";
 
     const fetchData = async () => {
         try {

@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const CategorisationModal = ({ setShowModal, showModal, ClickedData, setClickedData, Centrale }) => {
     const [categorieSelectionnee, setCategorieSelectionnee] = useState('');
     const [Description, setDescription] = useState('');
-    const urlAPI = "https://icamapp.reden.cloud:8050/";
+    const urlAPI = "https://icamapp.reden.cloud/";
 
 
     const handleCloseModal = () => {
