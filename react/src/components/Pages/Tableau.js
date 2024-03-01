@@ -12,7 +12,7 @@ export default function TableauDispo() {
     const [selectedYear, setSelectedYear] = useState(today.getFullYear());
     const [contractualAvailability, setContractualAvailability] = useState([]);
     const [data_cate, setData] = useState([])
-    const urlAPI = "https://icamapp.reden.cloud/";
+    const urlAPI = "https://webicamapp.reden.cloud/";
 
     console.log("data_cate: ", data_cate)
 
