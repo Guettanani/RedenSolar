@@ -14,6 +14,7 @@ SECRET_KEY = 'django-insecure-e=y-5=d*@)wlu9y@+v$ue1*vkam5cp3)3zp%asr&9&8ytvva(-
 # Configurez CORS pour autoriser les requêtes provenant de http://localhost:8050/
 CORS_ALLOWED_ORIGINS = [
     "https://icamapp.reden.cloud",
+    "https://webicamapp.reden.cloud/admin",
     "http://localhost"
 ]
 
