@@ -17,7 +17,7 @@ const FiltreCentrale = ({ setSelectionCentrale, AllowAll }) => {
 
     const remplissage_selec = async () => {
         try {
-            const response = await axios.get(urlAPI + "/getSelec/", {
+            const response = await axios.get(urlAPI + "getSelec/", {
                 timeout: 5000 // Timeout en millisecondes (par exemple, 5 secondes)
             });
             const responseData = response.data;
