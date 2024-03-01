@@ -18,6 +18,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost"
 ]
 
+ALLOWED_HOSTS = ['webicamapp.reden.cloud']
+
 ENABLE_SECURE_PROXY_SSL_HEADER = os.environ.get("ENABLE_SSL", False)
 if ENABLE_SECURE_PROXY_SSL_HEADER:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
