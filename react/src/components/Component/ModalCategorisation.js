@@ -7,6 +7,7 @@ const CategorisationModal = ({ setShowModal, showModal, ClickedData, setClickedD
     const [categorieSelectionnee, setCategorieSelectionnee] = useState('');
     const [Description, setDescription] = useState('');
     const urlAPI = "https://webicamapp.reden.cloud/";
+    // const urlAPI = "http://localhost:8050/";
 
 
     const handleCloseModal = () => {

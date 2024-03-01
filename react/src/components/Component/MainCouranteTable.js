@@ -10,6 +10,7 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
     const [data, setData] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    // const urlAPI = "http://localhost:8050/";
     const urlAPI = "https://webicamapp.reden.cloud/";
 
     const fetchData = async () => {
@@ -18,11 +19,11 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
             const responseData = response.data;
             let filteredData = responseData;
 
-            if (SelectedCentrale !== 'Toute' && SelectedCentrale !== null) {
+            if (responseData &&  SelectedCentrale !== 'Toute' && SelectedCentrale !== null) {
                 filteredData = responseData.filter(item => item.idcentrale === SelectedCentrale);
             }
 
-            if (DateMode !== 'none' && DateMode !== null) {
+            if (responseData && DateMode !== 'none' && DateMode !== null) {
                 filteredData = filteredData.filter(item => item.idheuredebut >= startDate && item.idheurefin <= endDate);
             }
 

@@ -18,7 +18,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost"
 ]
 
-ALLOWED_HOSTS = ['webicamapp.reden.cloud']
+ALLOWED_HOSTS = ['webicamapp.reden.cloud', 'localhost']
 
 ENABLE_SECURE_PROXY_SSL_HEADER = os.environ.get("ENABLE_SSL", False)
 if ENABLE_SECURE_PROXY_SSL_HEADER:
@@ -141,7 +141,7 @@ CELERY_TIMEZONE = 'Europe/Paris'
 CELERY_BEAT_SCHEDULE = {
     'scheduled_task': {
         'task': 'Envoi des données dynamiques d\'Energysoft dans la base de données',
-        'schedule': crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour=23, minute=39),
+        'schedule': crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour=15, minute=15),
     },
 }
 

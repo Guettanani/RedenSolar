@@ -53,8 +53,8 @@ def formag():
 
     # Filtres de date
 
-    today = "2024-02-17"
-    hier = "2024-02-16"
+    today = "2024-02-24"
+    hier = "2024-02-23"
 
     # today=datetime.now().date()
     # hier=today - timedelta(days=1)

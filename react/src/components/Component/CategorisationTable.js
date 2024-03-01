@@ -11,6 +11,7 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
     const [onlyErrorData, setonlyErrorData] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    // const urlAPI = "http://localhost:8050/";
     const urlAPI = "https://webicamapp.reden.cloud/";
 
     const fetchdatacentrale = async () => {
