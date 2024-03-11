@@ -1,5 +1,4 @@
 import React from 'react';
-import './Navbar.css';
 import { Link } from 'react-router-dom';
 
 const Navbar = ({ show }) => {
@@ -9,42 +8,37 @@ const Navbar = ({ show }) => {
 
     return (
         <div className={show ? 'sidenav active' : 'sidenav'}>
-            <ul>
-                <li>
-                    <Link to="/categories" onClick={close}>
+            <ul className="nav flex-column">
+                <li className="nav-item my-2">
+                    <Link to="/categories" className="nav-link mx-2" onClick={close}>
                         Catégorisation
                     </Link>
                 </li>
-            </ul>
-            <ul>
-                <li>
-                    <Link to="/recapitulatif" onClick={close}>
+                {/* <li className="nav-item my-2">
+                    <Link to="/recapitulatif" className="nav-link mx-2" onClick={close}>
                         Récapitulatif
-                    </Link>
-                    <Link to="/recap_tab" onClick={close}>
+                    </Link></li> */}
+                <li className="nav-item my-2">
+                    <Link to="/recap_tab" className="nav-link mx-2" onClick={close}>
                         Tableau
-                    </Link>
-                    <a >Diagramme</a>
-                    <a >Graphique</a>
-                </li>
-            </ul>
-            <ul>
-                <li>
-                    <Link to="/main_courante" onClick={close}>
+                    </Link></li>
+                {/* <li className="nav-item my-2">
+                    <a href="#" className="nav-link mx-2" onClick={close}>Diagramme</a></li> */}
+                {/* <li className="nav-item my-2">
+                    <a href="#" className="nav-link mx-2" onClick={close}>Graphique</a>
+                </li> */}
+                <li className="nav-item my-2">
+                    <Link to="/main_courante" className="nav-link mx-2" onClick={close}>
                         Main Courante
                     </Link>
                 </li>
-            </ul>
-            <ul>
-                <li>
-                    <Link to="/Settings" onClick={close}>
+                <li className="nav-item my-2">
+                    <Link to="/Settings" className="nav-link mx-2" onClick={close}>
                         Paramètres
                     </Link>
                 </li>
-            </ul>
-            <ul>
-                <li>
-                    <Link to="/" onClick={close}>
+                <li className="nav-item my-2">
+                    <Link to="/" className="nav-link mx-2" onClick={close}>
                         Déconnexion
                     </Link>
                 </li>

@@ -22,7 +22,7 @@ from django.db import transaction
 
 @shared_task(name='formatage', retry_backoff=True)
 def Push(request):    
-    views.calculAlbioma()
+    # views.calculAlbioma()
     return HttpResponse('Success')
 
 @shared_task(name='Envoi des données dynamiques d\'Energysoft dans la base de données', retry_backoff=True)
@@ -53,12 +53,15 @@ def formag():
 
     # Filtres de date
 
-    today="2024-01-01"
-    hier="2024-01-02"
+    # today = "2024-02-24"
+    # hier = "2024-02-23"
 
-    #hier_propre = hier.strftime('%Y-%m-%d')
+    today=datetime.now().date()
+    hier=today - timedelta(days=1)
 
-    #today_propre = today.strftime('%Y-%m-%d')
+    # hier_propre = hier.strftime('%Y-%m-%d')
+
+    # today_propre = today.strftime('%Y-%m-%d')
 
     start_date = hier
     end_date= today

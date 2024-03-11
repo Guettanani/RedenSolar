@@ -1,17 +1,12 @@
 import React from 'react';
 import './Settings.css';
-import { Link } from 'react-router-dom';
 
 import user_icon from '../Assets/person.png';
 import email_icon from '../Assets/email.png';
 import password_icon from '../Assets/password.png';
-import REDEN_logo from '../Assets/REDEN_logo.png';
 
 const Settings = () => {
   // Function to get the IP address of the client
-  const getIPAddress = () => {
-    return window.location.hostname; // This will return the IP address of the client
-  };
 
   return (
     <div className="headerset1">

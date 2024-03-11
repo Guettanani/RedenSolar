@@ -1,0 +1,3 @@
+# Ignore React cache directory
+react/node_modules/.cache
+

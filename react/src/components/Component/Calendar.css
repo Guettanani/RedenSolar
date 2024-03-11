@@ -1,0 +1,42 @@
+.calendar-container {
+    font-family: Arial, sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .calendar-header {
+    background-color: #f0f0f0;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .month-year {
+    font-weight: bold;
+  }
+  
+  .calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-top: 1px solid #ccc;
+  }
+  
+  .calendar-day {
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .outside-month {
+    color: #ccc;
+  }
+  
+  .start-date, .end-date {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .selected-date {
+    background-color: #cce5ff;
+  }
+  

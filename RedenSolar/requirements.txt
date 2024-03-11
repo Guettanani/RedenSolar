@@ -1,6 +1,7 @@
 asgiref
 celery
 datetime
+workalendar
 Django
 django-cors-headers
 django-crontab
@@ -14,7 +15,6 @@ pandas
 redis[hiredis]
 sqlparse
 tzdata
-workalendar
 datetime
 requests
 pytz

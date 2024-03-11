@@ -1,7 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 import pandas as pd
 import numpy as np
-from polls.models import*
+from polls.models import *
 from workalendar.europe import France  # Adjust the region/calendar as needed
 from datetime import *
 from django.db.models import F,CharField,Value,Case, When,Max,Subquery
@@ -35,98 +35,72 @@ def chgmt_centrale(request):
 
 @api_view(['GET'])
 def getDataCate(request):
-    if request.method == 'GET':
-        global selected_nom
-        global date_debut
-        print("selected_nom: ",selected_nom)
-        
-        nom_test = request.GET.get('selected_nom', None)
-        print("nom_test: ",nom_test)
-        if nom_test==None:
-            try:
-                selected_nom=selected_nom
-            except(TypeError):
-                selected_nom='Abattoirs de Langogne'
-        elif selected_nom!='Abattoirs de Langogne' and selected_nom!=None and nom_test=='Abattoirs de Langogne':
-            selected_nom=nom_test
-        else:
-            selected_nom=nom_test
-        date_debut=request.GET.get('date_debut', None)
-        date_fin=request.GET.get('date_fin', None)
-       
-        filtered_data=[]
-        if selected_nom != None:
-            if date_debut!=None and date_fin!=None:
-                
-                date_debut_obj = pendulum.parse(date_debut).start_of('day')
-                date_fin_obj = pendulum.parse(date_fin).end_of('day')
+    selected_nom = request.GET.get('selected_nom', 'Abattoirs de Langogne')
+    date_debut = request.GET.get('date_debut', None)
+    date_fin = request.GET.get('date_fin', None)
+    filtered_data = []
 
-                centralename = ReferenceOnduleur.objects.all()
-                data = [
-                    {"idReferenceOnduleur": obj.idReferenceOnduleur, "nomReference": obj.nomReference, "idCentrale_id": obj.idCentrale_id}
-                    for obj in centralename
-                ]
-                centrale_list = [item["idCentrale_id"] for item in data]
-                autres_donnees = Centrale.objects.filter(idCentrale__in=centrale_list)
-                centrale_dict = {item.idCentrale: item.nomCentrale for item in autres_donnees}
+    if selected_nom is not None and date_debut is not None and date_fin is not None:
+        date_debut_obj = pendulum.parse(date_debut).start_of('day')
+        date_fin_obj = pendulum.parse(date_fin).end_of('day')
 
-                for item in data:
-                    item["nom_centrale"] = centrale_dict.get(item["idCentrale_id"])
-                filtered_data = [
+        # Récupération des IDs des centrales
+        centrale_ids = Centrale.objects.filter(nomCentrale=selected_nom).values_list('idCentrale', flat=True)
+
+        # Filtrage des références d'onduleur par les IDs des centrales
+        centralename = ReferenceOnduleur.objects.filter(idCentrale__in=centrale_ids)
+
+        # Création d'un dictionnaire associant l'ID de la centrale à son nom
+        centrale_dict = {c.idCentrale: c.nomCentrale for c in Centrale.objects.all()}
+
+        filtered_data = [
+            {
+                "idReferenceOnduleur": obj.idReferenceOnduleur,
+                "nomReference": obj.nomReference,
+                "nom_centrale": centrale_dict[obj.idCentrale_id]
+            }
+            for obj in centralename
+            if centrale_dict.get(obj.idCentrale_id) == selected_nom
+        ]
+
+        list_ref_ond = [item["idReferenceOnduleur"] for item in filtered_data]
+
+        ond_bis_dict = dict(AssoOnduleur.objects.filter(idReferenceOnduleur_id__in=list_ref_ond).values_list('idReferenceOnduleur_id', 'idOnduleur_id'))
+
+        # print(ond_bis_dict)
+        for item in filtered_data:
+            onduleur_associe_id = ond_bis_dict.get(item["idReferenceOnduleur"])
+            # print("Onduleur id : ", onduleur_associe_id)
+            if onduleur_associe_id is not None:
+                list_pui_tmps = Energie.objects.filter(idOnduleur_id=onduleur_associe_id, temps__range=[date_debut_obj, date_fin_obj]).values('temps', 'puissance')
+                list_pui_tmps = [
                     {
-                        "idReferenceOnduleur": item["idReferenceOnduleur"],
-                        "nomReference": item["nomReference"],
-                        "nom_centrale": centrale_dict.get(item["idCentrale_id"]),
+                        'temps': item['temps'].replace(tzinfo=pytz.UTC),
+                        'puissance': item['puissance']
                     }
-                    for item in data
-                    if centrale_dict.get(item["idCentrale_id"]) == selected_nom
+                    for item in list(list_pui_tmps)
                 ]
+                # print('data puissance : ', list_pui_tmps)
+                timestamps = [entry['temps'] for entry in list_pui_tmps]
+                donnees_centrale = DonneesCentrale.objects.filter(temps__in=timestamps)
 
-                list_ref_ond = [item_bis["idReferenceOnduleur"] for item_bis in filtered_data]
-            
+                donnees_centrale_dict = {entry.temps: entry for entry in donnees_centrale}
 
-                list_ond_bis = AssoOnduleur.objects.filter(idReferenceOnduleur_id__in=list_ref_ond).values('idReferenceOnduleur_id', 'idOnduleur_id')
+                for entry in list_pui_tmps:
+                    donnee_centrale = donnees_centrale_dict.get(entry['temps'])
+                    if donnee_centrale:
+                        entry['irradiance_en_watt_par_surface'] = donnee_centrale.irradiance_en_watt_par_surface
 
-                ond_bis_dict = {item_bis['idReferenceOnduleur_id']: item_bis['idOnduleur_id'] for item_bis in list_ond_bis}
-                
+                item["donnees_energie"] = list_pui_tmps
+        print(filtered_data)
 
-                for item_bis in filtered_data:
-                    onduleur_associe_id = ond_bis_dict.get(item_bis["idReferenceOnduleur"])
-                    if onduleur_associe_id is not None:
-                        list_pui_tmps = Energie.objects.filter(idOnduleur_id=onduleur_associe_id).values('temps', 'puissance')
+    return JsonResponse(filtered_data, safe=False)
 
-                        list_pui_tmps = [
-                            {
-                                'temps': item['temps'].replace(tzinfo=pytz.UTC),
-                                'puissance': item['puissance']
-                            }
-                            for item in list(list_pui_tmps)
-                            if date_debut_obj <= item['temps'] and item['temps'] <= date_fin_obj
-                        ]
-
-                        # Extract timestamps from the list_pui_tmps for the bulk query
-                        timestamps = [entry['temps'] for entry in list_pui_tmps]
-
-                        # Fetch all DonneesCentrale data in a single query
-                        donnees_centrale = DonneesCentrale.objects.filter(temps__in=timestamps)
-
-                        # Create a dictionary for quick lookup
-                        donnees_centrale_dict = {entry.temps: entry for entry in donnees_centrale}
-
-                        # Update list_pui_tmps with irradiance data
-                        for entry in list_pui_tmps:
-                            donnee_centrale = donnees_centrale_dict.get(entry['temps'])
-                            if donnee_centrale:
-                                entry['irradiance_en_watt_par_surface'] = donnee_centrale.irradiance_en_watt_par_surface
-
-                        item_bis["donnees_energie"] = list_pui_tmps
-        else:
-            pass 
-        return JsonResponse(filtered_data, safe=False)
 
 @api_view(['GET'])
 def getSelec(request):
     global selected_nom
+    print(request)
     if request.method == 'GET':
         print("selected_nom4: ",selected_nom)
         if selected_nom==None:
@@ -141,7 +115,7 @@ def getSelec(request):
             centrales = Centrale.objects.all()
             data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
             data.append({"selected_nom": selected_nom})
-            #print("dataSelec: ",data)
+            print("dataSelec: ",data)
         return JsonResponse(data, safe=False)
 
 
@@ -167,9 +141,10 @@ def affCalcAlbio(request):
     if request.method == 'GET':
         global selected_nom
         global date_debut
+        selected_nom = request.GET.get('selection_centrale', None)
         annee = request.GET.get('annee', None)
         centrale_nom = selected_nom
-        date_debut = date_debut
+        date_debut = annee
 
         try:
             if date_debut is not None:
@@ -227,52 +202,76 @@ def affCalcAlbio(request):
 
 @api_view(['POST'])
 def ajout_article(request):
-    
     if request.method == 'POST':
-        data_from_json = request.data
-        iddefaut = data_from_json.get('iddefaut')
-        idheuredebut = data_from_json.get('idheuredebut')
-        idheurefin = data_from_json.get('idheurefin')
-        idcommentaires = data_from_json.get('idcommentaires')
-        idequipementEndommage = data_from_json.get('idequipementEndommage')
-        idcentraleSelec=data_from_json.get('idcentrale')
-        print("print request",request.data)
+        try:
+            data_from_json = request.data
 
-        original_date_str_debut = idheuredebut
-        original_date_str_fin = idheurefin
-        print("idheuredebut: ",idheuredebut)
-        print("original_date_str_debut :",original_date_str_debut)
-        
+            # Extract data with potential default values for clarity
+            iddefaut = data_from_json.get('iddefaut', '')
+            idheuredebut = data_from_json.get('idheuredebut')
+            idheurefin = data_from_json.get('idheurefin')
+            idcommentaires = data_from_json.get('idcommentaires')
+            idequipementEndommage = data_from_json.get('idequipementEndommage')
+            idcentraleSelec = data_from_json.get('idcentrale')
 
-        original_date_debut = datetime.strptime(original_date_str_debut, "%d/%m/%Y %H:%M")
-        original_date_fin = datetime.strptime(original_date_str_fin, "%d/%m/%Y %H:%M")
-        print("original_date_debut :",original_date_debut)
+            # Validate required fields
+            if not idheuredebut or not idheurefin or not idcentraleSelec:
+                return JsonResponse({'erreur': 'Les champs "idheuredebut", "idheurefin", et "idcentrale" sont obligatoires.'}, status=400)
 
-        formatted_date_str_debut = original_date_debut.strftime("%Y-%m-%d %H:%M:%S")
-        formatted_date_str_fin = original_date_fin.strftime("%Y-%m-%d %H:%M:%S")
-        print("formatted_date_str_debut :",formatted_date_str_debut)
+           # Parse date strings using the correct format
+            original_date_str_debut = idheuredebut
+            original_date_str_fin = idheurefin
 
-        print("idcentrale: ",idcentraleSelec)
-        donnees = Centrale.objects.filter(nomCentrale=idcentraleSelec)
-        
-        centrale_dict = dict(donnees.values_list('nomCentrale', 'idCentrale'))
-        
-        centrale_value = centrale_dict.get(idcentraleSelec)
-        print("nomCentrale: ", centrale_dict)
-        print("données: ", centrale_value)
+            # Match the format of the input string first
+            date_format_input = "%d/%m/%Y %H:%M:%S"  # DD/MM/YYYY HH:MM:SS
+            date_format_output = "%Y-%m-%d %H:%M:%S"  # YYYY/MM/DD HH:MM:SS
 
-        formatted_date = datetime.strptime(formatted_date_str_debut, "%Y-%m-%d %H:%M:%S")
-        print(" formatted_date: ", formatted_date)
-        mois = formatted_date.month
-        annee = formatted_date.year
+            try:
+                # Parse the input string with the matching format
+                original_date_debut = datetime.strptime(original_date_str_debut, date_format_input)
+                original_date_fin = datetime.strptime(original_date_str_fin, date_format_input)
 
-        data_albioma={"centrale_id":idcentraleSelec, "mois":mois, "annee":annee}
+                # Format the parsed dates into the desired output format
+                formatted_date_str_debut = original_date_debut.strftime(date_format_output)
+                formatted_date_str_fin = original_date_fin.strftime(date_format_output)
 
-        article = MainCourante(constat=iddefaut, dateHeureConstat=formatted_date_str_debut, dateHeureActionCorrective=formatted_date_str_fin, idCentrale_id=centrale_value, actionCorrective=idcommentaires, materielImpacte=idequipementEndommage)
-        article.save()
-        calculAlbioma(data_albioma)
-        return JsonResponse({'message': 'Article ajouté avec succès.'})
-        
+                print(formatted_date_str_debut)  # This will now print "2024/02/12 05:20:00"
+
+            except ValueError:
+                return JsonResponse({'erreur': 'Format de date invalide. Utilisez le format "JJ/MM/AAAA HH:MM:SS".'}, status=400)
+
+            # On vérifie que la centrale existe
+            try:
+                # On extrait les données de la centrale selectionnée
+                donnees = Centrale.objects.filter(nomCentrale=idcentraleSelec)
+                # On crée un dictionnaire avec le nom de la centrale et son id
+                centrale_dict = dict(donnees.values_list('nomCentrale', 'idCentrale'))
+                # On extrait la valeur de l'id de la centrale selectionnée
+                centrale_value = centrale_dict.get(idcentraleSelec)
+            # Si la centrale n'est pas trouvée, on renvoie une erreur
+            except Centrale.DoesNotExist:
+                return JsonResponse({'erreur': 'Centrale introuvable.'}, status=400)
+
+            # Create article object and save
+            article = MainCourante(
+                constat=iddefaut,
+                dateHeureConstat=formatted_date_str_debut,
+                dateHeureActionCorrective=formatted_date_str_fin,
+                idCentrale_id=centrale_value,  # Use the id directly
+                actionCorrective=idcommentaires,
+                materielImpacte=idequipementEndommage,
+            )
+            article.save()
+
+            # Additional logic for calculating data for Albioma (if needed)
+            # calculAlbioma(data_albioma)  # Assuming this function exists
+
+            return JsonResponse({'message': 'Article ajouté avec succès.'})
+
+        except Exception as e:  # Catch generic exceptions for logging or more specific handling
+            print(f"Une erreur interne est survenue: {e}")
+            return JsonResponse({'erreur': 'Une erreur interne est survenue.'}, status=500)
+
     else:
         return JsonResponse({'message': 'Méthode non autorisée.'}, status=405)
     

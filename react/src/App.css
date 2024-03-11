@@ -9,10 +9,8 @@ body {
 }
 
 header {
-  padding: 5px;
-  padding-left: 15px;
   background: #B6C3C9;
-  height: 75px;
+  height: 10vh;
 }
 
 .logo {
@@ -22,5 +20,105 @@ header {
 
 header svg {
   padding: 10px;
+  margin :10px;
   font-size: 50px;
+}
+.border-irradiance{
+  border-right: 4px solid #000;
+}
+.table-danger-perso{
+  background-color: rgba(255, 108, 108, 0.6) !important; /* Background color for danger rows */
+  font-weight: bold; /* Bold text for danger rows */
+  cursor: pointer;
+}
+.table-success-perso{
+  background-color: rgba(104, 255, 80, 0.6) !important; /* Background color for danger rows */
+  font-weight: bold; /* Bold text for danger rows */
+  cursor: not-allowed;
+}
+.table-info-perso{
+  background-color: rgba(92, 244, 255, 0.6) !important; /* Background color for danger rows */
+  font-weight: bold; /* Bold text for danger rows */
+  cursor: pointer;
+}
+.table-secondary-perso{
+  background-color: rgba(219, 219, 219, 0.6) !important; /* Background color for danger rows */
+  font-weight: bold; /* Bold text for danger rows */
+  cursor: not-allowed;
+}
+
+/* Pour les navigateurs basés sur WebKit (Google Chrome, Safari) */
+/* Barre de défilement */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+/* Bouton de défilement */
+::-webkit-scrollbar-thumb {
+  background-color: #888; /* Couleur du bouton de défilement */
+  border-radius: 5px; /* Arrondi du bouton de défilement */
+}
+
+/* Piste de défilement */
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* Couleur de la piste de défilement */
+}
+
+.z-index-999{
+  z-index: 999 !important;
+}
+.table-container {
+  max-height: 66vh; /* Ajustez selon vos besoins */
+  width: 100%;
+  overflow-y: auto;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: #fff; /* Ajoutez la couleur de fond de votre choix */
+  z-index: 400; /* Assurez-vous que le z-index est supérieur à celui des autres éléments */
+}
+
+.sidenav {
+  width: 18%;
+  background: #87A5B5;
+  position: absolute;
+  height: 90vh;
+  padding: 0 0px;
+  left: -100%;
+  transition: all 1s;
+  z-index: 999;
+}
+
+.sidenav.active {
+  left: 0;
+  z-index: 999;
+}
+
+.navbar-nav {
+  width: 100%;
+  padding-left: 0;
+}
+
+.nav-link {
+  color: white !important;
+  text-decoration: none !important;
+  font-size: 1.5rem;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 10px;
+  display: block;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: #345B6D;
 }
