@@ -18,7 +18,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://webicamapp.reden.cloud",
     "http://localhost"
 ]
-#test
+#test V2
 ALLOWED_HOSTS = ['webicamapp.reden.cloud', 'localhost']
 
 ENABLE_SECURE_PROXY_SSL_HEADER = os.environ.get("ENABLE_SSL", False)
