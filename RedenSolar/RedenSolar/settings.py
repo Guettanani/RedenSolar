@@ -143,7 +143,7 @@ CELERY_TIMEZONE = 'Europe/Paris'
 CELERY_BEAT_SCHEDULE = {
     'scheduled_task': {
         'task': 'Envoi des données dynamiques d\'Energysoft dans la base de données',
-        'schedule': crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour=15, minute=15),
+        'schedule': crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour=12, minute=0),
     },
 }
 
