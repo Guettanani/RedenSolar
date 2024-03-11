@@ -15,10 +15,12 @@ ALLOWED_HOSTS = ['*','localhost','icamapp.reden.cloud','webicamapp.reden.cloud']
 # Configurez CORS pour autoriser les requêtes provenant de http://localhost:8050/
 CORS_ALLOWED_ORIGINS = [
     "https://icamapp.reden.cloud",
+    "https://webicamapp.reden.cloud",
     "http://localhost"
 ]
 
-# set ENABLE_SECURE_PROXY_SSL_HEADER=True in environment when SSL required
+ALLOWED_HOSTS = ['webicamapp.reden.cloud', 'localhost']
+
 ENABLE_SECURE_PROXY_SSL_HEADER = os.environ.get("ENABLE_SSL", False)
 if ENABLE_SECURE_PROXY_SSL_HEADER:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -88,7 +90,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'db',
         'USER': 'postgres',
-        'PASSWORD': 'Flo@Flo12345',
+        'PASSWORD': 'reden12345',
         'HOST':  '172.25.0.2', #  Hostname of the database service
         'PORT': '5432',
         'OPTIONS': {
@@ -141,7 +143,7 @@ CELERY_TIMEZONE = 'Europe/Paris'
 CELERY_BEAT_SCHEDULE = {
     'scheduled_task': {
         'task': 'Envoi des données dynamiques d\'Energysoft dans la base de données',
-        'schedule': crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour=23, minute=39),
+        'schedule': crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour=15, minute=15),
     },
 }
 

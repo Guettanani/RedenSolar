@@ -11,13 +11,16 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
     const [onlyErrorData, setonlyErrorData] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    // const urlAPI = "http://localhost:8050/";
+    const urlAPI = "https://webicamapp.reden.cloud/";
+
     const fetchdatacentrale = async () => {
         try {
             setData([]);
             setLoading(true); // Définir l'état de chargement sur true au début de la requête
 
             if (start || end) {
-                const response = await axios.get("http://localhost:8050/getCentrale/", {
+                const response = await axios.get(urlAPI + "getCentrale/", {
                     params: {
                         selected_nom: SelectCentrale ? SelectCentrale : 'Abattoirs de Langogne',
                         date_debut: start,
