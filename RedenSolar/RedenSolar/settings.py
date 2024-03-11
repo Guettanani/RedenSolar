@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-import os
 from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,12 +10,15 @@ DEBUG = True  # Assurez-vous que DEBUG est désactivé en production
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-e=y-5=d*@)wlu9y@+v$ue1*vkam5cp3)3zp%asr&9&8ytvva(-'
 
+ALLOWED_HOSTS = ['*','localhost','icamapp.reden.cloud','webicamapp.reden.cloud']
+
 # Configurez CORS pour autoriser les requêtes provenant de http://localhost:8050/
 CORS_ALLOWED_ORIGINS = [
     "https://icamapp.reden.cloud",
     "http://localhost"
 ]
 
+# set ENABLE_SECURE_PROXY_SSL_HEADER=True in environment when SSL required
 ENABLE_SECURE_PROXY_SSL_HEADER = os.environ.get("ENABLE_SSL", False)
 if ENABLE_SECURE_PROXY_SSL_HEADER:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -24,6 +26,7 @@ else:
     SECURE_PROXY_SSL_HEADER = None
 
 CSRF_TRUSTED_ORIGINS = ['https://icamapp.reden.cloud','https://webicamapp.reden.cloud','http://localhost/']
+
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
