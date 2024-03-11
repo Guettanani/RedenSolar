@@ -38,7 +38,34 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
   };
   const handlePeriodChange = (e) => {
     const selectedValue = e.target.value;
-    { e.target.value === 'autre' ? setShowCalendar(true) : setShowCalendar(false) }
+    let RangeDate = new Date(); // Initialiser avec la date actuelle
+    let today = new Date(); // Initialiser avec la date actuelle
+    let showCalendar = false;
+
+    if (selectedValue === '1 semaine') {
+      RangeDate.setDate(RangeDate.getDate() - 7);
+      setStartDate(RangeDate.toISOString().split('T')[0]);
+      setEndDate(today.toISOString().split('T')[0]);
+      // Mettre à jour showCalendar ici si nécessaire
+    } else if (selectedValue === '2 semaines') {
+      RangeDate.setDate(RangeDate.getDate() - 14);
+      setStartDate(RangeDate.toISOString().split('T')[0]);
+      setEndDate(today.toISOString().split('T')[0]);
+      // Mettre à jour showCalendar ici si nécessaire
+    } else if (selectedValue === '1 mois') {
+      RangeDate.setDate(1);
+      setStartDate(RangeDate.toISOString().split('T')[0]);
+      setEndDate(today.toISOString().split('T')[0]);
+      // Mettre à jour showCalendar ici si nécessaire
+    } else if (selectedValue === 'Autre') {
+      // Définir showCalendar sur true si la valeur est 'Autre'
+      showCalendar = true;
+    }
+
+    // Mettre à jour l'état showCalendar en fonction de la logique ci-dessus
+    setShowCalendar(showCalendar);
+
+    // Mettre à jour l'état selectedPeriod avec la valeur sélectionnée
     setSelectedPeriod(selectedValue);
   };
 
@@ -68,7 +95,7 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
         <option value="1 semaine">1 semaine</option>
         <option value="2 semaines">2 semaines</option>
         <option value="1 mois">1 mois</option>
-        <option value="autre">Autre</option>
+        <option value="Autre">Autre</option>
       </select>
 
       <div id="calendar-overlay" className={`position-absolute top-100 start-0 bg-secondary rounded p-2 m-1 z-index-999 ${ShowCalendar ? '' : 'd-none'}`}>
