@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios'; // Importer axios si ce n'est pas déjà fait
+import urlAPI from '../../config';
+
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const CategorisationModal = ({ setShowModal, showModal, ClickedData, setClickedData, Centrale }) => {
     const [categorieSelectionnee, setCategorieSelectionnee] = useState('');
     const [Description, setDescription] = useState('');
-    const urlAPI = "https://webicamapp.reden.cloud/";
+    // const urlAPI = "https://webicamapp.reden.cloud/";
     // const urlAPI = "http://localhost:8050/";
 
 

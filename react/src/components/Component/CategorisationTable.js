@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../App.css';
+import urlAPI from '../../config';
 
 
 const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowModal, onlyError }) => {
@@ -12,7 +13,7 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
     const [loading, setLoading] = useState(false);
 
     // const urlAPI = "http://localhost:8050/";
-    const urlAPI = "https://webicamapp.reden.cloud/";
+    // const urlAPI = "https://webicamapp.reden.cloud/";
 
     const fetchdatacentrale = async () => {
         try {
@@ -265,7 +266,7 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
 
     const generateTableHeader = () => {
         return (
-            <thead className="sticky-perso">
+            <thead className="sticky-header">
                 <tr>
                     <th>Date</th>
                     <th>Irradiance</th>
@@ -280,7 +281,7 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
     };
 
     return (
-        <div className='col-12 overflow-x-scroll'>
+        <div className='col-12 overflow-x-scroll table-container'>
             {loading ? (
                 // Afficher le spinner Bootstrap si loading est true
                 <div className='d-flex flex-column justify-content-center align-items-center col-12'>

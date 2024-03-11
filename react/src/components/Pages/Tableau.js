@@ -5,6 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import FiltreCentrale from '../Component/CentraleFiltre';
 import FiltreYear from '../Component/FiltreYear';
+import urlAPI from '../../config';
+
 
 export default function TableauDispo() {
     const today = new Date();
@@ -13,7 +15,7 @@ export default function TableauDispo() {
     const [contractualAvailability, setContractualAvailability] = useState([]);
     const [data_cate, setData] = useState([])
     // const urlAPI = "http://localhost:8050/";
-    const urlAPI = "https://webicamapp.reden.cloud/";
+    // const urlAPI = "https://webicamapp.reden.cloud/";
 
     console.log("data_cate: ", data_cate)
 

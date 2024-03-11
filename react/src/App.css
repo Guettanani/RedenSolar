@@ -68,9 +68,21 @@ header svg {
 .z-index-999{
   z-index: 500 !important;
 }
-.sticky-perso {
+.table-container {
+  max-height: 66vh; /* Ajustez selon vos besoins */
+  width: 100%;
+  overflow-y: auto;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+
+.sticky-header {
   position: sticky;
   top: 0;
-  z-index: 400; /* Vous pouvez ajuster ce nombre selon vos besoins */
-  /* Autres styles personnalisés selon vos préférences */
+  background-color: #fff; /* Ajoutez la couleur de fond de votre choix */
+  z-index: 500; /* Assurez-vous que le z-index est supérieur à celui des autres éléments */
 }

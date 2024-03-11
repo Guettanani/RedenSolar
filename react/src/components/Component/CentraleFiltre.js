@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import urlAPI from '../../config';
 
 const FiltreCentrale = ({ setSelectionCentrale, AllowAll }) => {
     const [CentraleList, setCentraleList] = useState([]);
     const [SelectCentrale, setSelectCentrale] = useState(AllowAll ? 'Toute' : 'Abattoirs de Langogne');
     // const urlAPI = "http://localhost:8050/";
-    const urlAPI = "https://webicamapp.reden.cloud/";
+    // const urlAPI = "https://webicamapp.reden.cloud/";
 
 
     useEffect(() => {

@@ -5,13 +5,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
+import urlAPI from '../../config';
+
 
 const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) => {
     const [data, setData] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     // const urlAPI = "http://localhost:8050/";
-    const urlAPI = "https://webicamapp.reden.cloud/";
+    // const urlAPI = "https://webicamapp.reden.cloud/";
 
     const fetchData = async () => {
         try {
