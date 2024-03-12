@@ -4,11 +4,13 @@ import os
 import sys
 import psycopg2
 import time
+from django.core.management import execute_from_command_line
+
 
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RedenSolar.settings')
-    # execute_from_command_line(sys.argv)
+    execute_from_command_line(sys.argv)
 
 if __name__ == '__main__':
     main()
