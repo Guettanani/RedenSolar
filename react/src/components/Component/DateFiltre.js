@@ -97,6 +97,11 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
         <option value="1 mois">1 mois</option>
         <option value="Autre">Autre</option>
       </select>
+      
+      <div className="d-flex gap-2 flex-row justify-content-around text-light m-1">
+        <label className="border m-1 p-1">Début : {startDate || ''}</label>
+        <label className="border m-1 p-1">Fin : {endDate || ''}</label>
+      </div>
 
       <div id="calendar-overlay" className={`position-absolute top-100 start-0 bg-secondary rounded p-2 m-1 z-index-999 ${ShowCalendar ? '' : 'd-none'}`}>
         <div id="frame" className='container-fluid d-flex flex-column justify-content-center align-items-center'>
