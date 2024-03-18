@@ -18,7 +18,6 @@ from django.db.models.functions import Extract
 from datetime import timedelta,datetime
 import math
 from django.utils import timezone
-import pendulum
 from django.core.exceptions import ObjectDoesNotExist
 
 selected_nom = None
@@ -41,8 +40,10 @@ def getDataCate(request):
     filtered_data = []
 
     if selected_nom is not None and date_debut is not None and date_fin is not None:
-        date_debut_obj = pendulum.parse(date_debut).start_of('day')
-        date_fin_obj = pendulum.parse(date_fin).end_of('day')
+
+        #convertion des dates en object datetime
+        date_debut_obj = datetime.strptime(date_debut, "%Y-%m-%d")
+        date_fin_obj = datetime.strptime(date_fin, "%Y-%m-%d")
 
         # Récupération des IDs des centrales
         centrale_ids = Centrale.objects.filter(nomCentrale=selected_nom).values_list('idCentrale', flat=True)
@@ -204,7 +205,7 @@ def affCalcAlbio(request):
 def ajout_article(request):
         try:
             data_from_json = request.data
-
+            
             # Extract data with potential default values for clarity
             iddefaut = data_from_json.get('iddefaut', '')
             idheuredebut = data_from_json.get('idheuredebut')

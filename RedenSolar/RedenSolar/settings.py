@@ -4,13 +4,12 @@ from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 DEBUG = True  # Assurez-vous que DEBUG est désactivé en production
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-e=y-5=d*@)wlu9y@+v$ue1*vkam5cp3)3zp%asr&9&8ytvva(-'
 
-ALLOWED_HOSTS = ['*','localhost','icamapp.reden.cloud','webicamapp.reden.cloud']
+# ALLOWED_HOSTS = ['*','localhost','icamapp.reden.cloud','webicamapp.reden.cloud']
 
 # Configurez CORS pour autoriser les requêtes provenant de http://localhost:8050/
 CORS_ALLOWED_ORIGINS = [
@@ -122,9 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-
-
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -143,7 +139,7 @@ CELERY_TIMEZONE = 'Europe/Paris'
 CELERY_BEAT_SCHEDULE = {
     'scheduled_task': {
         'task': 'Envoi des données dynamiques d\'Energysoft dans la base de données',
-        'schedule': crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour=12, minute=0),
+        'schedule': crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour=16, minute=45),
     },
 }
 

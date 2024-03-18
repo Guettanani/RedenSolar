@@ -64,7 +64,7 @@ def formag():
     # today_propre = today.strftime('%Y-%m-%d')
 
     start_date = hier
-    end_date= today
+    end_date = today
     #start_date = hier_propre
     #end_date= today_propre
     # Filtres de type de mesure
@@ -132,11 +132,18 @@ def formag():
                 df_pivoted[colonne]=df_pivoted[colonne].fillna(0)
 
             # Mettre la date au propre
+                
+            print(df_pivoted['timestamp'].dtype)
+            print(df_pivoted['timestamp'].head(5))
+
             df_pivoted['timestamp']=df_pivoted['timestamp'].str.replace('T',' ')
             df_pivoted['timestamp']=df_pivoted['timestamp'].str.replace('Z','')
 
+
+
+
             # Ajout de la colonne qui référence la centrale au sein du df
-            df_pivoted['site']=site   
+            df_pivoted['site']=site
 
             #Passage de l'irradiance en W/m carré
             df_pivoted['solar_energy'] = df_pivoted['solar_energy']*1000
