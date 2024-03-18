@@ -104,7 +104,7 @@ def getSelec(request):
     if request.method == 'GET':
         print("selected_nom4: ",selected_nom)
         if selected_nom==None:
-            print("selected_nom3: ",selected_nom)
+            print("selected_nom3: ",selected_nom)   
             selected_nom = 'Abattoirs de Langogne'
             centrales = Centrale.objects.all()
             data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
@@ -202,7 +202,6 @@ def affCalcAlbio(request):
 
 @api_view(['POST'])
 def ajout_article(request):
-    if request.method == 'POST':
         try:
             data_from_json = request.data
 
@@ -232,7 +231,7 @@ def ajout_article(request):
                 original_date_fin = datetime.strptime(original_date_str_fin, date_format_input)
 
                 # Format the parsed dates into the desired output format
-                formatted_date_str_debut = original_date_debut.strftime(date_format_output)
+                formatted_date_str_debut = original_date_debut.strftime(date_format_output) # 2 conversions identiques ?
                 formatted_date_str_fin = original_date_fin.strftime(date_format_output)
 
                 print(formatted_date_str_debut)  # This will now print "2024/02/12 05:20:00"
@@ -271,9 +270,6 @@ def ajout_article(request):
         except Exception as e:  # Catch generic exceptions for logging or more specific handling
             print(f"Une erreur interne est survenue: {e}")
             return JsonResponse({'erreur': 'Une erreur interne est survenue.'}, status=500)
-
-    else:
-        return JsonResponse({'message': 'Méthode non autorisée.'}, status=405)
     
 @api_view(['DELETE'])
 def suppMC(request):
