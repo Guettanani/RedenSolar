@@ -5,7 +5,7 @@ from celery.schedules import crontab
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-DEBUG = True  # Assurez-vous que DEBUG est désactivé en production
+DEBUG = False  # Assurez-vous que DEBUG est désactivé en production
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-e=y-5=d*@)wlu9y@+v$ue1*vkam5cp3)3zp%asr&9&8ytvva(-'
