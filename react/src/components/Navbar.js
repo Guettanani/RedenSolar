@@ -20,7 +20,7 @@ const Navbar = ({ show }) => {
                     </Link></li> */}
                 <li className="nav-item my-2">
                     <Link to="/recap_tab" className="nav-link mx-2" onClick={close}>
-                        Tableau
+                        Récapitulatif
                     </Link></li>
                 {/* <li className="nav-item my-2">
                     <a href="#" className="nav-link mx-2" onClick={close}>Diagramme</a></li> */}

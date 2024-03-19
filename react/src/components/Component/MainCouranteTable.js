@@ -129,19 +129,19 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
                         </div>
                         <div className="form-group">
                             <label htmlFor="idheuredebut">Date et Heure de Début</label>
-                            <input type="datetime-local" className="form-control" id="idheuredebut" defaultValue={selectedItem?.idheuredebut ? new Date(selectedItem.idheuredebut).toISOString().substring(0, 16) : ''} />
+                            <input type="datetime-local" className="form-control" id="idheuredebut" disabled={true} defaultValue={selectedItem?.idheuredebut ? new Date(selectedItem.idheuredebut).toISOString().substring(0, 16) : ''} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="idheurefin">Date et Heure de fin</label>
-                            <input type="datetime-local" className="form-control" id="idheurefin" defaultValue={selectedItem?.idheurefin ? new Date(selectedItem.idheurefin).toISOString().substring(0, 16) : ''} />
+                            <input type="datetime-local" className="form-control" id="idheurefin" disabled={true} defaultValue={selectedItem?.idheurefin ? new Date(selectedItem.idheurefin).toISOString().substring(0, 16) : ''} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="idcentrale">Centrale</label>
-                            <input type="text" className="form-control" id="idcentrale" defaultValue={selectedItem?.idcentrale} />
+                            <input type="text" className="form-control" id="idcentrale" disabled={true} defaultValue={selectedItem?.idcentrale} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="idequipementEndommage">Équipement endommagé</label>
-                            <input type="text" className="form-control" id="idequipementEndommage" defaultValue={selectedItem?.idequipementEndommage} />
+                            <input type="text" className="form-control" id="idequipementEndommage" disabled={true} defaultValue={selectedItem?.idequipementEndommage} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="idcommentaires">Commentaires</label>

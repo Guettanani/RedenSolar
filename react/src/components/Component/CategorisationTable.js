@@ -15,6 +15,22 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
     // const urlAPI = "http://localhost:8050/";
     // const urlAPI = "https://webicamapp.reden.cloud/";
 
+    function formatDateTime(inputDate) {
+        const date = new Date(inputDate);
+    
+        // Extraction des composants de la date
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Les mois sont indexés à partir de 0, donc ajoutez 1
+        const year = String(date.getFullYear()).slice(-2); // Obtenez les deux derniers chiffres de l'année
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+        // Formation de la date formatée
+        const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
+    
+        return formattedDate;
+    }
+
     const fetchdatacentrale = async () => {
         try {
             setData([]);
@@ -216,7 +232,7 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
                                     // onClick={(e) => click_on_line(e, rowIndex)}
                                     >
                                         {/* {formatDate(data[0].donnees_energie[rowIndex].temps)} */}
-                                        {data[data.findIndex(item => item.donnees_energie)].donnees_energie[rowIndex].temps}
+                                        {formatDateTime(data[data.findIndex(item => item.donnees_energie)].donnees_energie[rowIndex].temps)}
                                     </td>
                                     <td
                                         id={"tab_irradiance_" + data[data.findIndex(item => item.donnees_energie)].donnees_energie[rowIndex].temps}

@@ -11,7 +11,6 @@ const GrappeEdit = () => {
     const [AllCentrales, setAllCentrales] = useState([]);
     const [AddGrappe, setAddGrappe] = useState(false);
 
-
     const handleGrappeChange = (event) => {
         const selectedValue = event.target.value;
         if (selectedValue === 'New') {
@@ -44,7 +43,7 @@ const GrappeEdit = () => {
     useEffect(() => {
         generateGrappe();
         fetchCentrales();
-        console.log('data ok');
+        // console.log('data ok');
     }, []);
 
     const fetchCentrales = async () => {
@@ -62,7 +61,7 @@ const GrappeEdit = () => {
     };
 
     const handleCentraleChange = (ClickedCentrale) => {
-        console.log(ClickedCentrale);
+        // console.log(ClickedCentrale);
 
         // Créez une nouvelle liste de centrales pour la grappe sélectionnée
         let updatedCentrales = [...selectedGrappe.centrale]; // Clonez les centrales existantes
@@ -77,9 +76,6 @@ const GrappeEdit = () => {
             ...prevState,
             centrale: updatedCentrales
         }));
-
-        console.log(selectedGrappe);
-        console.log(selectedGrappe.centrale);
     };
 
 
@@ -96,10 +92,15 @@ const GrappeEdit = () => {
                 console.log("Grappe ajouté :", selectedGrappe);
                 console.log("AllGrappe  :", AllGrappe);
             }
+        } else {
+            const confirmUpdate = window.confirm("Êtes-vous sûr de vouloir modifier cette grappe ?");
+            // Si l'utilisateur confirme la suppression
+            if (confirmUpdate) {
+                // Logique de modification de la grappe
+                console.log("Grappe modifiée :", selectedGrappe);
+                console.log("AllGrappe  :", AllGrappe);
+            }
         }
-        // Logique de traitement de la sélection de la grappe et des centrales
-        console.log("Grappe sélectionnée :", selectedGrappe);
-        console.log("grappe centrales  :", selectedGrappe.centrale);
     };
 
     const handleDeleteGrappe = () => {

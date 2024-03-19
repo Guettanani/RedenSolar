@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios'; // Importer axios si ce n'est pas déjà fait
 import urlAPI from '../../config';
 
@@ -123,6 +123,12 @@ const CategorisationModal = ({ setShowModal, showModal, ClickedData, setClickedD
         { texte: 'Ombrage' },
         { texte: 'Communication' },
     ];
+    
+    useEffect(() => {
+        // Set the default category to the first option in the dropdown
+        setCategorieSelectionnee(CategorisationData[0].texte);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[])
 
 
     return (

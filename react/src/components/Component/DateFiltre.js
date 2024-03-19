@@ -74,6 +74,10 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
     OnDateMode(selectedPeriod);
   }, [startDate, endDate, selectedPeriod]);
 
+  useEffect(() => {
+    close_calendar();
+  }, []);
+
   const close_calendar = () => {
     setShowCalendar(false);
     if (selectedPeriod === 'autre' && (!startDate || !endDate)) {
