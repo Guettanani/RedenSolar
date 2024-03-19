@@ -9,12 +9,22 @@ const GrappeEdit = () => {
     const [selectedGrappe, setSelectedGrappe] = useState({});
     const [AllGrappe, setAllGappe] = useState([]);
     const [AllCentrales, setAllCentrales] = useState([]);
-    // const [selectedGrappeCentrales, setSelectedGrappeCentrales] = useState([]);
+    const [AddGrappe, setAddGrappe] = useState(false);
+
 
     const handleGrappeChange = (event) => {
-        let NewSelectGrappe = event.target.value;
-        NewSelectGrappe = AllGrappe.find((grappe) => grappe.nomGrappe === NewSelectGrappe);
-        setSelectedGrappe(NewSelectGrappe);
+        const selectedValue = event.target.value;
+        if (selectedValue === 'New') {
+            // Si l'utilisateur choisit d'ajouter une nouvelle grappe, afficher le formulaire d'ajout
+            setSelectedGrappe({ nomGrappe: '', creator: '', centrale: [] });
+            setAddGrappe(true);
+        } else {
+            // Sinon, sélectionner la grappe existante
+            const selectedGrappe = AllGrappe.find((grappe) => grappe.nomGrappe === selectedValue);
+            setSelectedGrappe(selectedGrappe);
+            // Masquer le formulaire d'ajout
+            setAddGrappe(false);
+        }
     };
 
     const generateGrappe = () => {
@@ -55,9 +65,9 @@ const GrappeEdit = () => {
         console.log(ClickedCentrale);
 
         // Créez une nouvelle liste de centrales pour la grappe sélectionnée
-        const updatedCentrales = selectedGrappe.centrale.map(item => ({ ...item })); // Clonez les centrales existantes
+        let updatedCentrales = [...selectedGrappe.centrale]; // Clonez les centrales existantes
         if (updatedCentrales.some(item => item.nomCentrale === ClickedCentrale)) {
-            updatedCentrales.filter(item => item.nomCentrale !== ClickedCentrale)
+            updatedCentrales = updatedCentrales.filter(item => item.nomCentrale !== ClickedCentrale); // Retirez la centrale si elle est déjà présente
         } else {
             updatedCentrales.push({ nomCentrale: ClickedCentrale })
         }
@@ -75,11 +85,39 @@ const GrappeEdit = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        // console.log(event);
+        if (AddGrappe) {
+            const confirmAdd = window.confirm("Êtes-vous sûr de vouloir ajouter cette grappe ?");
+            // Si l'utilisateur confirme la suppression
+            if (confirmAdd) {
+                // Ajout de la nouvelle grappe dans la grappe selectionné
+                setAllGappe([...AllGrappe, selectedGrappe]);
+                // Logique d'ajout de la grappe
+                console.log("Grappe ajouté :", selectedGrappe);
+                console.log("AllGrappe  :", AllGrappe);
+            }
+        }
         // Logique de traitement de la sélection de la grappe et des centrales
         console.log("Grappe sélectionnée :", selectedGrappe);
-        console.log("AllGrappe  :", AllGrappe);
         console.log("grappe centrales  :", selectedGrappe.centrale);
     };
+
+    const handleDeleteGrappe = () => {
+        // Afficher une boîte de dialogue de confirmation
+        const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cette grappe ?");
+        // Si l'utilisateur confirme la suppression
+        if (confirmDelete) {
+            // Logique de suppression de la grappe
+            console.log("Grappe supprimée :", selectedGrappe);
+            // Filtrer les grappes différentes de la grappe sélectionnée
+            const updatedGrappeList = AllGrappe.filter(grappe => grappe.idGrappe !== selectedGrappe.idGrappe);
+            // Réinitialiser la liste de toutes les grappes
+            setAllGappe(updatedGrappeList);
+            // Réinitialiser la sélection de la grappe
+            setSelectedGrappe({});
+        }
+    };
+
 
     return (
         <div className="container-fluid">
@@ -91,12 +129,13 @@ const GrappeEdit = () => {
                 <form onSubmit={handleSubmit} className='col-10'>
                     <div className="mb-3">
                         <label htmlFor="grappeSelect" className="form-label">Sélectionner une grappe :</label>
-                        <select className="form-select" id="grappeSelect" value={selectedGrappe.nomGrappe} onChange={handleGrappeChange}>
+                        <select className="form-select" id="grappeSelect" value={AddGrappe ? 'New' : selectedGrappe.nomGrappe} onChange={handleGrappeChange}>
                             {/* <option key={800} value="none" >Choisir une grappe</option>
                             <option key={801} value="test">Albioma</option> */}
                             {AllGrappe.map((grappe, index) => (
                                 <option key={index} value={grappe.nomGrappe}>{grappe.nomGrappe}</option>
                             ))}
+                            <option value={'New'}>+ Ajouter une nouvelle grappe</option>
                         </select>
                     </div>
                     {selectedGrappe && (
@@ -104,12 +143,24 @@ const GrappeEdit = () => {
                             <div className="card-header">
                                 <div className="m-1 p-1">
                                     <h5 className="card-title">Nom :</h5>
-                                    <input className='form-control' value={selectedGrappe.nomGrappe}></input>
+                                    <input
+                                        className='form-control'
+                                        name='nomGrappe'
+                                        value={selectedGrappe.nomGrappe}
+                                        disabled={!AddGrappe}
+                                        onChange={(event) => setSelectedGrappe({ ...selectedGrappe, nomGrappe: event.target.value })}
+                                    ></input>
                                 </div>
                                 <hr />
-                                <div>
+                                <div className="m-1 p-1">
                                     <p className="card-text">Créateur :</p>
-                                    <input className='form-control' value={selectedGrappe.creator}></input>
+                                    <input
+                                        className='form-control'
+                                        name='creator'
+                                        disabled={!AddGrappe}
+                                        value={selectedGrappe.creator}
+                                        onChange={(event) => setSelectedGrappe({ ...selectedGrappe, creator: event.target.value })}
+                                    ></input>
                                 </div>
                             </div>
 
@@ -130,7 +181,15 @@ const GrappeEdit = () => {
 
                             {/* Ajoutez ici des champs d'édition pour le contenu de la grappe */}
                             <div className="card-footer">
-                                <button type="submit" className="btn btn-primary">Modifier</button>
+                                {!AddGrappe ?
+                                    <>
+                                        <button type="submit" className="btn btn-primary m-2">Modifier</button>
+                                        <button type="button" className="btn btn-danger m-2" onClick={handleDeleteGrappe}>Supprimer</button>
+                                    </>
+                                    :
+                                    <button type="submit" className="btn btn-success m-2">Ajouter</button>
+
+                                }
                             </div>
                         </div>
                     )}
