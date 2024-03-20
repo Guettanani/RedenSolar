@@ -4,9 +4,7 @@ from polls.models import *
 
 
 class Command(BaseCommand):
-
-    help = 'Import default data from CSV files.'
-
+    
     def handle(self, *args, **kwargs):
 
         if MatriceDefaut.objects.count() <= 0:

@@ -4,8 +4,6 @@ from polls.models import *
 
 class Command(BaseCommand):
 
-    help = 'Import default data from CSV files.'
-
     def handle(self, *args, **kwargs):
 
         if ReenclenchementDecouplage.objects.count() <= 0:

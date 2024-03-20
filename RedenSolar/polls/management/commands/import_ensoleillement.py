@@ -5,8 +5,6 @@ from polls.models import *
 
 class Command(BaseCommand):
 
-    help = 'importation des données d ensoleillement par mois'
-
     def handle(self, *args, **kwargs):
 
         if EnsoleillementParMois.objects.count() <= 0:

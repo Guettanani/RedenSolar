@@ -6,8 +6,6 @@ from polls.models import *
 
 class Command(BaseCommand):
 
-    help = 'importation des données de jours ouvrés'
-
     def handle(self, *args, **kwargs):
         
         #plage de date        

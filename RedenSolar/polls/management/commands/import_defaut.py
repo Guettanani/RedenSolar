@@ -4,8 +4,6 @@ from polls.models import *
 
 class Command(BaseCommand):
 
-    help = 'importation de la table default'
-
     def handle(self, *args, **kwargs):
 
         if Defaut.objects.count() <= 0:

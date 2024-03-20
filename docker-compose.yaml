@@ -86,9 +86,9 @@ services:
       && python manage.py import_reenclenchement
       && python manage.py import_sous_categorie_defaut
       && python manage.py import_central
-      && python manage.py pushHeureFonctionnementAlbioma
-      && python manage.py PushOnduleurs
-      && python manage.py JoursOuvrees
+      && python manage.py import_heure_fonctionnement_albioma
+      && python manage.py import_onduleurs
+      && python manage.py import_jours_ouvres
       && python manage.py collectstatic --no-input
       && gunicorn RedenSolar.wsgi:application --bind 0.0.0.0:8000"
     #&& python manage.py runserver 0.0.0.0:8000"

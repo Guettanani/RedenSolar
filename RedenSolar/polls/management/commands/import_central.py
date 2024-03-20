@@ -6,8 +6,6 @@ from datetime import *
 
 class Command(BaseCommand):
 
-    help = 'Importations de la table Centrale'
-
     def handle(self, *args, **options):
        
         if Centrale.objects.count()<=0 : 
