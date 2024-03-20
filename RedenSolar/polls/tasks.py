@@ -52,7 +52,7 @@ def formag():
     log = open('log/log.txt', 'a')
 
     end_date = datetime.now().date()
-    start_date = today - timedelta(days=1)
+    start_date = end_date - timedelta(days=1)
 
     measure_filters = [
         "MeasureType eq 'operating_h_tot'",
