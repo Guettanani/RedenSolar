@@ -4,10 +4,14 @@ from polls.models import *
 
 class Command(BaseCommand):
 
-    help = 'Import default data from CSV files.'
+    help = 'importation de la table default'
 
     def handle(self, *args, **kwargs):
+
         if Defaut.objects.count() <= 0:
-            df_defaut = pd.read_csv("data/csv_files/polls_defaut.csv")
+
+            df_defaut = pd.read_csv("data/csv_files/defauts.csv")
+
             defaut_objs = [Defaut(nom=row["nom"]) for _, row in df_defaut.iterrows()]
+
             Defaut.objects.bulk_create(defaut_objs)

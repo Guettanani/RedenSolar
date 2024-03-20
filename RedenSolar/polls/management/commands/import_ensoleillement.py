@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
         if EnsoleillementParMois.objects.count() <= 0:
 
-            df_ensoleillement = pd.read_csv("data/csv_files/polls_ensoleillementparmois.csv")
+            df_ensoleillement = pd.read_csv("data/csv_files/ensoleillement_par_mois.csv")
 
             ensoleillement_objs = [
                 EnsoleillementParMois(
@@ -22,5 +22,5 @@ class Command(BaseCommand):
                     dureeNuit=row["dureeNuit"],
                 ) for _, row in df_ensoleillement.iterrows()
             ]
-            
+
             EnsoleillementParMois.objects.bulk_create(ensoleillement_objs)

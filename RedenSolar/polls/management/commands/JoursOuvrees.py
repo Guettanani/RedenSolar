@@ -9,9 +9,7 @@ class Command(BaseCommand):
     help = 'importation des données de jours ouvrés'
 
     def handle(self, *args, **kwargs):
-
-        df = pd.read_csv("data/jours_ouvrees.csv")
-
+        
         #plage de date        
         start_date = '2023-01-01'
         end_date = date.today()
