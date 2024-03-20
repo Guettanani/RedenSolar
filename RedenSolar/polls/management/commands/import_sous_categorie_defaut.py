@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         if SousCategorieDefaut.objects.count() <= 0:
-            df_ss_cat_def = pd.read_csv("DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_souscategoriedefaut.csv")
+            df_ss_cat_def = pd.read_csv("data/csv_files/polls_souscategoriedefaut.csv")
             ss_cat_def_objs = [
                 SousCategorieDefaut(
                     idDefaut_id=row["idDefaut_id"],

@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
        
         if Centrale.objects.count()<=0 : 
-            df_centrale = pd.read_csv('data/data_static/centrale.csv', sep=',')
+            df_centrale = pd.read_csv('data/csv_files/centrale.csv', sep=',')
 
             # liste des objet 'centrale' qui vont être ajouté à la table Centrale
             Centrale_objs = []

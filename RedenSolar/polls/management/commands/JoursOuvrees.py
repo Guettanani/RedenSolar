@@ -36,8 +36,8 @@ class Command(BaseCommand):
         result = pd.concat([df, newData], ignore_index=True)
 
         # Save the result to a new CSV file
-        result.to_csv("DataStorage/joursOuvrees.csv", index=False)
-        df = pd.read_csv("DataStorage/joursOuvrees.csv")
+        result.to_csv("data/joursOuvrees.csv", index=False)
+        df = pd.read_csv("data/joursOuvrees.csv")
         DonneesJoursOuvres_objs=[]
 
         for _, row in df.iterrows():
