@@ -1,14 +1,18 @@
-# polls/management/commands/import_model_calcul.py
 from django.core.management.base import BaseCommand
-
 import pandas as pd
 from polls.models import *
+
+
 class Command(BaseCommand):
+
     help = 'Import default data from CSV files.'
 
     def handle(self, *args, **kwargs):
+
         if MatriceDefaut.objects.count() <= 0:
-            df_matrice_defaut = pd.read_csv("data/csv_files/polls_matricedefaut.csv")
+
+            df_matrice_defaut = pd.read_csv("data/csv_files/matrice_defaut.csv")
+
             matrice_defaut_objs = [
                 MatriceDefaut(
                     Imputation=row["Imputation"],
@@ -16,4 +20,5 @@ class Command(BaseCommand):
                     idTypeDispo_id=row["idTypeDispo_id"]
                 ) for _, row in df_matrice_defaut.iterrows()
             ]
+
             MatriceDefaut.objects.bulk_create(matrice_defaut_objs)
