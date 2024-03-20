@@ -20,33 +20,34 @@ import calendar
 from django.db import transaction,IntegrityError
 
 class Command(BaseCommand):
-    help = 'Populate the Centrale model from a CSV file'
 
     def handle(self, *args, **options):
-        # Votre code ici
        
         if Centrale.objects.count()<=0 : 
-            dfCentrale = pd.read_csv('DataStorage/SAUVEGARDE TABLE PAR DEFAUT/Centrale.csv', sep=',')
+            df_centrale = pd.read_csv('DataStorage/SAUVEGARDE TABLE PAR DEFAUT/Centrale.csv', sep=',')
 
             # Create a list of Centrale model objects
             Centrale_objs = []
 
-            for _, row in dfCentrale.iterrows():
+            for _, row in df_centrale.iterrows():
+                
                 # Get the dedicated modelCalcul name from the CSV row
-                dedicated_nomcentrale = row['Centrale']
-                dedicated_ModelCalcul = row['Contrat']
+                dedicated_nom_centrale = row['Centrale']
+                dedicated_model_calcul = row['Contrat']
             
                 # Try to retrieve the ModelCalcul instance based on the installation name
-                GETmodelCalcul = ModelCalcul.objects.get(nom=dedicated_ModelCalcul)
+                GETmodelCalcul = ModelCalcul.objects.get(nom=dedicated_model_calcul)
+
+                print(GETmodelCalcul)
                 # Create a Centrale object with the retrieved Centrale instance
                 donnees_centrale = Centrale(
-                    nomCentrale=dedicated_nomcentrale,
+                    nomCentrale=dedicated_nom_centrale,
                     project_code=row['project_code'],
                     puissanceInstallee=row['Puissance centrale'],
                     nombreOnduleurs=row['Nombre onduleurs'],
                     idModelCalcul=GETmodelCalcul  # Use the Centrale instance, not its ID,
                 )
-                #print(f"donnees_centrale '{donnees_centrale}' .")
+                
                 # Append the object to the list
                 Centrale_objs.append(donnees_centrale)
             
