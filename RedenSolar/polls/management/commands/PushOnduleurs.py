@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
         if AssoOnduleur.objects.count()<=0:
             # Read the CSV file (path à travers du volume présent dans docker-compose.yml)
-            dfOnduleur = pd.read_csv('DataStorage/SAUVEGARDE TABLE PAR DEFAUT/CentralesLogiciel+PNOnduleurs.csv',sep=",")
+            dfOnduleur = pd.read_csv('data/csv_files/CentralesLogiciel+PNOnduleurs.csv',sep=",")
             # Create a list of Onduleur model objects
             Onduleur_objs = []
             RefOnduleur_objs=[]

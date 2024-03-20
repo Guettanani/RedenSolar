@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         if HeureFonctionnementAlbioma.objects.count()<=0 : 
-            dfHfonctAlbioma=pd.read_csv('DataStorage/SAUVEGARDE TABLE PAR DEFAUT/polls_heurefonctionnementalbioma.csv')
+            dfHfonctAlbioma=pd.read_csv('data/data_static/polls_heurefonctionnementalbioma.csv')
             HFonctAlbioma_Objs=[]
             for _, row in dfHfonctAlbioma.iterrows():
 

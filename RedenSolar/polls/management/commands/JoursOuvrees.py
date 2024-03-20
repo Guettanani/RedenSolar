@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         #CREATE DATE AND JOURS OUVRES FOR import
         # Read the existing CSV file
-        df = pd.read_csv("DataStorage/joursOuvrees.csv")
+        df = pd.read_csv("data/joursOuvrees.csv")
 
         # Get the last date in the existing data
         last_date = df['Date'].iloc[-1]
