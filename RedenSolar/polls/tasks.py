@@ -51,23 +51,8 @@ def formag():
 
     log = open('log/log.txt', 'a')
 
-    # Filtres de date
-
-    # today = "2024-02-24"
-    # hier = "2024-02-23"
-
-    today=datetime.now().date()
-    hier=today - timedelta(days=1)
-
-    # hier_propre = hier.strftime('%Y-%m-%d')
-
-    # today_propre = today.strftime('%Y-%m-%d')
-
-    start_date = hier
-    end_date = today
-    #start_date = hier_propre
-    #end_date= today_propre
-    # Filtres de type de mesure
+    end_date = datetime.now().date()
+    start_date = today - timedelta(days=1)
 
     measure_filters = [
         "MeasureType eq 'operating_h_tot'",
@@ -131,17 +116,6 @@ def formag():
                     df_pivoted[colonne] = 0
                 df_pivoted[colonne]=df_pivoted[colonne].fillna(0)
 
-            # Mettre la date au propre
-                
-            print(df_pivoted['timestamp'].dtype)
-            print(df_pivoted['timestamp'].head(5))
-
-            df_pivoted['timestamp']=df_pivoted['timestamp'].str.replace('T',' ')
-            df_pivoted['timestamp']=df_pivoted['timestamp'].str.replace('Z','')
-
-
-
-
             # Ajout de la colonne qui référence la centrale au sein du df
             df_pivoted['site']=site
 
@@ -151,9 +125,7 @@ def formag():
             #Mise au format horaire adapté de la colonne Date/Temps (UTC=>Europe/Paris)
             previous_timestampTZ = None 
             df_pivoted['timestamp']=pd.to_datetime(df_pivoted['timestamp'])
-            df_pivoted['timestamp'] = df_pivoted['timestamp'].dt.tz_localize('Europe/Paris')
 
-            #Heures minimales et maximales de considération dans les calculs de disponibilités
             df = df_pivoted[(df_pivoted['timestamp'].dt.hour >= 6) & (df_pivoted['timestamp'].dt.hour <= 22) & 
             (df_pivoted['timestamp'].dt.time >= pd.to_datetime('06:11:00').time()) & 
             (df_pivoted['timestamp'].dt.time <= pd.to_datetime('21:39:00').time())]
