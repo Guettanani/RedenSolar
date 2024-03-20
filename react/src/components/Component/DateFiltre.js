@@ -75,8 +75,17 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
   }, [startDate, endDate, selectedPeriod]);
 
   useEffect(() => {
-    close_calendar();
+    InitPeriode();
   }, []);
+
+  const InitPeriode = () => {
+    setSelectedPeriod("1 semaine");
+    const today = new Date();
+    const oneWeekAgo = new Date(today);
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    setStartDate(oneWeekAgo.toISOString().split('T')[0]);
+    setEndDate(today.toISOString().split('T')[0]);
+  }
 
   const close_calendar = () => {
     setShowCalendar(false);
@@ -101,7 +110,7 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
         <option value="1 mois">1 mois</option>
         <option value="Autre">Autre</option>
       </select>
-      
+
       <div className="d-flex gap-2 flex-row justify-content-around text-light m-1">
         <label className="border m-1 p-1">Début : {startDate || ''}</label>
         <label className="border m-1 p-1">Fin : {endDate || ''}</label>
