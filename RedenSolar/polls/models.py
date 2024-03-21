@@ -251,3 +251,10 @@ class test(models.Model):
     class Meta:
         app_label = 'polls'
         
+class grappe(models.Model):
+    idgrappe = models.AutoField(primary_key=True)
+    creator = models.CharField(max_length=100, null=True)
+    Nom = models.CharField(max_length=100, null=True)
+    centrales = models.CharField(max_length=500, null=True)
+    class Meta:
+        app_label = 'polls'

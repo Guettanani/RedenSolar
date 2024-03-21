@@ -324,7 +324,47 @@ def Push(request):
     #Print() 
     return HttpResponse("Success")
 
+###########################################################################################################################
+#Grappe
+###########################################################################################################################
 
+#********************** Fonction d'appel de toutes les centrales *************************************************
+@api_view(['GET'])
+def getGrappe(request):
+    try :
+        data = Grappe.objects.all()
+        ReturnData = [
+            {
+                'idgrappe': item.idgrappe,
+                'Nom': item.Nom,
+                'creator': item.creator,
+                'centrales': item.centrales.split(',') if item.centrales else [],  # Divisez la chaîne centrales seulement si elle n'est pas vide
+            }
+            for item in data
+        ]
+        return JsonResponse(ReturnData, safe=False)
+    except Grappe.DoesNotExist:  # Utilisez Grappe.DoesNotExist pour capturer spécifiquement l'exception lorsque Grappe n'est pas trouvé
+        return Response({'error': 'Grappe not found'}, status=404)
+    
+#********************** Fonction d'ajout d'une centrales *************************************************
+@api_view(['POST'])
+def addGrappe(request):
+    try:
+        # Récupérer les données du corps de la requête
+        nom = request.data.get('Nom')
+        creator = request.data.get('creator')
+        centrales = request.data.get('centrales')
+
+        # Créer une nouvelle instance de Grappe
+        grappe = Grappe.objects.create(Nom=nom, creator=creator, centrales=centrales)
+
+        # Renvoyer la réponse avec les données de la nouvelle grappe
+        return Response({'idgrappe': grappe.idgrappe, 'Nom': grappe.Nom, 'creator': grappe.creator, 'centrales': grappe.centrales.split(',') if grappe.centrales else []}, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+    
+###########################################################################################################################
+#Fonction pour ajouter des Donnees centrale static
 ###########################################################################################################################
 def PushDonneesCentrale ():
     # Read the CSV file (path à travers du volume présent dans docker-compose.yml)
