@@ -12,4 +12,7 @@ urlpatterns = [
     path('getDispo/',views.affCalcAlbio),
     path('deleteMC/',views.suppMC),
     path('getCentrale_2/',views.chgmt_centrale),
+    path('getGrappe/',views.getGrappe),
+    path('ajoutGrappe/',views.addGrappe),
+
 ]

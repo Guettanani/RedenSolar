@@ -336,7 +336,7 @@ def getGrappe(request):
         ReturnData = [
             {
                 'idgrappe': item.idgrappe,
-                'Nom': item.Nom,
+                'nomgrappe': item.nomgrappe,
                 'creator': item.creator,
                 'centrales': item.centrales.split(',') if item.centrales else [],  # Divisez la chaîne centrales seulement si elle n'est pas vide
             }
@@ -351,12 +351,12 @@ def getGrappe(request):
 def addGrappe(request):
     try:
         # Récupérer les données du corps de la requête
-        nom = request.data.get('Nom')
+        nomgrappe = request.data.get('nomgrappe')
         creator = request.data.get('creator')
         centrales = request.data.get('centrales')
 
         # Créer une nouvelle instance de Grappe
-        grappe = Grappe.objects.create(Nom=nom, creator=creator, centrales=centrales)
+        grappe = Grappe.objects.create(nomgrappe=nomgrappe, creator=creator, centrales=centrales)
 
         # Renvoyer la réponse avec les données de la nouvelle grappe
         return Response({'idgrappe': grappe.idgrappe, 'Nom': grappe.Nom, 'creator': grappe.creator, 'centrales': grappe.centrales.split(',') if grappe.centrales else []}, status=201)
