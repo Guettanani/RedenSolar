@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Calendar2 from './Calendar2';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../../App.css';
 
 const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState(OnDateMode ? 'none' : '1 semaine');
+  const [selectedPeriod, setSelectedPeriod] = useState(OnDateMode ? 'none' : 'Mois en cours');
   const [ShowCalendar, setShowCalendar] = useState(false);
+  const [CalendarContent, setCalendarContent] = useState(false);
 
   const handleDateSelect = (date) => {
     // console.log(date);
@@ -19,6 +19,8 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
         FinalDate.push(newDate);
         // console.log(adate);
       });
+      setCalendarContent(true);
+      setSelectedPeriod('Personalisé');
       setStartDate(FinalDate[0].toISOString().split('T')[0]);
       setEndDate(FinalDate[1].toISOString().split('T')[0]);
       // console.log(startDate);
@@ -37,59 +39,44 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
     }
   };
   const handlePeriodChange = (e) => {
-    const selectedValue = e.target.value;
-    let RangeDate = new Date(); // Initialiser avec la date actuelle
-    let today = new Date(); // Initialiser avec la date actuelle
-    let showCalendar = false;
-
-    if (selectedValue === '1 semaine') {
-      RangeDate.setDate(RangeDate.getDate() - 7);
-      setStartDate(RangeDate.toISOString().split('T')[0]);
-      setEndDate(today.toISOString().split('T')[0]);
-      // Mettre à jour showCalendar ici si nécessaire
-    } else if (selectedValue === '2 semaines') {
-      RangeDate.setDate(RangeDate.getDate() - 14);
-      setStartDate(RangeDate.toISOString().split('T')[0]);
-      setEndDate(today.toISOString().split('T')[0]);
-      // Mettre à jour showCalendar ici si nécessaire
-    } else if (selectedValue === '1 mois') {
-      RangeDate.setDate(1);
-      setStartDate(RangeDate.toISOString().split('T')[0]);
-      setEndDate(today.toISOString().split('T')[0]);
-      // Mettre à jour showCalendar ici si nécessaire
-    } else if (selectedValue === 'Autre') {
-      // Définir showCalendar sur true si la valeur est 'Autre'
-      showCalendar = true;
+    const selectedValue = e.target.innerText;
+    if (selectedValue === 'Personalisé') {
+      console.log('Personalisé');
+      setCalendarContent(false);
     }
-
-    // Mettre à jour l'état showCalendar en fonction de la logique ci-dessus
-    setShowCalendar(showCalendar);
-
-    // Mettre à jour l'état selectedPeriod avec la valeur sélectionnée
+    else if (selectedValue === 'Mois en cours') {
+      const today = new Date();
+      const oneMonthAgo = new Date(today);
+      oneMonthAgo.setDate(1);
+      console.log("end : " + today);
+      console.log("start : " + oneMonthAgo);
+      setEndDate(today.toISOString().split('T')[0]);
+      setStartDate(oneMonthAgo.toISOString().split('T')[0]);
+      setCalendarContent(false);
+    }
+    else if (selectedValue === 'Mois dernier') {
+      const today = new Date();
+      const oneMonthAgo = new Date(today);
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      oneMonthAgo.setDate(1);
+      const endDate = new Date(today.getFullYear(), today.getMonth(), 0); // Définit la date sur le dernier jour du mois précédent
+      console.log("end : " + endDate);
+      console.log("start : " + oneMonthAgo);
+      setEndDate(endDate.toISOString().split('T')[0]);
+      setStartDate(oneMonthAgo.toISOString().split('T')[0]);
+      setCalendarContent(false);
+    }
     setSelectedPeriod(selectedValue);
   };
 
   useEffect(() => {
     onDateRangeSelect(startDate, endDate);
-    OnDateMode(selectedPeriod);
+    // OnDateMode(selectedPeriod);
   }, [startDate, endDate, selectedPeriod]);
-
-  useEffect(() => {
-    InitPeriode();
-  }, []);
-
-  const InitPeriode = () => {
-    setSelectedPeriod("1 semaine");
-    const today = new Date();
-    const oneWeekAgo = new Date(today);
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    setStartDate(oneWeekAgo.toISOString().split('T')[0]);
-    setEndDate(today.toISOString().split('T')[0]);
-  }
 
   const close_calendar = () => {
     setShowCalendar(false);
-    if (selectedPeriod === 'autre' && (!startDate || !endDate)) {
+    if (selectedPeriod === 'Personalisé' && (!startDate || !endDate)) {
       setSelectedPeriod("1 semaine");
       const today = new Date();
       const oneWeekAgo = new Date(today);
@@ -100,53 +87,55 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
   }
 
   return (
-    <div className="col-lg-3 col-4 position-relative ">
-
-      <label htmlFor="periodSelect" className="form-label text-light">Période:</label>
-      <select id="periodSelect" className="form-select" value={selectedPeriod} onClick={(e) => handlePeriodChange(e)} onChange={(e) => handlePeriodChange(e)}>
-        {UnselectDate ? <option value="none">none</option> : null}
-        <option value="1 semaine">1 semaine</option>
-        <option value="2 semaines">2 semaines</option>
-        <option value="1 mois">1 mois</option>
-        <option value="Autre">Autre</option>
-      </select>
-
-      <div className="d-flex gap-2 flex-row justify-content-around text-light m-1">
-        <label className="border m-1 p-2 rounded">Début : {startDate || ''}</label>
-        <label className="border m-1 p-2 rounded">Fin : {endDate || ''}</label>
+    <div className="col-lg-3 col-4 position-relative">
+      <div className='col-12 d-flex flex-row justify-content-center align-items-center m-1'>
+        <button className="btn btn-secondary" onClick={() => setShowCalendar(true)}>
+          Afficher le calendrier
+        </button>
       </div>
 
-      <div id="calendar-overlay" className={`position-absolute top-100 start-0 bg-secondary rounded p-2 m-1 z-index-999 ${ShowCalendar ? '' : 'd-none'}`}>
-        <div id="frame" className='container-fluid d-flex flex-column justify-content-center align-items-center'>
-          <button className='btn btn-danger ms-auto' onClick={close_calendar}>X</button>
-          <div className='col-12 d-flex flex-row align-items-center justify-content-center p-1 gap-1'>
-            <label htmlFor='CalendarStartDate' className='form-label col-4'>Date de début: </label>
-            <input
-              id="CalendarStartDate"
-              className='form-control-sm col-8'
-              style={{ maxHeight: "30px" }}
-              type="date"
-              value={startDate || ''}
-              onChange={(e) => handleStartDateSelect(new Date(e.target.value))}
-            />
+
+      <div className="d-flex gap-2 flex-row justify-content-around text-light m-1 mt-2">
+        <label className="border m-1 p-1 rounded">Début : {startDate || ''}</label>
+        <label className="border m-1 p-1 rounded">Fin : {endDate || ''}</label>
+      </div>
+
+      {ShowCalendar
+        &&
+        <div id="calendar-overlay" className="position-absolute col-12 top-100 start-0 bg-light rounded z-index-999 d-flex flex-column align-items-center justify-content-center">
+          <div id="frame" className='container-fluid p-0 position-relative d-flex flex-row justify-content-center align-items-center'>
+            {/* Bouton de fermeture du calendrier */}
+            <button className='position-absolute top-0 end-0 btn btn-outline-danger m-1' onClick={close_calendar}>X</button>
+
+            {/* Liste sous forme de sidebar à gauche */}
+            <div className='col-2'>
+              <div className='d-flex flex-column align-items-start justify-content-center'>
+                <div className="col-12">
+                  <div className="sidebar">
+                    <ul className="list-group text-center">
+                      <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Mois en cours' ? "bg-info bg-opacity-25" : ""}`}>Mois en cours</li>
+                      <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Mois dernier' ? "bg-info bg-opacity-25" : ""}`}>Mois dernier</li>
+                      <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Personalisé' ? "bg-info bg-opacity-25" : ""}`}>Personalisé</li>
+                    </ul>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Calendrier à droite */}
+            <div className='col mt-5 mx-3'>
+              <div>
+                <Calendar2 onDateRangeSelect={handleDateSelect} CalendarContent={CalendarContent}/>
+              </div>
+            </div>
           </div>
-          <div className='col-12 d-flex flex-row align-items-center justify-content-center p-1 gap-1'>
-            <label htmlFor='CalendarEndDate' className='form-label col-4'>Date de fin: </label>
-            <input
-              id="CalendarEndDate"
-              className='form-control-sm col-8'
-              style={{ maxHeight: "30px" }}
-              type="date"
-              value={endDate || ''}
-              onChange={(e) => handleEndDateSelect(new Date(e.target.value))}
-            />
-          </div>
-          <div>
-            <Calendar2 onDateRangeSelect={handleDateSelect} />
-          </div>
-          <button className='btn btn-success mt-2 col-6' onClick={() => setShowCalendar(false)}>Valider</button>
+          <button className='btn btn-success m-2 col-10' onClick={() => setShowCalendar(false)}>Valider</button>
+
         </div>
-      </div>
+
+      }
     </div>
   );
 };

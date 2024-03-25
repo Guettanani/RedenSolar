@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Calendar.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Calendar2 = ({ onDateRangeSelect }) => {
+const Calendar2 = ({ onDateRangeSelect, CalendarContent }) => {
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [currentDate, setCurrentDate] = useState(new Date());
 
     const handleDateClick = (date) => {
+        // console.log(date);
         if (!startDate) {
             setStartDate(date);
         } else if (!endDate && date > startDate) {
@@ -20,6 +21,12 @@ const Calendar2 = ({ onDateRangeSelect }) => {
             setEndDate(null);
         }
     };
+    useEffect(() => {
+        if (!CalendarContent) {
+            setStartDate(null);
+            setEndDate(null);
+        }
+    },[CalendarContent])
 
     const handlePrevMonth = () => {
         setCurrentDate(prevDate => {
