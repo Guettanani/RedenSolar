@@ -36,13 +36,13 @@ export default function Categories() {
 
   return (
     <div className='container-fluid text-dark d-flex p-3 flex-column'>
-      <div className='d-flex flex-wrap justify-content-center align-items-center gap-2 p-3 bg-dark rounded'>
+      <div className='d-flex flex-wrap justify-content-center align-items-center gap-2 p-3 bg-perso-filtre1 rounded'>
         <FiltreCentrale setSelectionCentrale={setSelectionCentrale} AllowAll={false}/>
         <FiltreSeuil onSeuilChange={handleSeuil} />
         <FiltreDate onDateRangeSelect={handleDateSelect} UnselectDate={false} OnDateMode={setDateMode} />
         <div className='col-12 d-flex flex-wrap justify-content-center align-items-center gap-2'>
           <button className='btn btn-secondary' onClick={setShowModal}>Categories</button>
-          <button onClick={() => setOnlyError(!onlyError)} className="btn btn-primary">
+          <button onClick={() => setOnlyError(!onlyError)} className="btn-perso btn-perso-primary">
             {onlyError ? 'Afficher Tout' : 'Afficher Erreurs Seulement'}
           </button>
         </div>

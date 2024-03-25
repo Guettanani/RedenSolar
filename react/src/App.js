@@ -19,7 +19,7 @@ import TableauDispo from  "./components/Pages/Tableau";
 //import Categories from './components/components/Pages/Categories';
 
 function App() {
-  const [showNav, setShowNav] = useState(false);
+  // const [showNav, setShowNav] = useState(false);
   
 
   return (
@@ -32,20 +32,20 @@ function App() {
       </Helmet>
       
       <header>
-        <IoReorderThreeOutline onClick={() => setShowNav(!showNav)} />
+        {/* <IoReorderThreeOutline onClick={() => setShowNav(!showNav)} /> */}
         <img src={logo} alt='Logo' className='logo' />
+        <Navbar />
       </header>
       
-      <Navbar show={showNav} />
       <div className="main">
         <Routes>
-          <Route path="/" element={<LoginSignup />} onClick={() => setShowNav(false)}/>
-          <Route path="/ResetPassword" element={<ResetPassword />} onClick={() => setShowNav(false)}/>
-          <Route path="/Settings" element={<Settings />} onClick={() => setShowNav(false)}/>
-          <Route path="/recapitulatif" element={<Recap/>} onClick={() => setShowNav(false)}/>
-          <Route path="/categories" element={<Categories/>} onClick={() => setShowNav(false)}/>
-          <Route path="/main_courante" element={<MC/>} onClick={() => setShowNav(false)}/>
-          <Route path="/recap_tab" element={<TableauDispo/>} onClick={() => setShowNav(false)}/>
+          <Route path="/" element={<LoginSignup />} />
+          <Route path="/ResetPassword" element={<ResetPassword />} />
+          <Route path="/Settings" element={<Settings />} />
+          <Route path="/recapitulatif" element={<Recap/>} />
+          <Route path="/categories" element={<Categories/>} />
+          <Route path="/main_courante" element={<MC/>} />
+          <Route path="/recap_tab" element={<TableauDispo/>} />
         </Routes>
       </div>
     </div> 

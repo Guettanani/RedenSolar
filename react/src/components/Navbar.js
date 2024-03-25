@@ -1,45 +1,39 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FaTable, FaListAlt, FaClipboardList, FaCog, FaSignOutAlt } from 'react-icons/fa';
 
-const Navbar = ({ show }) => {
-    const close = () => {
-        show && show(false);
-    }
-
+const Navbar = () => {
     return (
-        <div className={show ? 'sidenav active' : 'sidenav'}>
-            <ul className="nav flex-column">
-                <li className="nav-item my-2">
-                    <Link to="/categories" className="nav-link mx-2" onClick={close}>
-                        Catégorisation
+        <div className="navbar-container d-flex justify-content-center align-items-center flex-row">
+            <ul className="d-flex justify-content-center align-items-center flex-row gap-3 mx-4">
+                <li className="navbar-nav">
+                    <Link to="/categories" className="d-flex justify-content-center align-items-center flex-column gap-1">
+                        <FaListAlt /> <span>Catégories</span>
                     </Link>
                 </li>
-                {/* <li className="nav-item my-2">
-                    <Link to="/recapitulatif" className="nav-link mx-2" onClick={close}>
-                        Récapitulatif
-                    </Link></li> */}
-                <li className="nav-item my-2">
-                    <Link to="/recap_tab" className="nav-link mx-2" onClick={close}>
-                        Récapitulatif
-                    </Link></li>
-                {/* <li className="nav-item my-2">
-                    <a href="#" className="nav-link mx-2" onClick={close}>Diagramme</a></li> */}
-                {/* <li className="nav-item my-2">
-                    <a href="#" className="nav-link mx-2" onClick={close}>Graphique</a>
-                </li> */}
-                <li className="nav-item my-2">
-                    <Link to="/main_courante" className="nav-link mx-2" onClick={close}>
-                        Main Courante
+                <li className="navbar-nav">
+                    <Link to="/recapitulatif" className="d-flex justify-content-center align-items-center flex-column gap-1">
+                        <FaClipboardList /> <span>Récapitulatif</span>
                     </Link>
                 </li>
-                <li className="nav-item my-2">
-                    <Link to="/Settings" className="nav-link mx-2" onClick={close}>
-                        Paramètres
+                <li className="navbar-nav">
+                    <Link to="/recap_tab" className="d-flex justify-content-center align-items-center flex-column gap-1">
+                        <FaTable /> <span>Tableau</span>
                     </Link>
                 </li>
-                <li className="nav-item my-2">
-                    <Link to="/" className="nav-link mx-2" onClick={close}>
-                        Déconnexion
+                <li className="navbar-nav">
+                    <Link to="/main_courante" className="d-flex justify-content-center align-items-center flex-column gap-1">
+                        <FaClipboardList /> <span>Main Courante</span>
+                    </Link>
+                </li>
+                <li className="navbar-nav">
+                    <Link to="/Settings" className="d-flex justify-content-center align-items-center flex-column gap-1">
+                        <FaCog /> <span>Paramètres</span>
+                    </Link>
+                </li>
+                <li className="navbar-nav">
+                    <Link to="/" className="d-flex justify-content-center align-items-center flex-column gap-1">
+                        <FaSignOutAlt /> <span>Déconnexion</span>
                     </Link>
                 </li>
             </ul>

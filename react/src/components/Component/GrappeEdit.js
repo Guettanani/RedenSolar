@@ -15,33 +15,47 @@ const GrappeEdit = () => {
         const selectedValue = event.target.value;
         if (selectedValue === 'New') {
             // Si l'utilisateur choisit d'ajouter une nouvelle grappe, afficher le formulaire d'ajout
-            setSelectedGrappe({ nomGrappe: '', creator: '', centrale: [] });
+            setSelectedGrappe({ nomgrappe: '', creator: '', centrales: [] });
             setAddGrappe(true);
         } else {
             // Sinon, sélectionner la grappe existante
-            const selectedGrappe = AllGrappe.find((grappe) => grappe.nomGrappe === selectedValue);
+            const selectedGrappe = AllGrappe.find((grappe) => grappe.nomgrappe === selectedValue);
             setSelectedGrappe(selectedGrappe);
             // Masquer le formulaire d'ajout
             setAddGrappe(false);
         }
     };
 
-    const generateGrappe = () => {
-        let createGrappe = [];
-        for (let i = 0; i < 4; i++) {
-            createGrappe.push({
-                idGrappe: i,
-                nomGrappe: 'Grappe ' + i,
-                creator: i % 2 === 0 ? 'benoit' : 'nico',
-                centrale: (i % 2 === 0 ? [{ nomCentrale: 'Agen Centre' }, { nomCentrale: 'Aguilar 1' }] : [{ nomCentrale: 'Abattoirs de Langogne' }, { nomCentrale: 'Augier 2' }]),
+    // const generateGrappe = () => {
+    //     let createGrappe = [];
+    //     for (let i = 0; i < 4; i++) {
+    //         createGrappe.push({
+    //             idgrappe: i,
+    //             nomgrappe: 'Grappe ' + i,
+    //             creator: i % 2 === 0 ? 'benoit' : 'nico',
+    //             centrales: (i % 2 === 0 ? [{ nomCentrale: 'Agen Centre' }, { nomCentrale: 'Aguilar 1' }] : [{ nomCentrale: 'Abattoirs de Langogne' }, { nomCentrale: 'Augier 2' }]),
+    //         });
+    //     }
+    //     setAllGappe(createGrappe);
+    //     setSelectedGrappe(createGrappe[0]);
+    // }
+    const fetchGrappe = async () => {
+        try {
+            const response = await axios.get(urlAPI + "getGrappe/", {
+                timeout: 5000 // Timeout en millisecondes (par exemple, 5 secondes)
             });
+            const responseData = response.data;
+            const TempList = [...responseData];
+            setAllGappe(TempList);
+            setSelectedGrappe(TempList.length>0?TempList[0]:'');
         }
-        setAllGappe(createGrappe);
-        setSelectedGrappe(createGrappe[0]);
+        catch (error) {
+            console.log(error);
+        }
     }
 
     useEffect(() => {
-        generateGrappe();
+        fetchGrappe();
         fetchCentrales();
         // console.log('data ok');
     }, []);
@@ -74,7 +88,7 @@ const GrappeEdit = () => {
         // Mettez à jour la liste des centrales de la grappe sélectionnée
         setSelectedGrappe(prevState => ({
             ...prevState,
-            centrale: updatedCentrales
+            centrales: updatedCentrales
         }));
     };
 
@@ -111,7 +125,7 @@ const GrappeEdit = () => {
             // Logique de suppression de la grappe
             console.log("Grappe supprimée :", selectedGrappe);
             // Filtrer les grappes différentes de la grappe sélectionnée
-            const updatedGrappeList = AllGrappe.filter(grappe => grappe.idGrappe !== selectedGrappe.idGrappe);
+            const updatedGrappeList = AllGrappe.filter(grappe => grappe.idgrappe !== selectedGrappe.idgrappe);
             // Réinitialiser la liste de toutes les grappes
             setAllGappe(updatedGrappeList);
             // Réinitialiser la sélection de la grappe
@@ -130,26 +144,26 @@ const GrappeEdit = () => {
                 <form onSubmit={handleSubmit} className='col-10'>
                     <div className="mb-3">
                         <label htmlFor="grappeSelect" className="form-label">Sélectionner une grappe :</label>
-                        <select className="form-select" id="grappeSelect" value={AddGrappe ? 'New' : selectedGrappe.nomGrappe} onChange={handleGrappeChange}>
+                        <select className="form-select" id="grappeSelect" value={AddGrappe ? 'New' : selectedGrappe.nomgrappe} onChange={handleGrappeChange}>
                             {/* <option key={800} value="none" >Choisir une grappe</option>
                             <option key={801} value="test">Albioma</option> */}
                             {AllGrappe.map((grappe, index) => (
-                                <option key={index} value={grappe.nomGrappe}>{grappe.nomGrappe}</option>
+                                <option key={index} value={grappe.nomgrappe}>{grappe.nomgrappe}</option>
                             ))}
                             <option value={'New'}>+ Ajouter une nouvelle grappe</option>
                         </select>
                     </div>
-                    {selectedGrappe && (
+                    {(selectedGrappe || AddGrappe) && (
                         <div className="card mb-3">
                             <div className="card-header">
                                 <div className="m-1 p-1">
                                     <h5 className="card-title">Nom :</h5>
                                     <input
                                         className='form-control'
-                                        name='nomGrappe'
-                                        value={selectedGrappe.nomGrappe}
+                                        name='nomgrappe'
+                                        value={selectedGrappe.nomgrappe}
                                         disabled={!AddGrappe}
-                                        onChange={(event) => setSelectedGrappe({ ...selectedGrappe, nomGrappe: event.target.value })}
+                                        onChange={(event) => setSelectedGrappe({ ...selectedGrappe, nomgrappe: event.target.value })}
                                     ></input>
                                 </div>
                                 <hr />
@@ -171,8 +185,8 @@ const GrappeEdit = () => {
                                     {AllCentrales
                                         .filter(central => central.nomCentrale) // Filtrer les centrales valides
                                         .map((central, index) => (
-                                            <li key={index} className={`list-group-item ${selectedGrappe.centrale && selectedGrappe.centrale.some(item => item.nomCentrale === central.nomCentrale) ? "bg-success" : ""}`} onClick={() => handleCentraleChange(central.nomCentrale)} style={{ cursor: 'pointer' }}>
-                                                {selectedGrappe.centrale && selectedGrappe.centrale.some(item => item.nomCentrale === central.nomCentrale) && <FaCheck style={{ marginRight: '5px' }} />}
+                                            <li key={index} className={`list-group-item ${selectedGrappe.centrales && selectedGrappe.centrale.some(item => item.nomCentrale === central.nomCentrale) ? "bg-success" : ""}`} onClick={() => handleCentraleChange(central.nomCentrale)} style={{ cursor: 'pointer' }}>
+                                                {selectedGrappe.centrales && selectedGrappe.centrales.some(item => item.nomCentrale === central.nomCentrale) && <FaCheck style={{ marginRight: '5px' }} />}
                                                 {central.nomCentrale}
                                             </li>
                                         ))}

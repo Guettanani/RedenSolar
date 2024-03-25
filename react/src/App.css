@@ -1,4 +1,11 @@
+/* ************************************************************************************************* */
+/* import */
+
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;900&display=swap');
+
+
+/* ************************************************************************************************* */
+/* Body */
 
 body {
   box-sizing: border-box;
@@ -8,21 +15,133 @@ body {
   color:rgb(255, 255, 255)
 }
 
+/* ************************************************************************************************* */
+/* Header */
+
 header {
-  background: #B6C3C9;
+  position: relative;
+  display: flex;
+  align-items: start;
+  justify-content: center; /* Centrer horizontalement les éléments enfants */
+  flex-direction: row;
+  background: rgba(222,222,222, 0.75) ;
   height: 10vh;
+  width: 100vw;
 }
 
-.logo {
-  padding: 0px;
+header img {
+  position: absolute;
+  top: 1vh;
+  left: 1vw;
+  padding: 0;
   width: 150px;
 }
 
-header svg {
-  padding: 10px;
-  margin :10px;
-  font-size: 50px;
+/* Navbar */
+
+.navbar-container {
+  padding: 0;
+  border: #000 1px solid;
+  border-top: 0;
+  border-radius: 0 0 15px 15px;
+  background: rgba(135, 165, 181,0.2);
+  height: 8vh;
+  box-shadow: #888 5px 5px 5px 2px;
 }
+.navbar-container ul{
+  padding: 5px;
+}
+
+.navbar {
+  background: #87A5B5;
+  height: 90vh;
+  padding: 0 0px;
+}
+
+.navbar.active {
+  left: 0;
+  z-index: 999;
+}
+
+.navbar-nav {
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.navbar-nav:hover{
+  background: rgba(135, 165, 181,0.5);
+}
+
+.navbar-nav a {
+  color: rgb(0, 0, 0) !important;
+  text-decoration: none !important;
+  border-radius: 6px;
+  padding: 10px;
+  display: block;
+}
+.navbar-nav a svg {
+  color: rgb(0, 0, 0) !important;
+  font-size: 1.4rem;
+  font-weight: 600;
+  border-radius: 6px;
+  /* text-shadow: gray 1px 1px 1px; */
+}
+
+.navbar-nav a span {
+  color: rgb(0, 0, 0) !important;
+  font-size: 0.6rem;
+  font-weight: 350;
+  border-radius: 6px;
+  /* text-shadow: gray 1px 1px 1px; */
+}
+@media screen and (max-width: 1200px) {
+  .navbar-nav a svg{
+    font-size: 1.1rem;
+  }
+}
+@media screen and (max-width: 950px) {
+  .navbar-nav a svg {
+    font-size: 0.9rem;
+  }
+}
+.nav-link:hover,
+.nav-link.active {
+  background: #345B6D;
+}
+
+/* ****************************************************************************************** */
+/* Pour les navigateurs basés sur WebKit (Google Chrome, Safari) */
+/* Barre de défilement */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+/* Bouton de défilement */
+::-webkit-scrollbar-thumb {
+  background-color: #888; /* Couleur du bouton de défilement */
+  border-radius: 5px; /* Arrondi du bouton de défilement */
+}
+
+/* Piste de défilement */
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* Couleur de la piste de défilement */
+}
+
+.z-index-999{
+  z-index: 999 !important;
+}
+
+/* *************************************************************************************************** */
+/* Tableau */
+
 .border-irradiance{
   border-right: 4px solid #000;
 }
@@ -46,28 +165,6 @@ header svg {
   font-weight: bold; /* Bold text for danger rows */
   cursor: not-allowed;
 }
-
-/* Pour les navigateurs basés sur WebKit (Google Chrome, Safari) */
-/* Barre de défilement */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-/* Bouton de défilement */
-::-webkit-scrollbar-thumb {
-  background-color: #888; /* Couleur du bouton de défilement */
-  border-radius: 5px; /* Arrondi du bouton de défilement */
-}
-
-/* Piste de défilement */
-::-webkit-scrollbar-track {
-  background-color: #f1f1f1; /* Couleur de la piste de défilement */
-}
-
-.z-index-999{
-  z-index: 999 !important;
-}
 .table-container {
   max-height: 66vh; /* Ajustez selon vos besoins */
   width: 100%;
@@ -79,46 +176,126 @@ header svg {
   border-collapse: collapse;
 }
 
-
 .sticky-header {
   position: sticky;
   top: 0;
   background-color: #fff; /* Ajoutez la couleur de fond de votre choix */
   z-index: 400; /* Assurez-vous que le z-index est supérieur à celui des autres éléments */
 }
-
-.sidenav {
-  width: 18%;
-  background: #87A5B5;
-  position: absolute;
-  height: 90vh;
-  padding: 0 0px;
-  left: -100%;
-  transition: all 1s;
-  z-index: 999;
-}
-
-.sidenav.active {
+.sticky-column-1 {
+  position: sticky;
   left: 0;
-  z-index: 999;
+  /* background-color: #fff; Ajoutez la couleur de fond de votre choix */
+  z-index: 400; /* Assurez-vous que le z-index est supérieur à celui des autres éléments */
+}
+.sticky-column-2 {
+  position: sticky;
+  left: 55px;
+  border-right: #000 5px solid;
+  /* background-color: #fff; Ajoutez la couleur de fond de votre choix */
+  z-index: 399; /* Assurez-vous que le z-index est supérieur à celui des autres éléments */
 }
 
-.navbar-nav {
-  width: 100%;
-  padding-left: 0;
+/* ***************************************************************************************************** */
+/* Charte graphique  */
+.bg-perso-filtre1 {
+  background-color: rgba(135, 165, 181,1);
+}
+.bg-perso-filtre2 {
+  background-color: rgba(52, 91, 109,1);
+}
+.bg-perso-filtre3 {
+  background-color: rgba(228, 31, 19,1); 
+}.bg-perso-filtre4 {
+  background-color: rgba(106, 138, 155,1);
 }
 
-.nav-link {
-  color: white !important;
-  text-decoration: none !important;
-  font-size: 1.5rem;
-  font-weight: 500;
-  border-radius: 6px;
-  padding: 10px;
-  display: block;
+/* ***************************************************************************************************** */
+/* Bouton perso */
+
+.btn-perso {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  cursor: pointer;
 }
 
-.nav-link:hover,
-.nav-link.active {
-  background: #345B6D;
+/* Bouton primaire */
+.btn-perso-primary {
+  color: #fff;
+  background-color: rgba(52, 91, 109, 0.8);
+  border-color: rgba(52, 91, 109, 0.8);
+}
+
+.btn-perso-primary:hover {
+  background-color: rgba(52, 91, 109, 1);
+  border-color: rgba(52, 91, 109, 1);
+}
+
+/* Bouton secondaire */
+.btn-perso-secondary {
+  color: #fff;
+  background-color: rgba(135, 165, 181, 0.8);
+  border-color: rgba(135, 165, 181, 0.8);
+}
+
+.btn-perso-secondary:hover {
+  background-color: rgba(135, 165, 181, 1);
+  border-color: rgba(135, 165, 181, 1);
+}
+
+/* Bouton danger */
+.btn-perso-danger {
+  color: #fff;
+  background-color: rgba(228, 31, 19, 0.8);
+  border-color: rgba(228, 31, 19, 0.8);
+}
+
+.btn-perso-danger:hover {
+  background-color: rgba(228, 31, 19, 1);
+  border-color: rgba(228, 31, 19, 1);
+}
+
+/* Bouton light */
+.btn-perso-light {
+  color: #000;
+  background-color: rgba(106, 138, 155, 0.8);
+  border-color: rgba(106, 138, 155, 0.8);
+}
+
+.btn-perso-light:hover {
+  background-color: rgba(106, 138, 155, 1);
+  border-color: rgba(106, 138, 155, 1);
+}
+
+
+.btn-perso-primary:focus, .btn-perso-primary.focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+}
+
+.btn-perso-primary.disabled, .btn-perso-primary:disabled {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-perso-primary:not(:disabled):not(.disabled):active, .btn-perso-primary:not(:disabled):not(.disabled).active,
+.show > .btn-perso-primary.dropdown-toggle {
+  color: #fff;
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-perso-primary:not(:disabled):not(.disabled):active:focus, .btn-perso-primary:not(:disabled):not(.disabled).active:focus,
+.show > .btn-perso-primary.dropdown-toggle:focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }

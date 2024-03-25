@@ -227,7 +227,7 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
                                 <tr key={rowIndex}>
                                     <td
                                         id={"tab_heure_" + data[data.findIndex(item => item.donnees_energie)].donnees_energie[rowIndex].temps}
-                                        className='table-primary'
+                                        className='table-primary sticky-column-1'
                                         onMouseDown={(e) => e.preventDefault()}
                                     // onClick={(e) => click_on_line(e, rowIndex)}
                                     >
@@ -236,7 +236,7 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
                                     </td>
                                     <td
                                         id={"tab_irradiance_" + data[data.findIndex(item => item.donnees_energie)].donnees_energie[rowIndex].temps}
-                                        className='border-irradiance'
+                                        className='sticky-column-2'
                                         onMouseDown={(e) => e.preventDefault()}
                                     >
                                         {data[data.findIndex(item => item.donnees_energie)].donnees_energie[rowIndex].irradiance_en_watt_par_surface}
