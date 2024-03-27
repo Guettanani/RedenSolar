@@ -6,11 +6,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        if ReenclenchementDecouplage.objects.count() <= 0:
+        df_reenclenchement = pd.read_csv("data/csv_files/reenclenchement_decouplage.csv")
 
-            df_reenclenchement = pd.read_csv("data/csv_files/reenclenchement_decouplage.csv")
-            reenclenchement_objs = [
-                ReenclenchementDecouplage(typeReenclenchement=row["typeReenclenchement"]) for _, row in df_reenclenchement.iterrows()
-            ]
+        liste_reenclenchement = []
 
-            ReenclenchementDecouplage.objects.bulk_create(reenclenchement_objs)
+        for _, row in df_reenclenchement.iterrows():
+
+            reenclenchement_objs = ReenclenchementDecouplage(typeReenclenchement=row["typeReenclenchement"]) 
+
+            liste_reenclenchement.append(reenclenchement_objs)
+
+        ReenclenchementDecouplage.objects.bulk_create(liste_reenclenchement)

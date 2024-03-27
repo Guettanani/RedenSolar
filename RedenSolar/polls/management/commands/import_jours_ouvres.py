@@ -7,28 +7,23 @@ from polls.models import *
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
-        
-        #plage de date        
+              
         start_date = '2023-01-01'
         end_date = date.today()
-
-        dates = pd.date_range(start=start_date, end=end_date, freq='D')
-
-        df = pd.DataFrame({'Date': dates})
-
         cal = France()
 
+        df = pd.DataFrame({'Date': pd.date_range(start=start_date, end=end_date, freq='D')})
         df['IsDayOff'] = df['Date'].apply(cal.is_working_day)
 
-        DonneesJoursOuvres_objs=[]
+        liste_j_o=[]
 
         for _, row in df.iterrows():
 
-            donnees_joursOuvres = JoursOuvres(
+            j_o_obj = JoursOuvres(
             jour = row["Date"],
             ouvre = row["IsDayOff"]
             )
 
-            DonneesJoursOuvres_objs.append(donnees_joursOuvres)
+            liste_j_o.append(j_o_obj)
 
-        JoursOuvres.objects.bulk_create(DonneesJoursOuvres_objs)
+        JoursOuvres.objects.bulk_create(liste_j_o)

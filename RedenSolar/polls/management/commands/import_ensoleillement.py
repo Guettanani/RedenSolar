@@ -7,18 +7,19 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        if EnsoleillementParMois.objects.count() <= 0:
+        df_ensoleillement = pd.read_csv("data/csv_files/ensoleillement_par_mois.csv")
 
-            df_ensoleillement = pd.read_csv("data/csv_files/ensoleillement_par_mois.csv")
+        liste_ensoleillement = []
 
-            ensoleillement_objs = [
-                EnsoleillementParMois(
-                    mois=row["mois"],
-                    MoyenneLeverSoleil=row["MoyenneLeverSoleil"],
-                    MoyenneCoucherSoleil=row["MoyenneCoucherSoleil"],
-                    dureeJour=row["dureeJour"],
-                    dureeNuit=row["dureeNuit"],
-                ) for _, row in df_ensoleillement.iterrows()
-            ]
+        for _, row in df_ensoleillement.iterrows():
 
-            EnsoleillementParMois.objects.bulk_create(ensoleillement_objs)
+            ensoleillement_obj = EnsoleillementParMois(
+                mois=row["mois"],
+                MoyenneLeverSoleil=row["MoyenneLeverSoleil"],
+                MoyenneCoucherSoleil=row["MoyenneCoucherSoleil"],
+                dureeJour=row["dureeJour"],
+                dureeNuit=row["dureeNuit"],) 
+            
+            liste_ensoleillement.append(ensoleillement_obj)
+
+        EnsoleillementParMois.objects.bulk_create(liste_ensoleillement)

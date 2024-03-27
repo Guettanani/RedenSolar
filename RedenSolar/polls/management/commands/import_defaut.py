@@ -6,10 +6,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        if Defaut.objects.count() <= 0:
+        df_defaut = pd.read_csv("data/csv_files/defauts.csv")
 
-            df_defaut = pd.read_csv("data/csv_files/defauts.csv")
+        liste_defaut = []
 
-            defaut_objs = [Defaut(nom=row["nom"]) for _, row in df_defaut.iterrows()]
+        for _, row in df_defaut.iterrows():
+            
+            defaut_obj = Defaut(nom=row["nom"])
 
-            Defaut.objects.bulk_create(defaut_objs)
+            liste_defaut.append(defaut_obj)
+
+        Defaut.objects.bulk_create(liste_defaut)

@@ -7,10 +7,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        if ModelCalcul.objects.count() <= 0:
+        df_model_calcul = pd.read_csv("data/csv_files/modeles_calculs.csv")
 
-            df_model_calcul = pd.read_csv("data/csv_files/modeles_calculs.csv")
+        liste_model_cacul = []
+        for _, row in df_model_calcul.iterrows():
 
-            model_calcul_objs = [ModelCalcul(nom=row["nom"]) for _, row in df_model_calcul.iterrows()]
+            model_calcul_objs = ModelCalcul(nom=row["nom"])
 
-            ModelCalcul.objects.bulk_create(model_calcul_objs)
+            liste_model_cacul.append(model_calcul_objs)
+
+        ModelCalcul.objects.bulk_create(liste_model_cacul)

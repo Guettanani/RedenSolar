@@ -6,26 +6,27 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        if HeureFonctionnementAlbioma.objects.count()<=0 :
-
             dfHfonctAlbioma=pd.read_csv('data/csv_files/heure_fonctionnement_albioma.csv')
 
-            HFonctAlbioma_Objs=[]
+            heure_fonctionnement_obj =[]
 
             for _, row in dfHfonctAlbioma.iterrows():
+                    
+                    project_code_centrale = row['Project_Code']
 
-                try:
-                    centrale = Centrale.objects.get(project_code=row['Project_Code'])
+                    # print("type----------code___centrale", type(project_code_centrale))
+                    # print("type----------code___centrale", project_code_centrale)
+                   
+                    # centrale_obj = Centrale.objects.get(project_code=project_code_centrale)
+
+                    centrale_obj = Centrale.objects.get(project_code=project_code_centrale)
 
                     donneesfonctAlbioma=HeureFonctionnementAlbioma(
                         heureFonctionnement=row["Value"],
                         mois=row["Month"],
-                        idCentrale=centrale
-                    )
+                        idCentrale=centrale_obj)
 
-                    HFonctAlbioma_Objs.append(donneesfonctAlbioma)
+                    heure_fonctionnement_obj.append(donneesfonctAlbioma)
 
-                except Centrale.DoesNotExist:
-                    continue
-                
-            HeureFonctionnementAlbioma.objects.bulk_create(HFonctAlbioma_Objs)
+            
+            HeureFonctionnementAlbioma.objects.bulk_create(heure_fonctionnement_obj)

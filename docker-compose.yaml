@@ -78,17 +78,7 @@ services:
     command: >
       bash -c "python manage.py makemigrations 
       && python manage.py migrate 
-      && python manage.py import_model_calcul
-      && python manage.py import_defaut
-      && python manage.py import_ensoleillement
-      && python manage.py import_type_dispo
-      && python manage.py import_matrice_defaut
-      && python manage.py import_reenclenchement
-      && python manage.py import_sous_categorie_defaut
-      && python manage.py import_central
-      && python manage.py import_heure_fonctionnement_albioma
-      && python manage.py import_onduleurs
-      && python manage.py import_jours_ouvres
+      && python manage.py first_import
       && python manage.py collectstatic --no-input
       && gunicorn RedenSolar.wsgi:application --bind 0.0.0.0:8000"
     #&& python manage.py runserver 0.0.0.0:8000"

@@ -6,10 +6,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        if TypeDispo.objects.count() <= 0:
+        df_type_dispo = pd.read_csv("data/csv_files/types_dispo.csv")
 
-            df_type_dispo = pd.read_csv("data/csv_files/types_dispo.csv")
+        liste_type_dispo = []
 
-            type_dispo_objs = [TypeDispo(nom=row["nom"]) for _, row in df_type_dispo.iterrows()]
+        for _, row in df_type_dispo.iterrows():
 
-            TypeDispo.objects.bulk_create(type_dispo_objs)
+            type_dispo_obj = TypeDispo(nom=row["nom"])
+            liste_type_dispo.append(type_dispo_obj)
+
+        TypeDispo.objects.bulk_create(liste_type_dispo)
