@@ -245,11 +245,11 @@ def modifier_MC(request):
     commentaire = modify_data.get('idcommentaires', '')
     id_mc = modify_data.get('idmaincourante', None)
 
-    print('request : ',request)
-    print('all : ',modify_data)
-    print('type :',type_defaut)
-    print('commentaire :',commentaire)
-    print('idmc : ',id_mc)
+    # print('request : ',request)
+    # print('all : ',modify_data)
+    # print('type :',type_defaut)
+    # print('commentaire :',commentaire)
+    # print('idmc : ',id_mc)
     try:
         # Récupérer l'instance de MainCourante à partir de son identifiant
         main_courante = MainCourante.objects.get(idMainCourante=id_mc)

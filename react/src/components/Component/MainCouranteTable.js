@@ -17,6 +17,18 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
     // const urlAPI = "http://localhost:8050/";
     // const urlAPI = "https://webicamapp.reden.cloud/";
 
+    const CategorisationData = [
+        { texte: 'Découplage' },
+        { texte: 'Sinistre' },
+        { texte: 'Travaux ENEDIS' },
+        { texte: 'Curratif' },
+        { texte: 'Défaut Riso Module' },
+        { texte: 'Préventif' },
+        { texte: 'Attente Pièces' },
+        { texte: 'Ombrage' },
+        { texte: 'Communication' },
+    ];
+
     const fetchData = async () => {
         try {
             const response = await axios.get(urlAPI + 'data/');
@@ -51,7 +63,7 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
             const item = {
                 ...selectedItem,
                 iddefaut: (selectedDefautModify ? selectedDefautModify : selectedItem.iddefaut),
-                idcommentaires: (selectedCommentaireModify? selectedCommentaireModify : selectedItem.idcommentaires)
+                idcommentaires: (selectedCommentaireModify ? selectedCommentaireModify : selectedItem.idcommentaires)
             };
             console.log(item);
             await axios.post(urlAPI + 'modifyMC/', { data: item });
@@ -131,7 +143,18 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
                     <div className='d-flex flex-column justify-content-center align-items-center gap-2'>
                         <div className="form-group">
                             <label htmlFor="iddefaut">Type de défaut</label>
-                            <input type="text" className="form-control" id="iddefaut" defaultValue={selectedItem?.iddefaut} onChange={(e) => setselectedDefautModify(e.target.value)} />
+                            <select
+                                id="iddefaut"
+                                className="form-select mb-3"
+                                value={selectedDefautModify}
+                                onChange={(e) => setselectedDefautModify(e.target.value)}
+                            >
+                                {CategorisationData.map((categorie) => (
+                                    <option key={categorie.texte} value={categorie.texte}>
+                                        {categorie.texte}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div className="form-group">
                             <label htmlFor="idheuredebut">Date et Heure de Début</label>
