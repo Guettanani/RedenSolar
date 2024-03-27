@@ -86,7 +86,7 @@ def getCentrale(request):
                         entry['irradiance_en_watt_par_surface'] = donnee_centrale.irradiance_en_watt_par_surface
 
                 item["donnees_energie"] = list_pui_tmps
-        print(filtered_data)
+        # print(filtered_data)
 
     return JsonResponse(filtered_data, safe=False)
 
@@ -94,20 +94,15 @@ def getCentrale(request):
 @api_view(['GET'])
 def getSelec(request):
 
-    global selected_nom
-
-    if selected_nom==None:
-
-        selected_nom = 'Abattoirs de Langogne'
+    # global selected_nom
+    try:
         centrales = Centrale.objects.all()
         data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
-        data.append({"selected_nom": selected_nom})
-    else:
-        centrales = Centrale.objects.all()
-        data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
-        data.append({"selected_nom": selected_nom})
 
-    return JsonResponse(data, safe=False)
+        return JsonResponse(data , safe=False)
+    except Exception as e:
+        # Gérez d'autres exceptions
+        return JsonResponse("Erreur lors de la mise à jour : " + str(e))
 
 #------- Mains courantes -------#
 
@@ -240,14 +235,21 @@ def suppMC(request):
         return Response({'message': 'Élément non trouvé'}, status=404)
         
 
-@api_view(['PUT'])
+@api_view(['POST'])
 def modifier_MC(request):
-    
-    
-    type_defaut = request.GET.get('iddefaut', None)
-    commentaire = request.GET.get('idcommentaires', None)
-    id_mc = request.GET.get('idmaincourante', None)
 
+    Request_data= request.data
+    modify_data= Request_data.get('data')
+    
+    type_defaut = modify_data.get('iddefaut', '')
+    commentaire = modify_data.get('idcommentaires', '')
+    id_mc = modify_data.get('idmaincourante', None)
+
+    print('request : ',request)
+    print('all : ',modify_data)
+    print('type :',type_defaut)
+    print('commentaire :',commentaire)
+    print('idmc : ',id_mc)
     try:
         # Récupérer l'instance de MainCourante à partir de son identifiant
         main_courante = MainCourante.objects.get(idMainCourante=id_mc)
@@ -259,10 +261,11 @@ def modifier_MC(request):
         # Sauvegarder les modifications dans la base de données
         main_courante.save()
 
-        return JsonResponse({'message': 'Article ajouté avec succès.'})
+        return JsonResponse({'message': 'Article modifié avec succès.'})
     
-    except:
-        return Response({'message': 'erreur'}, status=404)
+    except Exception as e:
+        # Gérez d'autres exceptions
+        return JsonResponse({'message': 'Élément non trouvé'+str(e)}, safe=False)
     
 @api_view(['GET'])
 def affCalcAlbio(request):
@@ -351,7 +354,7 @@ def Push(request):
 @api_view(['GET'])
 def getGrappe(request):
     try :
-        data = Grappe.objects.all()
+        data = grappe.objects.all()
         ReturnData = [
             {
                 'idgrappe': item.idgrappe,
@@ -362,7 +365,7 @@ def getGrappe(request):
             for item in data
         ]
         return JsonResponse(ReturnData, safe=False)
-    except Grappe.DoesNotExist:  # Utilisez Grappe.DoesNotExist pour capturer spécifiquement l'exception lorsque Grappe n'est pas trouvé
+    except grappe.DoesNotExist:  # Utilisez Grappe.DoesNotExist pour capturer spécifiquement l'exception lorsque Grappe n'est pas trouvé
         return Response({'error': 'Grappe not found'}, status=404)
     
 #********************** Fonction d'ajout d'une centrales *************************************************

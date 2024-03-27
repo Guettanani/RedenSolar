@@ -12,6 +12,8 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
     const [data, setData] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedDefautModify, setselectedDefautModify] = useState(null);
+    const [selectedCommentaireModify, setselectedCommentaireModify] = useState(null);
     // const urlAPI = "http://localhost:8050/";
     // const urlAPI = "https://webicamapp.reden.cloud/";
 
@@ -21,7 +23,7 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
             const responseData = response.data;
             let filteredData = responseData;
 
-            if (responseData &&  SelectedCentrale !== 'Toute' && SelectedCentrale !== null) {
+            if (responseData && SelectedCentrale !== 'Toute' && SelectedCentrale !== null) {
                 filteredData = responseData.filter(item => item.idcentrale === SelectedCentrale);
             }
 
@@ -44,6 +46,22 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
         }
     };
 
+    const ModifyMC = async () => {
+        try {
+            const item = {
+                ...selectedItem,
+                iddefaut: (selectedDefautModify ? selectedDefautModify : selectedItem.iddefaut),
+                idcommentaires: (selectedCommentaireModify? selectedCommentaireModify : selectedItem.idcommentaires)
+            };
+            console.log(item);
+            await axios.post(urlAPI + 'modifyMC/', { data: item });
+            closeModal();
+            fetchData();
+        } catch (error) {
+            console.error("Erreur lors de la modification : ", error);
+            closeModal();
+        }
+    };
     const openModal = (item) => {
         setSelectedItem(item);
         setShowModal(true);
@@ -52,18 +70,6 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
     const closeModal = () => {
         setSelectedItem(null);
         setShowModal(false);
-    };
-
-    const handleFormSubmit = async (formData) => {
-        try {
-            // Envoyer une requête pour mettre à jour les données sur le serveur avec les nouvelles données du formulaire
-            console.log("Nouvelles données du formulaire : ", formData);
-            // Une fois la mise à jour réussie, fermer le modal et rafraîchir les données
-            closeModal();
-            fetchData();
-        } catch (error) {
-            console.error("Erreur lors de la mise à jour : ", error);
-        }
     };
 
     useEffect(() => {
@@ -122,10 +128,10 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
                     <Modal.Title>Modifier la donnée de main-courante</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <form onSubmit={handleFormSubmit} className='d-flex flex-column justify-content-center align-items-center gap-2'>
+                    <div className='d-flex flex-column justify-content-center align-items-center gap-2'>
                         <div className="form-group">
                             <label htmlFor="iddefaut">Type de défaut</label>
-                            <input type="text" className="form-control" id="iddefaut" defaultValue={selectedItem?.iddefaut} />
+                            <input type="text" className="form-control" id="iddefaut" defaultValue={selectedItem?.iddefaut} onChange={(e) => setselectedDefautModify(e.target.value)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="idheuredebut">Date et Heure de Début</label>
@@ -145,12 +151,12 @@ const TableMainCourante = ({ startDate, endDate, SelectedCentrale, DateMode }) =
                         </div>
                         <div className="form-group">
                             <label htmlFor="idcommentaires">Commentaires</label>
-                            <textarea className="form-control" id="idcommentaires" defaultValue={selectedItem?.idcommentaires}></textarea>
+                            <textarea className="form-control" id="idcommentaires" defaultValue={selectedItem?.idcommentaires} onChange={(e) => setselectedCommentaireModify(e.target.value)}></textarea>
                         </div>
-                        <Button variant="primary" type="submit">
+                        <Button variant="primary" onClick={ModifyMC}>
                             Valider
                         </Button>
-                    </form>
+                    </div>
                 </Modal.Body>
             </Modal>
         </div>
