@@ -20,23 +20,16 @@ import math
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 
-selected_nom = None
-@api_view(['GET'])
-def chgmt_centrale(request):
-    if request.method=='GET':
-        global selected_nom
-        nom_test = request.GET.get('selected_nom', None)
-        selected_nom=nom_test
-        data = [
-            {"selected_nom": selected_nom}
-        ]
-    return JsonResponse(data, safe=False)
+
+#-------Catégories -------#
 
 @api_view(['GET'])
-def getDataCate(request):
+def getCentrale(request):
+
     selected_nom = request.GET.get('selected_nom', 'Abattoirs de Langogne')
     date_debut = request.GET.get('date_debut', None)
     date_fin = request.GET.get('date_fin', None)
+
     filtered_data = []
 
     if selected_nom is not None and date_debut is not None and date_fin is not None:
@@ -100,24 +93,21 @@ def getDataCate(request):
 
 @api_view(['GET'])
 def getSelec(request):
+
     global selected_nom
-    print(request)
-    if request.method == 'GET':
-        print("selected_nom4: ",selected_nom)
-        if selected_nom==None:
-            print("selected_nom3: ",selected_nom)   
-            selected_nom = 'Abattoirs de Langogne'
-            centrales = Centrale.objects.all()
-            data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
-            data.append({"selected_nom": selected_nom})
-            print("dataSelec: ",data)
-        else:
-            print("selected_nom3: ",selected_nom)
-            centrales = Centrale.objects.all()
-            data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
-            data.append({"selected_nom": selected_nom})
-            print("dataSelec: ",data)
-        return JsonResponse(data, safe=False)
+
+    if selected_nom==None:
+
+        selected_nom = 'Abattoirs de Langogne'
+        centrales = Centrale.objects.all()
+        data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
+        data.append({"selected_nom": selected_nom})
+    else:
+        centrales = Centrale.objects.all()
+        data = [{"nomCentrale": obj.nomCentrale} for obj in centrales]
+        data.append({"selected_nom": selected_nom})
+
+    return JsonResponse(data, safe=False)
 
 #------- Mains courantes -------#
 
@@ -136,7 +126,6 @@ def data_tab(request):
 
         return JsonResponse(data, safe=False)
 
-    
 
 @api_view(['POST'])
 def ajout_article(request): 
@@ -209,67 +198,71 @@ def ajout_article(request):
             print(f"Une erreur interne est survenue: {e}")
             return JsonResponse({'erreur': 'Une erreur interne est survenue.'}, status=500)
 
+
 @api_view(['DELETE'])
 def suppMC(request):
-    if request.method=='DELETE':
-        data_from_json = request.data
-        iddefaut=data_from_json['iddefaut']
-        idheuredebut=data_from_json['idheuredebut']
-        idheurefin=data_from_json['idheurefin']
-        idcentrale_nom=data_from_json['idcentrale']
-        idequipementEndommage=data_from_json['idequipementEndommage']
-        idcommentaires=data_from_json['idcommentaires']
-        print("idcentrale_nom:", idcentrale_nom)
-        try:
-            autres_donnees = Centrale.objects.filter(nomCentrale=idcentrale_nom)
-            print("autre_donnees:",autres_donnees)
-            centrale_dict = { item.nomCentrale: item.idCentrale for item in autres_donnees}
-            print("centrale_dict: ",centrale_dict)
-            article_a_supprimer = MainCourante.objects.get(constat=iddefaut,dateHeureConstat=idheuredebut,dateHeureActionCorrective=idheurefin,idCentrale_id=centrale_dict.get(idcentrale_nom),materielImpacte=idequipementEndommage,actionCorrective=idcommentaires)
 
-            article_a_supprimer.delete()
+    data_from_json = request.data
+    iddefaut=data_from_json['iddefaut']
+    idheuredebut=data_from_json['idheuredebut']
+    idheurefin=data_from_json['idheurefin']
+    idcentrale_nom=data_from_json['idcentrale']
+    idequipementEndommage=data_from_json['idequipementEndommage']
+    idcommentaires=data_from_json['idcommentaires']
+    print("idcentrale_nom:", idcentrale_nom)
+    try:
+        autres_donnees = Centrale.objects.filter(nomCentrale=idcentrale_nom)
+        print("autre_donnees:",autres_donnees)
+        centrale_dict = { item.nomCentrale: item.idCentrale for item in autres_donnees}
+        print("centrale_dict: ",centrale_dict)
+        article_a_supprimer = MainCourante.objects.get(constat=iddefaut,dateHeureConstat=idheuredebut,dateHeureActionCorrective=idheurefin,idCentrale_id=centrale_dict.get(idcentrale_nom),materielImpacte=idequipementEndommage,actionCorrective=idcommentaires)
 
-            original_date_str_debut = idheuredebut
+        article_a_supprimer.delete()
 
-
-            original_date_debut = datetime.strptime(original_date_str_debut, "%Y-%m-%dT%H:%M:%SZ")
+        original_date_str_debut = idheuredebut
 
 
-            # Formater la date sans changer le fuseau horaire
-            formatted_date_str_debut = original_date_debut.strftime("%Y-%m-%d %H:%M:%S")
+        original_date_debut = datetime.strptime(original_date_str_debut, "%Y-%m-%dT%H:%M:%SZ")
 
-            formatted_date = datetime.strptime(formatted_date_str_debut, "%Y-%m-%d %H:%M:%S")
-            mois = formatted_date.month
-            annee = formatted_date.year
-            data_albioma={"centrale_id":idcentrale_nom, "mois":mois, "annee":annee}
 
-            calculAlbioma(data_albioma)
+        # Formater la date sans changer le fuseau horaire
+        formatted_date_str_debut = original_date_debut.strftime("%Y-%m-%d %H:%M:%S")
 
-            return Response({'message': 'Suppression réussie'})
-        except MainCourante.DoesNotExist:
-            return Response({'message': 'Élément non trouvé'}, status=404)
+        formatted_date = datetime.strptime(formatted_date_str_debut, "%Y-%m-%d %H:%M:%S")
+        mois = formatted_date.month
+        annee = formatted_date.year
+        data_albioma={"centrale_id":idcentrale_nom, "mois":mois, "annee":annee}
+
+        calculAlbioma(data_albioma)
+
+        return Response({'message': 'Suppression réussie'})
+    except MainCourante.DoesNotExist:
+        return Response({'message': 'Élément non trouvé'}, status=404)
         
 
 @api_view(['PUT'])
 def modifier_MC(request):
     
+    
     type_defaut = request.GET.get('iddefaut', None)
     commentaire = request.GET.get('idcommentaires', None)
     id_mc = request.GET.get('idmaincourante', None)
 
-    # Récupérer l'instance de MainCourante à partir de son identifiant
-    main_courante = MainCourante.objects.get(idMainCourante=id_mc)
+    try:
+        # Récupérer l'instance de MainCourante à partir de son identifiant
+        main_courante = MainCourante.objects.get(idMainCourante=id_mc)
 
-    # Modifier les attributs de l'instance selon les valeurs fournies dans attributs_modifies
-    setattr(main_courante, "constat", type_defaut)
-    setattr(main_courante, "actionCorrective", commentaire)
+        # Modifier les attributs de l'instance selon les valeurs fournies dans attributs_modifies
+        setattr(main_courante, "constat", type_defaut)
+        setattr(main_courante, "actionCorrective", commentaire)
 
-    # Sauvegarder les modifications dans la base de données
-    main_courante.save()
+        # Sauvegarder les modifications dans la base de données
+        main_courante.save()
 
-    Response({'message': 'Suppression réussie'})
-
-
+        return JsonResponse({'message': 'Article ajouté avec succès.'})
+    
+    except:
+        return Response({'message': 'erreur'}, status=404)
     
 @api_view(['GET'])
 def affCalcAlbio(request):

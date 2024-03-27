@@ -4,10 +4,14 @@ from polls import tasks
 from polls import views
 urlpatterns = [
    
-    path('',tasks.Push,name='Push-task'),  
+    path('',tasks.Push,name='Push-task'), 
+
+    #------main courantes-------#
     path('ajouter_article/',views.ajout_article),
     path('data/', views.data_tab),
-    path('getCentrale/', views.getDataCate),
+
+    #------catégorie------------#
+    path('getCentrale/', views.getCentrale),
     path('getSelec/', views.getSelec),
     path('getDispo/',views.affCalcAlbio),
     path('deleteMC/',views.suppMC),
