@@ -117,20 +117,21 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
             <button className='position-absolute top-0 end-0 btn btn-outline-danger m-1' onClick={close_calendar}>X</button>
 
             {/* Liste sous forme de sidebar à gauche */}
-            <div className='col-3 me-3 mt-5 d-flex flex-column align-items-start justify-content-center'>
-              <ul className="list-group text-center">
+            <div className='col-4 mt-5 d-flex flex-column align-items-center justify-content-center'>
+              <div className="col-8 text-center d-flex flex-column justify-content-center align-items-center gap-3 p-0 mx-3">
                 {
                   OnDateMode &&
-                  <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'none' ? "bg-info bg-opacity-25" : ""}`}>None</li>
+                  <button onClick={handlePeriodChange} className={`btn btn-outline-info text-dark rounded border-primary-subtle ${selectedPeriod === 'none' ? "bg-info bg-opacity-25" : ""}`} disabled={selectedPeriod === 'none'}>None</button>
                 }
-                <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Mois en cours' ? "bg-info bg-opacity-25" : ""}`}>Mois en cours</li>
-                <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Mois dernier' ? "bg-info bg-opacity-25" : ""}`}>Mois dernier</li>
-                <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Personalisé' ? "bg-info bg-opacity-25" : ""}`}>Personalisé</li>
-              </ul>
+                <button onClick={handlePeriodChange} className={`btn btn-outline-info text-dark rounded border-primary-subtle ${selectedPeriod === 'Mois en cours' ? "bg-info bg-opacity-25" : ""}`}>Mois en cours</button>
+                <button onClick={handlePeriodChange} className={`btn btn-outline-info text-dark rounded border-primary-subtle ${selectedPeriod === 'Mois dernier' ? "bg-info bg-opacity-25" : ""}`}>Mois dernier</button>
+                <button onClick={handlePeriodChange} className={`btn btn-outline-info text-dark rounded border-primary-subtle ${selectedPeriod === 'Personalisé' ? "bg-info bg-opacity-25" : ""}`}>Personnalisé</button>
+              </div>
             </div>
 
+
             {/* Calendrier à droite */}
-            <div className='col mt-5 mx-3'>
+            <div className='col mt-5 me-3'>
               <div>
                 <Calendar2 onDateRangeSelect={handleDateSelect} CalendarContent={CalendarContent} />
               </div>

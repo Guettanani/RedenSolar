@@ -25,7 +25,7 @@ export default function TstTab() {
 
     return (
         <div className='container-fluid text-dark d-flex p-3 flex-column'>
-            <div className='d-flex flex-wrap justify-content-around align-items-center gap-2 p-3 bg-dark rounded'>
+            <div className='d-flex flex-wrap justify-content-around align-items-center gap-2 p-3 bg-perso-filtre1 rounded'>
                 <FiltreCentrale setSelectionCentrale={setSelectionCentrale} AllowAll={true}/>
                 <FiltreDate onDateRangeSelect={handleDateSelect} UnselectDate={true} OnDateMode={setDateMode}/>
             </div>
