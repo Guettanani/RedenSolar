@@ -17,17 +17,17 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
 
     function formatDateTime(inputDate) {
         const date = new Date(inputDate);
-    
+
         // Extraction des composants de la date
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0'); // Les mois sont indexés à partir de 0, donc ajoutez 1
         const year = String(date.getFullYear()).slice(-2); // Obtenez les deux derniers chiffres de l'année
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
-    
+
         // Formation de la date formatée
         const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
-    
+
         return formattedDate;
     }
 
@@ -212,10 +212,11 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
 
     const generateTableBody = () => {
 
-        if (!data || data.some(item => !item.donnees_energie)) {
-            return <h2 className='text-center display-2'>Aucunes données pour cette période avec cette centrale</h2>;
-        }
+        // if (!data || data.some(item => !item.donnees_energie)) {
+        //     return <h2 className='text-center display-2'>Aucunes données pour cette période avec cette centrale</h2>;
+        // }
 
+        console.log("data : " + JSON.stringify(data));
         return (
             <tbody id="tableau" className='table-group-divider'>
                 {data.findIndex(item => item.donnees_energie) !== -1 && ( // Check if index found
@@ -267,7 +268,7 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
                                                                 ? 'table-danger-perso'
                                                                 : 'table-secondary-perso'
                                                     }
-            `}
+                                                    `}
                                                 onContextMenu={(e) => handleContextMenu(e, rowIndex, cellIndex)}
                                             >
                                                 {value}
@@ -306,11 +307,18 @@ const Tableau = ({ SelectCentrale, start, end, Leseuil, setClickedData, setShowM
                     <span className="sr-only">Chargement des données...</span>
                 </div>
             ) : (
-                // Afficher la table si loading est false
-                <table id="tab_cate" className='table table-hover text-center table-responsive'>
-                    {generateTableHeader()}
-                    {generateTableBody()}
-                </table>
+                (data && data.some(item => item.donnees_energie)) ?
+                    // Afficher la table si loading est false
+                    <table id="tab_cate" className='table table-hover text-center table-responsive'>
+                        {generateTableHeader()}
+                        {generateTableBody()}
+                    </table>
+                    :
+                    // Afficher un message si aucune donnée n'est disponible
+                    <div className='d-flex justify-content-center align-items-center'>
+                        <h5 className='col-6 text-center '>Aucunes données pour cette période avec cette centrale</h5>;
+                    </div>
+
             )}
         </div>
     );

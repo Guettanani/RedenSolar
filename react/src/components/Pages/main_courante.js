@@ -15,7 +15,7 @@ export default function TstTab() {
     const [selectionCentrale, setSelectionCentrale] = useState('Toutes');
     const [startDate, setStartDate] = useState(oneWeekAgo.toISOString().split('T')[0]);
     const [endDate, setEndDate] = useState(today.toISOString().split('T')[0]);
-    const [DateMode, setDateMode] = useState('1 semaine');
+    const [DateMode, setDateMode] = useState('none');
 
 
     const handleDateSelect = (start, end) => {

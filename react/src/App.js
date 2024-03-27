@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState ,useEffect} from 'react';
 import Navbar from './components/Navbar'
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
 
 
 import logo from './components/Assets/REDEN_logo.png'
-// import {FaTable} from 'react-icons/fa'
-import {IoReorderThreeOutline} from 'react-icons/io5'
 import LoginSignup from './components/LoginSignup/LoginSignup';
 import ResetPassword from './components/LoginSignup/ResetPassword/ResetPassword';
 import Settings from './components/Settings/Settings';
@@ -16,11 +16,14 @@ import Categories from "./components/Pages/categories";
 import Recap from "./components/Pages/recapitulatif";
 import MC from "./components/Pages/main_courante";
 import TableauDispo from  "./components/Pages/Tableau";
-//import Categories from './components/components/Pages/Categories';
 
 function App() {
-  // const [showNav, setShowNav] = useState(false);
-  
+  const [showNav, setShowNav] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setShowNav(location.pathname !== '/');
+  }, [location]);
 
   return (
     
@@ -34,7 +37,7 @@ function App() {
       <header>
         {/* <IoReorderThreeOutline onClick={() => setShowNav(!showNav)} /> */}
         <img src={logo} alt='Logo' className='logo' />
-        <Navbar />
+        {showNav && <Navbar />}
       </header>
       
       <div className="main">

@@ -23,7 +23,6 @@ export default function Categories() {
   const [ClickedData, setClickedData] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [onlyError, setOnlyError] = useState(false);
-  const [DateMode, setDateMode] = useState('1 semaine');
 
   const handleDateSelect = (start, end) => {
     setStartDate(start);
@@ -39,7 +38,7 @@ export default function Categories() {
       <div className='d-flex flex-wrap justify-content-center align-items-center gap-2 p-3 bg-perso-filtre1 rounded'>
         <FiltreCentrale setSelectionCentrale={setSelectionCentrale} AllowAll={false}/>
         <FiltreSeuil onSeuilChange={handleSeuil} />
-        <FiltreDate onDateRangeSelect={handleDateSelect} UnselectDate={false} OnDateMode={setDateMode} />
+        <FiltreDate onDateRangeSelect={handleDateSelect} UnselectDate={false} OnDateMode={false} />
         <div className='col-12 d-flex flex-wrap justify-content-center align-items-center gap-2'>
           <button className='btn btn-secondary' onClick={setShowModal}>Categories</button>
           <button onClick={() => setOnlyError(!onlyError)} className="btn-perso btn-perso-primary">

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Calendar2 from './Calendar2';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
   const [startDate, setStartDate] = useState(null);
@@ -28,23 +27,27 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
     }
   };
 
-  const handleEndDateSelect = (date) => {
-    if (date) {
-      setEndDate(date.toISOString().split('T')[0]);
-    }
-  };
-  const handleStartDateSelect = (date) => {
-    if (date) {
-      setEndDate(date.toISOString().split('T')[0]);
-    }
-  };
+  // const handleEndDateSelect = (date) => {
+  //   if (date) {
+  //     setEndDate(date.toISOString().split('T')[0]);
+  //   }
+  // };
+  // const handleStartDateSelect = (date) => {
+  //   if (date) {
+  //     setEndDate(date.toISOString().split('T')[0]);
+  //   }
+  // };
   const handlePeriodChange = (e) => {
     const selectedValue = e.target.innerText;
-    if (selectedValue === 'Personalisé') {
+    ChangeDatePeriode(selectedValue);
+    setSelectedPeriod(selectedValue);
+  };
+
+  const ChangeDatePeriode = (SelectedPeriode) => {
+    if (SelectedPeriode === 'Personalisé') {
       console.log('Personalisé');
-      setCalendarContent(false);
     }
-    else if (selectedValue === 'Mois en cours') {
+    else if (SelectedPeriode === 'Mois en cours') {
       const today = new Date();
       const oneMonthAgo = new Date(today);
       oneMonthAgo.setDate(1);
@@ -54,7 +57,7 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
       setStartDate(oneMonthAgo.toISOString().split('T')[0]);
       setCalendarContent(false);
     }
-    else if (selectedValue === 'Mois dernier') {
+    else if (SelectedPeriode === 'Mois dernier') {
       const today = new Date();
       const oneMonthAgo = new Date(today);
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
@@ -66,23 +69,29 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
       setStartDate(oneMonthAgo.toISOString().split('T')[0]);
       setCalendarContent(false);
     }
-    setSelectedPeriod(selectedValue);
-  };
+    else if (SelectedPeriode === 'None') {
+      setStartDate(null);
+      setEndDate(null);
+      setCalendarContent(false);
+    }
+  }
 
   useEffect(() => {
     onDateRangeSelect(startDate, endDate);
     // OnDateMode(selectedPeriod);
   }, [startDate, endDate, selectedPeriod]);
 
+  useEffect(() => {
+    if (!UnselectDate) {
+      console.log(selectedPeriod);
+      ChangeDatePeriode(selectedPeriod);
+    }
+  }, []);
+
   const close_calendar = () => {
     setShowCalendar(false);
     if (selectedPeriod === 'Personalisé' && (!startDate || !endDate)) {
-      setSelectedPeriod("1 semaine");
-      const today = new Date();
-      const oneWeekAgo = new Date(today);
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-      setStartDate(oneWeekAgo.toISOString().split('T')[0]);
-      setEndDate(today.toISOString().split('T')[0]);
+      setSelectedPeriod("Mois en cours");
     }
   }
 
@@ -102,32 +111,28 @@ const FiltreDate = ({ onDateRangeSelect, UnselectDate, OnDateMode }) => {
 
       {ShowCalendar
         &&
-        <div id="calendar-overlay" className="position-absolute col-12 top-100 start-0 bg-light rounded z-index-999 d-flex flex-column align-items-center justify-content-center">
-          <div id="frame" className='container-fluid p-0 position-relative d-flex flex-row justify-content-center align-items-center'>
+        <div id="calendar-overlay" className="position-absolute top-100 end-0 bg-light rounded z-index-999 d-flex flex-column align-items-center justify-content-center">
+          <div id="frame" className='container-fluid p-0 position-relative d-flex flex-row justify-content-center align-items-start'>
             {/* Bouton de fermeture du calendrier */}
             <button className='position-absolute top-0 end-0 btn btn-outline-danger m-1' onClick={close_calendar}>X</button>
 
             {/* Liste sous forme de sidebar à gauche */}
-            <div className='col-2'>
-              <div className='d-flex flex-column align-items-start justify-content-center'>
-                <div className="col-12">
-                  <div className="sidebar">
-                    <ul className="list-group text-center">
-                      <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Mois en cours' ? "bg-info bg-opacity-25" : ""}`}>Mois en cours</li>
-                      <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Mois dernier' ? "bg-info bg-opacity-25" : ""}`}>Mois dernier</li>
-                      <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Personalisé' ? "bg-info bg-opacity-25" : ""}`}>Personalisé</li>
-                    </ul>
-
-                  </div>
-                </div>
-
-              </div>
+            <div className='col-3 me-3 mt-5 d-flex flex-column align-items-start justify-content-center'>
+              <ul className="list-group text-center">
+                {
+                  OnDateMode &&
+                  <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'none' ? "bg-info bg-opacity-25" : ""}`}>None</li>
+                }
+                <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Mois en cours' ? "bg-info bg-opacity-25" : ""}`}>Mois en cours</li>
+                <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Mois dernier' ? "bg-info bg-opacity-25" : ""}`}>Mois dernier</li>
+                <li onClick={handlePeriodChange} className={`list-group-item pointer-perso border border-primary-subtle ${selectedPeriod === 'Personalisé' ? "bg-info bg-opacity-25" : ""}`}>Personalisé</li>
+              </ul>
             </div>
 
             {/* Calendrier à droite */}
             <div className='col mt-5 mx-3'>
               <div>
-                <Calendar2 onDateRangeSelect={handleDateSelect} CalendarContent={CalendarContent}/>
+                <Calendar2 onDateRangeSelect={handleDateSelect} CalendarContent={CalendarContent} />
               </div>
             </div>
           </div>
