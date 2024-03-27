@@ -13,5 +13,6 @@ urlpatterns = [
     path('deleteMC/',views.suppMC),
     path('getGrappe/',views.getGrappe),
     path('ajoutGrappe/',views.addGrappe),
+    # path('modifyMC/', views.modifier_MC)
 
 ]
